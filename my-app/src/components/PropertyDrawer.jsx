@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown, Calculator, RotateCcw } from 'lucide-react'
 import { NEIGHBORHOOD_PSF } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
+import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import './PropertyDrawer.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -24,7 +25,7 @@ const LAND_USE_LABELS = {
   '09': 'Open Space', '10': 'Parking Facilities', '11': 'Vacant Land',
 }
 
-function fmt(n) { return Number(n || 0).toLocaleString() }
+function fmt(n)  { return Number(n || 0).toLocaleString() }
 function fmtM(n) { return `$${(n / 1e6).toFixed(1)}M` }
 
 function formatBBL(bbl) {
@@ -92,45 +93,78 @@ function ScoreBar({ label, points, max, value }) {
   )
 }
 
+// A single line in the pro forma table
+function PfRow({ label, value, indent, subtotal, total, positive, muted, dimmed }) {
+  return (
+    <div className={`pf-row ${subtotal ? 'pf-subtotal' : ''} ${total ? 'pf-total' : ''} ${dimmed ? 'pf-dimmed' : ''}`}>
+      <span className={`pf-label ${indent ? 'pf-indent' : ''}`}>{label}</span>
+      <span className={`pf-value ${positive ? 'pf-positive' : ''} ${muted ? 'pf-muted' : ''}`}>{value}</span>
+    </div>
+  )
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export default function PropertyDrawer({ property, onClose, assemblageLots, setAssemblageLots, isSaved, toggleSave }) {
+export default function PropertyDrawer({
+  property, onClose, assemblageLots, setAssemblageLots, isSaved, toggleSave,
+  globalAssumptions, getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
+}) {
   // All hooks MUST come before any conditional returns (Rules of Hooks)
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied]       = useState(false)
+  const [showOverrides, setShowOverrides] = useState(false)
   const { sales, loading: salesLoading } = useAcrisComps(property?.bbl)
+
+  // Local editable values for per-property PSF / hard cost overrides
+  const [localPsf,      setLocalPsf]      = useState(null)
+  const [localHardCost, setLocalHardCost] = useState(null)
+
+  // Re-initialize local override state when property changes
+  useEffect(() => {
+    if (!property) return
+    const a = getPropertyAssumptions ? getPropertyAssumptions(property.bbl) : (globalAssumptions || DEFAULT_ASSUMPTIONS)
+    const nbhd = NEIGHBORHOOD_PSF[property.zipcode] || { psf: 2500 }
+    setLocalPsf(a.selloutPsf ?? nbhd.psf)
+    setLocalHardCost(a.hardCostPerSF ?? (globalAssumptions?.hardCostPerSF ?? DEFAULT_ASSUMPTIONS.hardCostPerSF))
+    setShowOverrides(false)
+  }, [property?.bbl]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!property) return null
 
-  const saved = isSaved ? isSaved(property.bbl) : false
+  // ── Resolved assumptions for this property ──
+  const baseAssumptions = globalAssumptions || DEFAULT_ASSUMPTIONS
+  const propAssumptions = getPropertyAssumptions ? getPropertyAssumptions(property.bbl) : baseAssumptions
+  const isOverridden    = hasOverride ? hasOverride(property.bbl) : false
+
+  const nbhd     = NEIGHBORHOOD_PSF[property.zipcode] || { name: 'Manhattan', psf: 2500 }
+  const activePsf      = localPsf      ?? propAssumptions.selloutPsf ?? nbhd.psf
+  const activeHardCost = localHardCost ?? propAssumptions.hardCostPerSF ?? baseAssumptions.hardCostPerSF
+
+  const activeAssumptions = { ...baseAssumptions, ...propAssumptions, hardCostPerSF: activeHardCost }
+
+  // ── Core numbers ──
+  const saved    = isSaved ? isSaved(property.bbl) : false
   const isInAssemblage = assemblageLots.some(l => l.bbl === property.bbl)
   const isCoop   = property.deal_type === 'COOP'
   const isCondo  = property.deal_type === 'CONDO'
 
-  // Core numbers
-  const lotArea    = Number(property.lot_area) || 0
-  const residFar   = Number(property.res_far) || 0
-  const builtFar   = Number(property.built_far) || 0
-  const floors     = Number(property.num_floors) || 0
+  const lotArea      = Number(property.lot_area)  || 0
+  const residFar     = Number(property.res_far)   || 0
+  const builtFar     = Number(property.built_far) || 0
+  const floors       = Number(property.num_floors) || 0
   const maxBuildable = Math.round(residFar * lotArea)
-  const availFAR   = Math.round(Math.max(0, (residFar - builtFar) * lotArea))
-  const farUtil    = residFar > 0 ? builtFar / residFar : 1
-  const score      = Number(property.score) || 0
-
-  // Economics
-  const nbhd       = NEIGHBORHOOD_PSF[property.zipcode] || { name: 'Manhattan', psf: 2500 }
-  const grossSellout = maxBuildable * nbhd.psf
-  const constructionCost = maxBuildable * 500
-  const devProfit  = grossSellout * 0.18
-  const impliedLandValue = Math.max(0, grossSellout - constructionCost - devProfit)
-  const pricePerBuildableSF = maxBuildable > 0 ? Math.round(impliedLandValue / maxBuildable) : 0
+  const availFAR     = Math.round(Math.max(0, (residFar - builtFar) * lotArea))
+  const farUtil      = residFar > 0 ? builtFar / residFar : 1
+  const score        = Number(property.score) || 0
   const assessedValue = Number(property.assess_total) || 0
-  const assessedGap = assessedValue > 0 && impliedLandValue > 0
-    ? Math.round((impliedLandValue / assessedValue - 1) * 100) : 0
 
-  // Deal type
+  // ── Condo Pro Forma ──
+  const pf = computeCondoProForma(maxBuildable, activePsf, activeAssumptions)
+  const residualPerLotSF = pf && lotArea > 0 ? Math.round(pf.landResidual / lotArea) : 0
+  const residualVsAssessed = pf && assessedValue > 0 ? (pf.landResidual / assessedValue).toFixed(1) : null
+  const residualIsStrong = residualVsAssessed && parseFloat(residualVsAssessed) >= 2
+
   const dtConfig = DEAL_TYPE_CONFIG[property.deal_type] || DEAL_TYPE_CONFIG.TEARDOWN
 
-  // Score components
   const scoreComponents = [
     {
       label: 'Development Rights',
@@ -172,27 +206,57 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
     }
   }
 
+  const handlePsfChange = (val) => {
+    setLocalPsf(val)
+    if (setPropertyOverride) setPropertyOverride(property.bbl, 'selloutPsf', val)
+  }
+
+  const handleHardCostChange = (val) => {
+    setLocalHardCost(val)
+    if (setPropertyOverride) setPropertyOverride(property.bbl, 'hardCostPerSF', val)
+  }
+
+  const handleClearOverrides = () => {
+    if (clearPropertyOverride) clearPropertyOverride(property.bbl)
+    const nbhdPsf = nbhd.psf
+    setLocalPsf(nbhdPsf)
+    setLocalHardCost(baseAssumptions.hardCostPerSF)
+  }
+
   const handleCopy = () => {
-    const text = [
+    const lines = [
       `${property.address || 'No Address'} — BBL ${formatBBL(property.bbl)}`,
       `Deal Type: ${dtConfig.label} | Score: ${score}`,
-      `${nbhd.name} | $${nbhd.psf.toLocaleString()}/SF market`,
+      `${nbhd.name} | $${activePsf.toLocaleString()}/SF sellout`,
       '',
       'THE BUILD',
       `  Lot: ${fmt(lotArea)} SF | Max Buildable: ${fmt(maxBuildable)} SF | Unused FAR: ${fmt(availFAR)} SF`,
       `  Zone: ${property.zone_dist || '—'} | Res FAR: ${residFar || '—'} | Built FAR: ${builtFar || '—'}`,
       '',
-      'ECONOMICS (EST.)',
-      `  Gross Sellout: ${grossSellout > 0 ? fmtM(grossSellout) : '—'} | Implied Land Value: ${impliedLandValue > 0 ? fmtM(impliedLandValue) : '—'}`,
-      `  $/Buildable SF: ${pricePerBuildableSF > 0 ? `$${pricePerBuildableSF.toLocaleString()}` : '—'} | Assessed: ${assessedValue > 0 ? fmtM(assessedValue) : '—'}`,
-      '',
+    ]
+    if (pf) {
+      lines.push(
+        'CONDO PRO FORMA (EST.)',
+        `  Gross Sellout:    ${fmtM(pf.grossSellout)}`,
+        `  − Broker/Mktg:   −${fmtM(pf.brokerCost)} (${activeAssumptions.brokerPct}%)`,
+        `  − Hard Costs:    −${fmtM(pf.hardCosts)} ($${activeHardCost}/SF)`,
+        `  − Soft Costs:    −${fmtM(pf.softCosts)} (${activeAssumptions.softCostPct}%)`,
+        `  − Carry:         −${fmtM(pf.carryCosts)} (${activeAssumptions.carryPct}%)`,
+        `  − Dev Profit:    −${fmtM(pf.devProfit)} (${activeAssumptions.profitTargetPct}%)`,
+        `  = Land Residual:  ${fmtM(pf.landResidual)}`,
+        `  Residual/Lot SF:  $${residualPerLotSF.toLocaleString()}`,
+        residualVsAssessed ? `  vs Assessed:      ${residualVsAssessed}×` : '',
+        '',
+      )
+    }
+    lines.push(
       'OWNERSHIP',
       `  Owner: ${property.owner_name || '—'} | Units: ${property.units_res || 0}`,
       '',
       'Source: NYC PLUTO + ATLAS',
-    ].join('\n')
+    )
 
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(lines.filter(l => l !== null).join('\n')).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
@@ -244,10 +308,10 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
           <div className="drawer-section">
             <div className="section-header"><AlertTriangle size={13} color="#ef4444" /> Deal Considerations</div>
             <div className="risk-flags">
-              {isCoop && <RiskFlag icon="🚫" color="#ef4444" label="Co-op Building" desc="Shares owned, not land — extremely difficult to redevelop" />}
-              {isCondo && <RiskFlag icon="⚠️" color="#ef4444" label="Condominium" desc="Must buy out all individual unit owners to redevelop" />}
+              {isCoop  && <RiskFlag icon="🚫" color="#ef4444" label="Co-op Building"      desc="Shares owned, not land — extremely difficult to redevelop" />}
+              {isCondo && <RiskFlag icon="⚠️" color="#ef4444" label="Condominium"         desc="Must buy out all individual unit owners to redevelop" />}
               {property.rent_stab_risk && <RiskFlag icon="🏘️" color="#f97316" label="Likely Rent Stabilized" desc="Pre-1974 rental building — significant tenant buyout costs" />}
-              {property.has_landmark && <RiskFlag icon="🏛️" color="#3b82f6" label="Landmark Designation" desc="LPC approval required — may have transferable air rights (TDR)" />}
+              {property.has_landmark   && <RiskFlag icon="🏛️" color="#3b82f6" label="Landmark Designation"   desc="LPC approval required — may have transferable air rights (TDR)" />}
             </div>
           </div>
         )}
@@ -256,44 +320,129 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
         <div className="drawer-section">
           <div className="section-header"><Building2 size={13} /> The Build</div>
           <div className="metrics-grid-4">
-            <MetricBox label="Lot Area" value={`${fmt(lotArea)} SF`} />
+            <MetricBox label="Lot Area"      value={`${fmt(lotArea)} SF`} />
             <MetricBox label="Max Buildable" value={`${fmt(maxBuildable)} SF`} accent />
-            <MetricBox label="Unused FAR" value={availFAR > 0 ? `${fmt(availFAR)} SF` : 'None'} accent={availFAR > 10000} />
-            <MetricBox label="Est. Floors" value={maxBuildable > 0 && lotArea > 0 ? `~${Math.round((maxBuildable / lotArea) * 0.9)}` : '—'} />
+            <MetricBox label="Unused FAR"    value={availFAR > 0 ? `${fmt(availFAR)} SF` : 'None'} accent={availFAR > 10000} />
+            <MetricBox label="Est. Floors"   value={maxBuildable > 0 && lotArea > 0 ? `~${Math.round((maxBuildable / lotArea) * 0.9)}` : '—'} />
           </div>
           <div className="info-rows" style={{ marginTop: 8 }}>
-            <InfoRow label="Zoning District" value={property.zone_dist} />
+            <InfoRow label="Zoning District"    value={property.zone_dist} />
             <InfoRow label="Max Residential FAR" value={residFar || '—'} />
-            <InfoRow label="Built FAR" value={builtFar || '—'} />
-            <InfoRow label="FAR Utilization" value={residFar > 0 ? `${Math.round(farUtil * 100)}%` : '—'} highlight={farUtil < 0.5} />
-            <InfoRow label="Lot Dimensions" value={property.lot_front && property.lot_depth ? `${property.lot_front}' × ${property.lot_depth}'` : '—'} />
-            <InfoRow label="Existing Building" value={property.bldg_area ? `${fmt(property.bldg_area)} SF` : 'None'} />
-            <InfoRow label="Year Built" value={property.year_built > 0 ? property.year_built : 'N/A'} />
-            <InfoRow label="Land Use" value={LAND_USE_LABELS[property.land_use] || property.land_use} />
+            <InfoRow label="Built FAR"           value={builtFar || '—'} />
+            <InfoRow label="FAR Utilization"     value={residFar > 0 ? `${Math.round(farUtil * 100)}%` : '—'} highlight={farUtil < 0.5} />
+            <InfoRow label="Lot Dimensions"      value={property.lot_front && property.lot_depth ? `${property.lot_front}' × ${property.lot_depth}'` : '—'} />
+            <InfoRow label="Existing Building"   value={property.bldg_area ? `${fmt(property.bldg_area)} SF` : 'None'} />
+            <InfoRow label="Year Built"          value={property.year_built > 0 ? property.year_built : 'N/A'} />
+            <InfoRow label="Land Use"            value={LAND_USE_LABELS[property.land_use] || property.land_use} />
           </div>
         </div>
 
-        {/* ── Economics ── */}
+        {/* ── Condo Pro Forma ── */}
         <div className="drawer-section">
-          <div className="section-header"><DollarSign size={13} /> Economics (Est.)</div>
-          <div className="econ-neighborhood">
-            <span className="econ-nbhd-name">{nbhd.name}</span>
-            <span className="econ-nbhd-psf">${nbhd.psf.toLocaleString()}/SF market</span>
+          <div className="section-header">
+            <Calculator size={13} /> Condo Pro Forma
+            {isOverridden && (
+              <span className="pf-custom-badge">Custom</span>
+            )}
+            {isOverridden && (
+              <button className="pf-reset-link" onClick={handleClearOverrides} title="Reset to global assumptions">
+                <RotateCcw size={10} /> Reset
+              </button>
+            )}
           </div>
-          <div className="metrics-grid-2" style={{ marginTop: 10 }}>
-            <MetricBox label="Est. Gross Sellout" value={grossSellout > 0 ? fmtM(grossSellout) : '—'} accent />
-            <MetricBox label="Implied Land Value" value={impliedLandValue > 0 ? fmtM(impliedLandValue) : '—'} accent />
-            <MetricBox label="$/Buildable SF" value={pricePerBuildableSF > 0 ? `$${pricePerBuildableSF.toLocaleString()}` : '—'} />
-            <MetricBox label="Assessed Value" value={assessedValue > 0 ? fmtM(assessedValue) : '—'} />
-          </div>
-          {assessedGap > 50 && (
-            <div className="econ-note">
-              📈 Assessed value is <strong>{assessedGap}% below</strong> implied market — potential motivated seller signal
-            </div>
+
+          {/* Land Residual headline */}
+          {pf && maxBuildable > 0 ? (
+            <>
+              <div className="pf-headline">
+                <div className="pf-headline-label">Land Residual</div>
+                <div className={`pf-headline-value ${pf.landResidual <= 0 ? 'pf-headline-negative' : ''}`}>
+                  {pf.landResidual > 0 ? fmtM(pf.landResidual) : 'Underwater'}
+                </div>
+                <div className="pf-headline-sub">
+                  {residualPerLotSF > 0 && `$${residualPerLotSF.toLocaleString()}/lot SF`}
+                  {residualVsAssessed && (
+                    <span className={`pf-multiple ${residualIsStrong ? 'pf-multiple-strong' : ''}`}>
+                      {' · '}{residualVsAssessed}× assessed
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* P&L table */}
+              <div className="pf-table">
+                <div className="pf-group-label">Revenue</div>
+                <PfRow label={`Gross Sellout (${fmt(maxBuildable)} SF × $${activePsf.toLocaleString()}/SF)`} value={fmtM(pf.grossSellout)} />
+                <PfRow label={`− Broker / Mktg (${activeAssumptions.brokerPct}%)`} value={`−${fmtM(pf.brokerCost)}`} indent muted />
+                <PfRow label="= Net Revenue" value={fmtM(pf.netRevenue)} subtotal />
+
+                <div className="pf-group-label" style={{ marginTop: 6 }}>Costs</div>
+                <PfRow label={`− Hard Costs ($${activeHardCost}/SF)`}              value={`−${fmtM(pf.hardCosts)}`}   indent muted />
+                <PfRow label={`− Soft Costs (${activeAssumptions.softCostPct}%)`}  value={`−${fmtM(pf.softCosts)}`}   indent muted />
+                <PfRow label={`− Carry (${activeAssumptions.carryPct}%)`}          value={`−${fmtM(pf.carryCosts)}`}  indent muted />
+                <PfRow label={`− Dev Profit (${activeAssumptions.profitTargetPct}% of sellout)`} value={`−${fmtM(pf.devProfit)}`} indent muted />
+                <PfRow label="= Land Residual" value={pf.landResidual > 0 ? fmtM(pf.landResidual) : 'Underwater'} total positive={pf.landResidual > 0} />
+
+                {assessedValue > 0 && (
+                  <PfRow label="Assessed Value" value={fmtM(assessedValue)} dimmed />
+                )}
+              </div>
+
+              {/* Property-level overrides */}
+              <div className="pf-overrides">
+                <button className="pf-overrides-toggle" onClick={() => setShowOverrides(v => !v)}>
+                  {showOverrides ? '▾' : '▸'} Adjust for this property
+                  {isOverridden && <span className="pf-override-dot" />}
+                </button>
+                {showOverrides && (
+                  <div className="pf-override-inputs">
+                    <div className="pf-override-row">
+                      <span className="pf-override-label">Sellout PSF</span>
+                      <div className="pf-override-input-group">
+                        <span className="uw-affix">$</span>
+                        <input
+                          type="number"
+                          className="uw-number-input"
+                          value={activePsf}
+                          onChange={e => handlePsfChange(Number(e.target.value))}
+                          min={500} max={10000} step={50}
+                          style={{ width: 60 }}
+                        />
+                        <span className="uw-affix">/SF</span>
+                      </div>
+                      {activePsf !== nbhd.psf && (
+                        <span className="pf-override-hint">global: ${nbhd.psf.toLocaleString()}</span>
+                      )}
+                    </div>
+                    <div className="pf-override-row">
+                      <span className="pf-override-label">Hard Cost</span>
+                      <div className="pf-override-input-group">
+                        <span className="uw-affix">$</span>
+                        <input
+                          type="number"
+                          className="uw-number-input"
+                          value={activeHardCost}
+                          onChange={e => handleHardCostChange(Number(e.target.value))}
+                          min={100} max={1200} step={25}
+                          style={{ width: 60 }}
+                        />
+                        <span className="uw-affix">/SF</span>
+                      </div>
+                      {activeHardCost !== baseAssumptions.hardCostPerSF && (
+                        <span className="pf-override-hint">global: ${baseAssumptions.hardCostPerSF}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="econ-disclaimer">
+                Estimates only. Land residual = max supportable land cost given target returns. Not investment advice.
+              </div>
+            </>
+          ) : (
+            <div className="sales-empty">Insufficient zoning data to model</div>
           )}
-          <div className="econ-disclaimer">
-            Estimates based on {nbhd.psf.toLocaleString()}/SF sellout, $500/SF construction cost, 18% developer margin. Not investment advice.
-          </div>
         </div>
 
         {/* ── Recent Sales (ACRIS) ── */}
@@ -323,10 +472,10 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
         <div className="drawer-section">
           <div className="section-header"><User size={13} /> Ownership</div>
           <div className="info-rows">
-            <InfoRow label="Owner" value={property.owner_name} />
-            <InfoRow label="Building Class" value={property.bldg_class} />
+            <InfoRow label="Owner"             value={property.owner_name} />
+            <InfoRow label="Building Class"    value={property.bldg_class} />
             <InfoRow label="Residential Units" value={property.units_res > 0 ? property.units_res : 'N/A'} />
-            <InfoRow label="Assessed Value" value={assessedValue > 0 ? `$${fmt(assessedValue)}` : '—'} />
+            <InfoRow label="Assessed Value"    value={assessedValue > 0 ? `$${fmt(assessedValue)}` : '—'} />
           </div>
         </div>
 

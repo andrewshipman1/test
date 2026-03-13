@@ -1,4 +1,5 @@
-import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin } from 'lucide-react'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign } from 'lucide-react'
+import { DEFAULT_ASSUMPTIONS } from '../hooks/useUnderwritingAssumptions'
 import './Sidebar.css'
 
 const DEAL_TYPE_COLORS = {
@@ -50,30 +51,46 @@ const DEFAULT_FILTERS = {
   cityOfYesOnly: false,
 }
 
+const HARD_COST_PRESETS = [
+  { label: 'Conversion', value: 275 },
+  { label: 'Market Rate', value: 350 },
+  { label: 'Luxury',      value: 425 },
+  { label: 'Super Lux',   value: 600 },
+]
+
 export default function Sidebar({
   filters, setFilters,
   assemblageLots, setAssemblageLots,
   zoningDistricts,
-  savedProperties, removeSaved, onSelectSaved
+  savedProperties, removeSaved, onSelectSaved,
+  assumptions, updateAssumption, resetAssumptions,
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
+
+  // Safe fallbacks if underwriting props aren't wired yet
+  const uw     = assumptions || DEFAULT_ASSUMPTIONS
+  const setUw  = updateAssumption || (() => {})
+  const resetUw = resetAssumptions || (() => {})
 
   return (
     <div className="sidebar">
       {/* Tab navigation */}
       <div className="sidebar-tabs">
         <button className={`tab-btn ${activeTab === 'filters' ? 'active' : ''}`} onClick={() => setTab('filters')}>
-          <Filter size={14} /> Filters
+          <Filter size={13} /> Filters
         </button>
         <button className={`tab-btn ${activeTab === 'assemblage' ? 'active' : ''}`} onClick={() => setTab('assemblage')}>
-          <Target size={14} /> Assemble
+          <Target size={13} /> Assemble
           {assemblageLots.length > 0 && <span className="tab-badge">{assemblageLots.length}</span>}
         </button>
         <button className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setTab('saved')}>
-          <Bookmark size={14} /> Saved
+          <Bookmark size={13} /> Saved
           {savedProperties?.length > 0 && <span className="tab-badge">{savedProperties.length}</span>}
+        </button>
+        <button className={`tab-btn ${activeTab === 'proforma' ? 'active' : ''}`} onClick={() => setTab('proforma')}>
+          <Calculator size={13} /> Model
         </button>
       </div>
 
@@ -248,6 +265,114 @@ export default function Sidebar({
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── MODEL / PRO FORMA TAB ── */}
+        {activeTab === 'proforma' && (
+          <div className="tab-panel">
+            <div className="uw-tab-header">
+              <Calculator size={16} color="#f59e0b" />
+              <div>
+                <div className="assemblage-title">Condo Underwriting</div>
+                <div className="assemblage-sub">Global defaults · override per property in drawer</div>
+              </div>
+            </div>
+
+            {/* Construction */}
+            <div className="section-title"><Building2 size={13} /> Construction Cost</div>
+
+            <div className="uw-field">
+              <span className="uw-field-label">Hard Cost / SF</span>
+              <div className="uw-input-group">
+                <span className="uw-affix">$</span>
+                <input
+                  type="number"
+                  className="uw-number-input"
+                  value={uw.hardCostPerSF}
+                  onChange={e => setUw('hardCostPerSF', Number(e.target.value))}
+                  min={100} max={1200} step={25}
+                />
+                <span className="uw-affix">/SF</span>
+              </div>
+            </div>
+
+            <div className="uw-presets">
+              {HARD_COST_PRESETS.map(p => (
+                <button
+                  key={p.value}
+                  className={`uw-preset-btn ${uw.hardCostPerSF === p.value ? 'active' : ''}`}
+                  onClick={() => setUw('hardCostPerSF', p.value)}
+                >{p.label}</button>
+              ))}
+            </div>
+
+            <div className="uw-field">
+              <span className="uw-field-label">Soft Costs</span>
+              <div className="uw-input-group">
+                <input
+                  type="number"
+                  className="uw-number-input"
+                  value={uw.softCostPct}
+                  onChange={e => setUw('softCostPct', Number(e.target.value))}
+                  min={5} max={35} step={1}
+                />
+                <span className="uw-affix">% of hard</span>
+              </div>
+            </div>
+
+            <div className="uw-field">
+              <span className="uw-field-label">Carry Cost</span>
+              <div className="uw-input-group">
+                <input
+                  type="number"
+                  className="uw-number-input"
+                  value={uw.carryPct}
+                  onChange={e => setUw('carryPct', Number(e.target.value))}
+                  min={2} max={20} step={1}
+                />
+                <span className="uw-affix">% of build</span>
+              </div>
+            </div>
+
+            {/* Returns */}
+            <div className="section-title"><DollarSign size={13} /> Returns</div>
+
+            <div className="uw-field">
+              <span className="uw-field-label">Profit Target</span>
+              <div className="uw-input-group">
+                <input
+                  type="number"
+                  className="uw-number-input"
+                  value={uw.profitTargetPct}
+                  onChange={e => setUw('profitTargetPct', Number(e.target.value))}
+                  min={5} max={40} step={1}
+                />
+                <span className="uw-affix">% of sellout</span>
+              </div>
+            </div>
+
+            <div className="uw-field">
+              <span className="uw-field-label">Broker / Mktg</span>
+              <div className="uw-input-group">
+                <input
+                  type="number"
+                  className="uw-number-input"
+                  value={uw.brokerPct}
+                  onChange={e => setUw('brokerPct', Number(e.target.value))}
+                  min={2} max={10} step={0.5}
+                />
+                <span className="uw-affix">% of sellout</span>
+              </div>
+            </div>
+
+            <button className="reset-btn" onClick={resetUw}>
+              <RotateCcw size={12} /> Reset to Defaults
+            </button>
+
+            <div className="uw-note">
+              These assumptions apply to every lot on the map. Open any property drawer to override the sellout PSF or hard cost for that specific site.
+            </div>
           </div>
         )}
 

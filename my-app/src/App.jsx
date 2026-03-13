@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import PropertyDrawer from './components/PropertyDrawer'
 import Header from './components/Header'
 import { useSavedProperties } from './hooks/useSavedProperties'
+import { useUnderwritingAssumptions } from './hooks/useUnderwritingAssumptions'
 import './App.css'
 
 export default function App() {
@@ -22,6 +23,10 @@ export default function App() {
   const [searchTarget, setSearchTarget] = useState(null)
 
   const { savedProperties, isSaved, toggleSave, removeSaved } = useSavedProperties()
+  const {
+    assumptions, updateAssumption, resetAssumptions,
+    getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
+  } = useUnderwritingAssumptions()
 
   // When clicking a saved lot in sidebar: fly to it and open drawer
   const handleSelectSaved = (property) => {
@@ -48,6 +53,9 @@ export default function App() {
           savedProperties={savedProperties}
           removeSaved={removeSaved}
           onSelectSaved={handleSelectSaved}
+          assumptions={assumptions}
+          updateAssumption={updateAssumption}
+          resetAssumptions={resetAssumptions}
         />
         <MapView
           filters={filters}
@@ -66,6 +74,11 @@ export default function App() {
             setAssemblageLots={setAssemblageLots}
             isSaved={isSaved}
             toggleSave={toggleSave}
+            globalAssumptions={assumptions}
+            getPropertyAssumptions={getPropertyAssumptions}
+            setPropertyOverride={setPropertyOverride}
+            clearPropertyOverride={clearPropertyOverride}
+            hasOverride={hasOverride}
           />
         )}
       </div>
