@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown, Calculator, RotateCcw } from 'lucide-react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown, Calculator, RotateCcw, MapPin } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
@@ -274,7 +274,16 @@ export default function PropertyDrawer({
       <div className="drawer-header">
         <div className="drawer-header-top">
           <div>
-            <div className="drawer-address">{property.address || 'No Address'}</div>
+            <a
+              className="drawer-address"
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address || ''}, New York, NY`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open in Google Maps Street View"
+            >
+              {property.address || 'No Address'}
+              <MapPin size={12} className="drawer-address-pin" />
+            </a>
             <div className="drawer-neighborhood">{nbhd.name} · BBL {formatBBL(property.bbl)}</div>
           </div>
           <div className="drawer-header-actions">
