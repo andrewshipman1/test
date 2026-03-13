@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown, Calculator, RotateCcw } from 'lucide-react'
-import { NEIGHBORHOOD_PSF } from '../hooks/usePlutoData'
+import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import './PropertyDrawer.css'
@@ -108,6 +108,7 @@ function PfRow({ label, value, indent, subtotal, total, positive, muted, dimmed 
 export default function PropertyDrawer({
   property, onClose, assemblageLots, setAssemblageLots, isSaved, toggleSave,
   globalAssumptions, getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
+  livePsf = {},
 }) {
   // All hooks MUST come before any conditional returns (Rules of Hooks)
   const [copied, setCopied]       = useState(false)
@@ -122,8 +123,7 @@ export default function PropertyDrawer({
   useEffect(() => {
     if (!property) return
     const a = getPropertyAssumptions ? getPropertyAssumptions(property.bbl) : (globalAssumptions || DEFAULT_ASSUMPTIONS)
-    const nbhd = NEIGHBORHOOD_PSF[property.zipcode] || { psf: 2500 }
-    setLocalPsf(a.selloutPsf ?? nbhd.psf)
+    setLocalPsf(a.selloutPsf ?? getEffectivePsf(property.zipcode, a, livePsf))
     setLocalHardCost(a.hardCostPerSF ?? (globalAssumptions?.hardCostPerSF ?? DEFAULT_ASSUMPTIONS.hardCostPerSF))
     setShowOverrides(false)
   }, [property?.bbl]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -135,9 +135,15 @@ export default function PropertyDrawer({
   const propAssumptions = getPropertyAssumptions ? getPropertyAssumptions(property.bbl) : baseAssumptions
   const isOverridden    = hasOverride ? hasOverride(property.bbl) : false
 
-  const nbhd     = NEIGHBORHOOD_PSF[property.zipcode] || { name: 'Manhattan', psf: 2500 }
-  const activePsf      = localPsf      ?? propAssumptions.selloutPsf ?? nbhd.psf
+  const nbhd       = NEIGHBORHOOD_PSF[property.zipcode] || { name: 'Manhattan', psf: 2500 }
+  const effectivePsf   = getEffectivePsf(property.zipcode, baseAssumptions, livePsf)
+  const activePsf      = localPsf      ?? propAssumptions.selloutPsf ?? effectivePsf
   const activeHardCost = localHardCost ?? propAssumptions.hardCostPerSF ?? baseAssumptions.hardCostPerSF
+
+  // Scenario state for badge display
+  const multiplier     = baseAssumptions.psfMultiplier ?? 1.0
+  const scenarioAdj    = Math.round((multiplier - 1) * 100)
+  const usingScenario  = multiplier !== 1.0 && !propAssumptions.selloutPsf && localPsf === null
 
   const activeAssumptions = { ...baseAssumptions, ...propAssumptions, hardCostPerSF: activeHardCost }
 
@@ -218,8 +224,7 @@ export default function PropertyDrawer({
 
   const handleClearOverrides = () => {
     if (clearPropertyOverride) clearPropertyOverride(property.bbl)
-    const nbhdPsf = nbhd.psf
-    setLocalPsf(nbhdPsf)
+    setLocalPsf(effectivePsf)
     setLocalHardCost(baseAssumptions.hardCostPerSF)
   }
 
@@ -344,6 +349,15 @@ export default function PropertyDrawer({
             {isOverridden && (
               <span className="pf-custom-badge">Custom</span>
             )}
+            {usingScenario && (
+              <span className="pf-scenario-badge" style={{
+                color:      scenarioAdj > 0 ? '#22c55e' : '#ef4444',
+                background: scenarioAdj > 0 ? '#22c55e12' : '#ef444412',
+                borderColor: scenarioAdj > 0 ? '#22c55e33' : '#ef444433',
+              }}>
+                {scenarioAdj > 0 ? '📈' : '📉'} {scenarioAdj > 0 ? '+' : ''}{scenarioAdj}%
+              </span>
+            )}
             {isOverridden && (
               <button className="pf-reset-link" onClick={handleClearOverrides} title="Reset to global assumptions">
                 <RotateCcw size={10} /> Reset
@@ -410,8 +424,8 @@ export default function PropertyDrawer({
                         />
                         <span className="uw-affix">/SF</span>
                       </div>
-                      {activePsf !== nbhd.psf && (
-                        <span className="pf-override-hint">global: ${nbhd.psf.toLocaleString()}</span>
+                      {activePsf !== effectivePsf && (
+                        <span className="pf-override-hint">global: ${effectivePsf.toLocaleString()}</span>
                       )}
                     </div>
                     <div className="pf-override-row">

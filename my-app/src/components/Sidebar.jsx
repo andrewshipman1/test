@@ -1,6 +1,14 @@
-import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight } from 'lucide-react'
 import { DEFAULT_ASSUMPTIONS } from '../hooks/useUnderwritingAssumptions'
+import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS } from '../hooks/usePlutoData'
 import './Sidebar.css'
+
+const SCENARIOS = [
+  { label: 'Bear',  adj: -0.20, color: '#ef4444' },
+  { label: 'Base',  adj:  0.00, color: '#f59e0b' },
+  { label: 'Bull',  adj: +0.20, color: '#22c55e' },
+]
 
 const DEAL_TYPE_COLORS = {
   VACANT:     '#22c55e',
@@ -64,15 +72,42 @@ export default function Sidebar({
   zoningDistricts,
   savedProperties, removeSaved, onSelectSaved,
   assumptions, updateAssumption, resetAssumptions,
+  updatePsfOverride, resetPsfOverride, resetAllPsf,
+  livePsf = {},
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
+  const [showNbhdTable, setShowNbhdTable] = useState(false)
 
   // Safe fallbacks if underwriting props aren't wired yet
-  const uw     = assumptions || DEFAULT_ASSUMPTIONS
-  const setUw  = updateAssumption || (() => {})
-  const resetUw = resetAssumptions || (() => {})
+  const uw      = assumptions || DEFAULT_ASSUMPTIONS
+  const setUw   = updateAssumption  || (() => {})
+  const resetUw = resetAssumptions  || (() => {})
+  const setPsfOverride   = updatePsfOverride || (() => {})
+  const clearPsfOverride = resetPsfOverride  || (() => {})
+
+  // Build a name → live PSF lookup from zipcode-keyed livePsf
+  const livePsfByName = useMemo(() => {
+    if (!Object.keys(livePsf).length) return {}
+    const byName = {}
+    Object.entries(NEIGHBORHOOD_PSF).forEach(([zip, { name }]) => {
+      const d = livePsf[zip]
+      if (!d) return
+      if (!byName[name]) byName[name] = { total: 0, count: 0, sales: 0 }
+      byName[name].total += d.psf * d.count
+      byName[name].count += d.count
+      byName[name].sales += d.count
+    })
+    const result = {}
+    Object.entries(byName).forEach(([name, { total, count, sales }]) => {
+      result[name] = { psf: Math.round(total / count), count: sales }
+    })
+    return result
+  }, [livePsf])
+
+  const liveCount = Object.keys(livePsf).length
+  const currentAdj = Math.round(((uw.psfMultiplier ?? 1.0) - 1) * 100)
 
   return (
     <div className="sidebar">
@@ -275,11 +310,130 @@ export default function Sidebar({
               <Calculator size={16} color="#f59e0b" />
               <div>
                 <div className="assemblage-title">Condo Underwriting</div>
-                <div className="assemblage-sub">Global defaults · override per property in drawer</div>
+                <div className="assemblage-sub">
+                  {liveCount > 0
+                    ? `Live ACRIS data · ${liveCount} zipcodes`
+                    : 'Global defaults · override per property'}
+                </div>
+              </div>
+              {liveCount > 0 && <span className="uw-live-badge">Live</span>}
+            </div>
+
+            {/* ── Market Scenario ── */}
+            <div className="section-title"><TrendingUp size={13} /> Market Scenario</div>
+
+            <div className="scenario-pills">
+              {SCENARIOS.map(s => {
+                const m = 1 + s.adj
+                const isActive = Math.abs((uw.psfMultiplier ?? 1.0) - m) < 0.005
+                return (
+                  <button
+                    key={s.label}
+                    className={`scenario-pill ${isActive ? 'active' : ''}`}
+                    style={isActive ? { borderColor: `${s.color}66`, color: s.color, background: `${s.color}12` } : {}}
+                    onClick={() => setUw('psfMultiplier', m)}
+                  >
+                    <span className="scenario-label">{s.label}</span>
+                    <span className="scenario-adj" style={isActive ? { color: s.color } : {}}>
+                      {s.adj >= 0 ? '+' : ''}{Math.round(s.adj * 100)}%
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="uw-field" style={{ marginTop: 6 }}>
+              <span className="uw-field-label">Custom adj.</span>
+              <div className="uw-input-group">
+                <input
+                  type="number"
+                  className="uw-number-input"
+                  value={currentAdj}
+                  onChange={e => setUw('psfMultiplier', 1 + Number(e.target.value) / 100)}
+                  min={-50} max={100} step={5}
+                />
+                <span className="uw-affix">%</span>
               </div>
             </div>
 
-            {/* Construction */}
+            {(uw.psfMultiplier ?? 1.0) !== 1.0 && (
+              <div className="scenario-active-note" style={{
+                color: currentAdj > 0 ? '#22c55e' : '#ef4444',
+                background: currentAdj > 0 ? '#22c55e0a' : '#ef44440a',
+                borderColor: currentAdj > 0 ? '#22c55e22' : '#ef444422',
+              }}>
+                {currentAdj > 0 ? '📈' : '📉'} All PSFs {currentAdj > 0 ? '+' : ''}{currentAdj}% from baseline
+              </div>
+            )}
+
+            {/* ── Neighborhood PSF ── */}
+            <button className="nbhd-toggle" onClick={() => setShowNbhdTable(v => !v)}>
+              {showNbhdTable ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              <span>Neighborhood PSF</span>
+              {liveCount > 0 && <span className="uw-live-badge" style={{ marginLeft: 'auto' }}>Live</span>}
+              {Object.keys(uw.psfOverrides || {}).length > 0 && (
+                <span className="uw-override-count">{Object.keys(uw.psfOverrides).length} pinned</span>
+              )}
+            </button>
+
+            {showNbhdTable && (
+              <div className="nbhd-table">
+                {NEIGHBORHOOD_TIERS.map(({ name, defaultPsf }) => {
+                  const liveData     = livePsfByName[name]
+                  const manualOvr    = uw.psfOverrides?.[name]
+                  const isOverridden = manualOvr != null
+                  const basePsf      = liveData?.psf ?? defaultPsf
+                  const effectivePsf = isOverridden
+                    ? manualOvr
+                    : Math.round(basePsf * (uw.psfMultiplier ?? 1.0))
+
+                  return (
+                    <div key={name} className={`nbhd-row ${isOverridden ? 'nbhd-pinned' : ''}`}>
+                      <div className="nbhd-meta">
+                        <span className="nbhd-name" title={name}>{name}</span>
+                        {liveData
+                          ? <span className="nbhd-badge live">{liveData.count} sales</span>
+                          : <span className="nbhd-badge est">Est.</span>
+                        }
+                      </div>
+                      <div className="nbhd-controls">
+                        <div className="nbhd-input-wrap">
+                          <span className="uw-affix">$</span>
+                          <input
+                            type="number"
+                            className="uw-number-input nbhd-input"
+                            value={isOverridden ? manualOvr : basePsf}
+                            onChange={e => {
+                              const v = Number(e.target.value)
+                              if (v > 0) setPsfOverride(name, v)
+                            }}
+                            min={300} max={15000} step={50}
+                            title={isOverridden ? 'Pinned — immune to scenario multiplier' : 'Edit to pin this neighborhood'}
+                          />
+                        </div>
+                        {isOverridden
+                          ? <button className="nbhd-reset-btn" onClick={() => clearPsfOverride(name)} title="Unpin">✕</button>
+                          : <span className="nbhd-pin-hint">📌</span>
+                        }
+                      </div>
+                      {(uw.psfMultiplier ?? 1.0) !== 1.0 && !isOverridden && (
+                        <span className="nbhd-effective" style={{ color: effectivePsf > basePsf ? '#22c55e' : '#ef4444' }}>
+                          → ${effectivePsf.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+
+                {Object.keys(uw.psfOverrides || {}).length > 0 && (
+                  <button className="nbhd-reset-all" onClick={() => resetAllPsf && resetAllPsf()}>
+                    <RotateCcw size={10} /> Reset all pins
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* ── Construction ── */}
             <div className="section-title"><Building2 size={13} /> Construction Cost</div>
 
             <div className="uw-field">
@@ -310,13 +464,10 @@ export default function Sidebar({
             <div className="uw-field">
               <span className="uw-field-label">Soft Costs</span>
               <div className="uw-input-group">
-                <input
-                  type="number"
-                  className="uw-number-input"
+                <input type="number" className="uw-number-input"
                   value={uw.softCostPct}
                   onChange={e => setUw('softCostPct', Number(e.target.value))}
-                  min={5} max={35} step={1}
-                />
+                  min={5} max={35} step={1} />
                 <span className="uw-affix">% of hard</span>
               </div>
             </div>
@@ -324,30 +475,24 @@ export default function Sidebar({
             <div className="uw-field">
               <span className="uw-field-label">Carry Cost</span>
               <div className="uw-input-group">
-                <input
-                  type="number"
-                  className="uw-number-input"
+                <input type="number" className="uw-number-input"
                   value={uw.carryPct}
                   onChange={e => setUw('carryPct', Number(e.target.value))}
-                  min={2} max={20} step={1}
-                />
+                  min={2} max={20} step={1} />
                 <span className="uw-affix">% of build</span>
               </div>
             </div>
 
-            {/* Returns */}
+            {/* ── Returns ── */}
             <div className="section-title"><DollarSign size={13} /> Returns</div>
 
             <div className="uw-field">
               <span className="uw-field-label">Profit Target</span>
               <div className="uw-input-group">
-                <input
-                  type="number"
-                  className="uw-number-input"
+                <input type="number" className="uw-number-input"
                   value={uw.profitTargetPct}
                   onChange={e => setUw('profitTargetPct', Number(e.target.value))}
-                  min={5} max={40} step={1}
-                />
+                  min={5} max={40} step={1} />
                 <span className="uw-affix">% of sellout</span>
               </div>
             </div>
@@ -355,23 +500,20 @@ export default function Sidebar({
             <div className="uw-field">
               <span className="uw-field-label">Broker / Mktg</span>
               <div className="uw-input-group">
-                <input
-                  type="number"
-                  className="uw-number-input"
+                <input type="number" className="uw-number-input"
                   value={uw.brokerPct}
                   onChange={e => setUw('brokerPct', Number(e.target.value))}
-                  min={2} max={10} step={0.5}
-                />
+                  min={2} max={10} step={0.5} />
                 <span className="uw-affix">% of sellout</span>
               </div>
             </div>
 
             <button className="reset-btn" onClick={resetUw}>
-              <RotateCcw size={12} /> Reset to Defaults
+              <RotateCcw size={12} /> Reset All to Defaults
             </button>
 
             <div className="uw-note">
-              These assumptions apply to every lot on the map. Open any property drawer to override the sellout PSF or hard cost for that specific site.
+              PSFs from live ACRIS condo sales where available, otherwise estimated. Open any property drawer to override PSF or hard cost for a specific site.
             </div>
           </div>
         )}

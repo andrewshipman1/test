@@ -479,6 +479,16 @@
   text-transform: uppercase;
 }
 
+.pf-scenario-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid;
+  margin-left: 4px;
+}
+
 .pf-reset-link {
   display: flex;
   align-items: center;

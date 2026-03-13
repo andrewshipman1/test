@@ -50,6 +50,34 @@ export const NEIGHBORHOOD_PSF = {
   '10282': { name: 'Battery Park City', psf: 2500 },
 }
 
+// Deduplicated neighborhood list for the PSF table UI (sorted by PSF desc)
+export const NEIGHBORHOOD_TIERS = (() => {
+  const seen = new Set()
+  return Object.entries(NEIGHBORHOOD_PSF)
+    .filter(([, { name }]) => !seen.has(name) && seen.add(name))
+    .map(([, { name, psf }]) => ({ name, defaultPsf: psf }))
+    .sort((a, b) => b.defaultPsf - a.defaultPsf)
+})()
+
+// Compute the effective sellout PSF for a zipcode given current assumptions + live data
+// Priority: user neighborhood override > live ACRIS median > hardcoded estimate
+// The psfMultiplier (scenario) is applied to live/hardcoded values but NOT user overrides
+export function getEffectivePsf(zipcode, assumptions, livePsf = {}) {
+  const nbhd       = NEIGHBORHOOD_PSF[zipcode] || { name: 'Manhattan', psf: 2500 }
+  const multiplier = assumptions?.psfMultiplier ?? 1.0
+
+  // User locked a specific PSF for this neighborhood — respect it exactly
+  const manualOverride = assumptions?.psfOverrides?.[nbhd.name]
+  if (manualOverride != null) return manualOverride
+
+  // Live ACRIS data available — use it, then apply scenario multiplier
+  const liveData = livePsf[zipcode]
+  if (liveData) return Math.round(liveData.psf * multiplier)
+
+  // Fall back to hardcoded estimate + multiplier
+  return Math.round(nbhd.psf * multiplier)
+}
+
 // Detect deal type from building class + land use
 export function getDealType(bldgClass, landUse) {
   const bc = (bldgClass || '').toUpperCase()

@@ -750,6 +750,249 @@
   line-height: 1.5;
 }
 
+/* ── Live badge + override count ── */
+.uw-live-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: #22c55e18;
+  border: 1px solid #22c55e44;
+  color: #22c55e;
+  padding: 2px 6px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.uw-override-count {
+  font-size: 9px;
+  font-weight: 700;
+  background: #f59e0b18;
+  border: 1px solid #f59e0b44;
+  color: #f59e0b;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* ── Scenario pills ── */
+.scenario-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.scenario-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  background: #12121a;
+  border: 1px solid #1e1e2e;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scenario-pill:hover {
+  border-color: #f59e0b44;
+}
+
+.scenario-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 0.3px;
+}
+
+.scenario-pill.active .scenario-label {
+  color: inherit;
+}
+
+.scenario-adj {
+  font-size: 10px;
+  color: #555;
+  font-variant-numeric: tabular-nums;
+}
+
+.scenario-active-note {
+  margin: 6px 0 4px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ── Neighborhood PSF table ── */
+.nbhd-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: #12121a;
+  border: 1px solid #1e1e2e;
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: #aaa;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  text-align: left;
+}
+
+.nbhd-toggle:hover {
+  border-color: #f59e0b44;
+  color: #e8e8f0;
+}
+
+.nbhd-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+  padding: 4px 0;
+}
+
+.nbhd-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.nbhd-row:hover {
+  background: #12121a;
+}
+
+.nbhd-row.nbhd-pinned {
+  background: #f59e0b08;
+  border-left: 2px solid #f59e0b66;
+  padding-left: 8px;
+}
+
+.nbhd-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nbhd-name {
+  font-size: 11px;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.nbhd-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nbhd-badge.live {
+  background: #22c55e12;
+  border: 1px solid #22c55e33;
+  color: #22c55e;
+}
+
+.nbhd-badge.est {
+  background: #55555512;
+  border: 1px solid #55555533;
+  color: #666;
+}
+
+.nbhd-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.nbhd-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #12121a;
+  border: 1px solid #1e1e2e;
+  border-radius: 6px;
+  padding: 3px 6px;
+}
+
+.nbhd-input-wrap:focus-within {
+  border-color: #f59e0b44;
+}
+
+.nbhd-input {
+  width: 44px !important;
+  font-size: 11px !important;
+}
+
+.nbhd-reset-btn {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.nbhd-reset-btn:hover {
+  color: #ef4444;
+}
+
+.nbhd-pin-hint {
+  font-size: 10px;
+  opacity: 0.3;
+  cursor: default;
+}
+
+.nbhd-effective {
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.nbhd-reset-all {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid #1e1e2e;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #555;
+  font-size: 11px;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  margin-top: 6px;
+  transition: all 0.2s;
+}
+
+.nbhd-reset-all:hover {
+  border-color: #f59e0b44;
+  color: #f59e0b;
+}
+
 /* Footer */
 .sidebar-footer {
   display: flex;

@@ -9,6 +9,8 @@ export const DEFAULT_ASSUMPTIONS = {
   brokerPct:          5,  // % of gross sellout
   profitTargetPct:   15,  // % of gross sellout (developer margin)
   carryPct:           8,  // % of (hard + soft) — simplified construction carry
+  psfMultiplier:    1.0,  // market scenario multiplier (0.8 = bear, 1.2 = bull)
+  psfOverrides:      {},  // { 'West Village': 3800 } — user-locked neighborhood PSFs
 }
 
 function loadAssumptions() {
@@ -93,6 +95,38 @@ export function useUnderwritingAssumptions() {
     return !!(o && Object.keys(o).length > 0)
   }, [overrides])
 
+  // Set a neighborhood-level PSF override (by neighborhood name, e.g. 'West Village')
+  const updatePsfOverride = useCallback((neighborhoodName, psf) => {
+    setAssumptions(prev => {
+      const next = {
+        ...prev,
+        psfOverrides: { ...(prev.psfOverrides || {}), [neighborhoodName]: psf },
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
+  // Remove a single neighborhood PSF override (reverts to live/hardcoded + multiplier)
+  const resetPsfOverride = useCallback((neighborhoodName) => {
+    setAssumptions(prev => {
+      const newOverrides = { ...(prev.psfOverrides || {}) }
+      delete newOverrides[neighborhoodName]
+      const next = { ...prev, psfOverrides: newOverrides }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
+  // Clear all neighborhood PSF overrides and reset multiplier to 1.0
+  const resetAllPsf = useCallback(() => {
+    setAssumptions(prev => {
+      const next = { ...prev, psfOverrides: {}, psfMultiplier: 1.0 }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   return {
     assumptions,
     updateAssumption,
@@ -101,5 +135,8 @@ export function useUnderwritingAssumptions() {
     setPropertyOverride,
     clearPropertyOverride,
     hasOverride,
+    updatePsfOverride,
+    resetPsfOverride,
+    resetAllPsf,
   }
 }

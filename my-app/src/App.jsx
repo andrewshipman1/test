@@ -5,6 +5,7 @@ import PropertyDrawer from './components/PropertyDrawer'
 import Header from './components/Header'
 import { useSavedProperties } from './hooks/useSavedProperties'
 import { useUnderwritingAssumptions } from './hooks/useUnderwritingAssumptions'
+import { useMarketPsf } from './hooks/useMarketPsf'
 import './App.css'
 
 export default function App() {
@@ -26,7 +27,9 @@ export default function App() {
   const {
     assumptions, updateAssumption, resetAssumptions,
     getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
+    updatePsfOverride, resetPsfOverride, resetAllPsf,
   } = useUnderwritingAssumptions()
+  const { livePsf } = useMarketPsf()
 
   // When clicking a saved lot in sidebar: fly to it and open drawer
   const handleSelectSaved = (property) => {
@@ -56,6 +59,10 @@ export default function App() {
           assumptions={assumptions}
           updateAssumption={updateAssumption}
           resetAssumptions={resetAssumptions}
+          updatePsfOverride={updatePsfOverride}
+          resetPsfOverride={resetPsfOverride}
+          resetAllPsf={resetAllPsf}
+          livePsf={livePsf}
         />
         <MapView
           filters={filters}
@@ -79,6 +86,7 @@ export default function App() {
             setPropertyOverride={setPropertyOverride}
             clearPropertyOverride={clearPropertyOverride}
             hasOverride={hasOverride}
+            livePsf={livePsf}
           />
         )}
       </div>
