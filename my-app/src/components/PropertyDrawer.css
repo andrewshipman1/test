@@ -142,6 +142,7 @@
   border: 1px solid #1e1e2e;
   border-radius: 10px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .section-header {

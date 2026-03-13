@@ -1,83 +1,66 @@
 import { useState, useEffect } from 'react'
 
-const ACRIS_LEGALS = 'https://data.cityofnewyork.us/resource/8h5j-fqxa.json'
-const ACRIS_MASTER = 'https://data.cityofnewyork.us/resource/bnx9-e6tj.json'
+// NYC DOF Rolling Calendar Sales — has sale_price + sale_date, queryable by borough/block/lot
+const DOF_SALES_API = 'https://data.cityofnewyork.us/resource/usep-8jbt.json'
 
-const DEED_TYPES = new Set(['DEED', 'DEED, WITH COVE', 'DEED, WITH COVENANT'])
+// Parse a 10-digit BBL integer string into { borough, block, lot }
+function parseBBL(bbl) {
+  const s = String(Math.round(Number(bbl))).padStart(10, '0')
+  return {
+    borough: parseInt(s[0], 10),
+    block:   parseInt(s.slice(1, 6), 10),
+    lot:     parseInt(s.slice(6), 10),
+  }
+}
 
 export function useAcrisComps(bbl) {
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!bbl) return
     let cancelled = false
 
-    async function fetch_comps() {
+    async function fetchSales() {
       setLoading(true)
       setSales([])
-      setError(null)
       try {
-        // Step 1: Get recent deed documents for this BBL
-        const legalParams = new URLSearchParams({
-          bbl: String(bbl).padStart(10, '0'),
-          $limit: 20,
-          $order: 'document_date DESC',
-          $select: 'document_id,document_date,doc_type'
+        const { borough, block, lot } = parseBBL(bbl)
+
+        const params = new URLSearchParams({
+          borough: String(borough),
+          block:   String(block),
+          lot:     String(lot),
+          $order:  'sale_date DESC',
+          $limit:  '10',
+          $select: 'sale_price,sale_date,building_class_at_time_of',
         })
-        const legalRes = await fetch(`${ACRIS_LEGALS}?${legalParams}`)
-        if (!legalRes.ok) throw new Error(`ACRIS error: ${legalRes.status}`)
-        const legals = await legalRes.json()
 
-        // Step 2: Filter to deed transfers only
-        const deedLegals = legals.filter(l =>
-          DEED_TYPES.has((l.doc_type || '').toUpperCase().trim())
-        ).slice(0, 5)
+        const res = await fetch(`${DOF_SALES_API}?${params}`)
+        if (!res.ok) throw new Error(`DOF sales error: ${res.status}`)
+        const rows = await res.json()
 
-        if (deedLegals.length === 0) {
-          if (!cancelled) setSales([])
-          return
-        }
-
-        // Step 3: Fetch sale prices from master records
-        const docIds = deedLegals.map(l => `'${l.document_id}'`).join(',')
-        const masterParams = new URLSearchParams({
-          $where: `document_id IN (${docIds})`,
-          $select: 'document_id,doc_type,document_date,consideration',
-          $limit: 20
-        })
-        const masterRes = await fetch(`${ACRIS_MASTER}?${masterParams}`)
-        if (!masterRes.ok) throw new Error(`ACRIS master error: ${masterRes.status}`)
-        const masters = await masterRes.json()
-
-        // Step 4: Join and format
-        const masterMap = Object.fromEntries(masters.map(m => [m.document_id, m]))
-        const result = deedLegals
-          .map(l => {
-            const m = masterMap[l.document_id]
-            const price = m ? parseFloat(m.consideration) : 0
-            return {
-              date: (m?.document_date || l.document_date || '').slice(0, 10),
-              price,
-              doc_type: m?.doc_type || l.doc_type,
-            }
-          })
-          .filter(s => s.price > 10000)  // filter out $0 transfers, intra-family, etc.
+        const result = rows
+          .map(r => ({
+            date:  (r.sale_date || '').slice(0, 10),
+            price: parseFloat(r.sale_price) || 0,
+            bldg_class: r.building_class_at_time_of || '',
+          }))
+          .filter(s => s.price > 10000)   // filter $0 / nominal transfers
           .slice(0, 4)
 
         if (!cancelled) setSales(result)
       } catch (err) {
-        console.warn('ACRIS fetch failed:', err.message)
-        if (!cancelled) setError(err.message)
+        console.warn('DOF sales fetch failed:', err.message)
+        if (!cancelled) setSales([])
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
 
-    fetch_comps()
+    fetchSales()
     return () => { cancelled = true }
   }, [bbl])
 
-  return { sales, loading, error }
+  return { sales, loading }
 }

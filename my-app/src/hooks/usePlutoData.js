@@ -111,7 +111,7 @@ function computeScore(lot) {
 }
 
 // Normalize a raw PLUTO lot into a GeoJSON feature
-function toFeature(lot, index, landmarkSet) {
+function toFeature(lot, index) {
   const score = computeScore(lot)
   const lotArea = parseFloat(lot.lotarea) || 0
   const residFar = parseFloat(lot.residfar) || 0
@@ -150,7 +150,7 @@ function toFeature(lot, index, landmarkSet) {
       score,
       deal_type:        getDealType(lot.bldgclass, landUse),
       rent_stab_risk:   isLikelyRentStabilized(landUse, lot.unitsres, lot.yearbuilt),
-      has_landmark:     landmarkSet ? landmarkSet.has(bblInt) : false,
+      has_landmark:     !!(lot.landmark && lot.landmark.trim().length > 0),
       longitude:        parseFloat(lot.longitude),
       latitude:         parseFloat(lot.latitude),
     }
@@ -174,23 +174,15 @@ export function usePlutoData(filters) {
             'bbl', 'address', 'zipcode', 'ownername', 'landuse', 'bldgclass',
             'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
             'residfar', 'commfar', 'builtfar', 'numfloors', 'yearbuilt',
-            'unitsres', 'assesstot', 'latitude', 'longitude'
+            'unitsres', 'assesstot', 'latitude', 'longitude', 'landmark'
           ].join(','),
           $where: 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0',
           $order: 'lotarea DESC'
         })
 
-        const LANDMARK_API = 'https://data.cityofnewyork.us/resource/f7ej-9ynb.json?$select=bbl&$limit=5000'
-
-        const [lotsRes, landmarksRes] = await Promise.all([
-          fetch(`${NYC_API}?${params}`),
-          fetch(LANDMARK_API).catch(() => ({ ok: false }))
-        ])
+        const lotsRes = await fetch(`${NYC_API}?${params}`)
         if (!lotsRes.ok) throw new Error(`NYC API error: ${lotsRes.status}`)
         const lots = await lotsRes.json()
-        const landmarkSet = landmarksRes.ok
-          ? new Set((await landmarksRes.json()).map(l => Math.round(parseFloat(l.bbl))))
-          : new Set()
 
         const zones = new Set()
         const features = lots
@@ -201,7 +193,7 @@ export function usePlutoData(filters) {
           })
           .map((lot, i) => {
             if (lot.zonedist1) zones.add(lot.zonedist1)
-            return toFeature(lot, i, landmarkSet)
+            return toFeature(lot, i)
           })
 
         setAllFeatures(features)

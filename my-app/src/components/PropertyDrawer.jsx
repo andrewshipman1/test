@@ -95,9 +95,12 @@ function ScoreBar({ label, points, max, value }) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function PropertyDrawer({ property, onClose, assemblageLots, setAssemblageLots, isSaved, toggleSave }) {
+  // All hooks MUST come before any conditional returns (Rules of Hooks)
+  const [copied, setCopied] = useState(false)
+  const { sales, loading: salesLoading } = useAcrisComps(property?.bbl)
+
   if (!property) return null
 
-  const [copied, setCopied] = useState(false)
   const saved = isSaved ? isSaved(property.bbl) : false
   const isInAssemblage = assemblageLots.some(l => l.bbl === property.bbl)
   const isCoop   = property.deal_type === 'COOP'
@@ -126,9 +129,6 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
 
   // Deal type
   const dtConfig = DEAL_TYPE_CONFIG[property.deal_type] || DEAL_TYPE_CONFIG.TEARDOWN
-
-  // ACRIS comps
-  const { sales, loading: salesLoading } = useAcrisComps(property.bbl)
 
   // Score components
   const scoreComponents = [
