@@ -1,5 +1,20 @@
-import { Filter, Target, Building2, TrendingUp, RotateCcw } from 'lucide-react'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin } from 'lucide-react'
 import './Sidebar.css'
+
+const DEAL_TYPE_COLORS = {
+  VACANT:     '#22c55e',
+  TEARDOWN:   '#f97316',
+  GARAGE:     '#f59e0b',
+  CONVERSION: '#8b5cf6',
+  COMMERCIAL: '#06b6d4',
+  COOP:       '#ef4444',
+  CONDO:      '#ef4444',
+}
+
+const DEAL_TYPE_LABELS = {
+  VACANT: 'Vacant', TEARDOWN: 'Teardown', GARAGE: 'Garage',
+  CONVERSION: 'Conversion', COMMERCIAL: 'Commercial', COOP: 'Co-op', CONDO: 'Condo',
+}
 
 const LAND_USE_OPTIONS = [
   { value: 'all',  label: 'All Land Uses' },
@@ -16,7 +31,6 @@ const LAND_USE_OPTIONS = [
   { value: '11',   label: '11 · Vacant Land' },
 ]
 
-// Zoning type pills — maps to real zone code prefixes
 const ZONE_TYPES = [
   { value: 'all', label: 'All' },
   { value: 'residential', label: 'Residential' },
@@ -36,145 +50,100 @@ const DEFAULT_FILTERS = {
   cityOfYesOnly: false,
 }
 
-export default function Sidebar({ filters, setFilters, assemblageLots, setAssemblageLots, zoningDistricts }) {
-  const [activeTab, setActiveTab] = [
-    filters._tab || 'filters',
-    (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
-  ]
-
-  const updateFilter = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  const isInAssemblage = (bbl) => assemblageLots.some(l => l.bbl === bbl)
+export default function Sidebar({
+  filters, setFilters,
+  assemblageLots, setAssemblageLots,
+  zoningDistricts,
+  savedProperties, removeSaved, onSelectSaved
+}) {
+  const activeTab = filters._tab || 'filters'
+  const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
+  const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
 
   return (
     <div className="sidebar">
       {/* Tab navigation */}
       <div className="sidebar-tabs">
-        <button
-          className={`tab-btn ${activeTab === 'filters' ? 'active' : ''}`}
-          onClick={() => setFilters(prev => ({ ...prev, _tab: 'filters' }))}
-        >
-          <Filter size={14} />
-          Filters
+        <button className={`tab-btn ${activeTab === 'filters' ? 'active' : ''}`} onClick={() => setTab('filters')}>
+          <Filter size={14} /> Filters
         </button>
-        <button
-          className={`tab-btn ${activeTab === 'assemblage' ? 'active' : ''}`}
-          onClick={() => setFilters(prev => ({ ...prev, _tab: 'assemblage' }))}
-        >
-          <Target size={14} />
-          Assemble
-          {assemblageLots.length > 0 && (
-            <span className="tab-badge">{assemblageLots.length}</span>
-          )}
+        <button className={`tab-btn ${activeTab === 'assemblage' ? 'active' : ''}`} onClick={() => setTab('assemblage')}>
+          <Target size={14} /> Assemble
+          {assemblageLots.length > 0 && <span className="tab-badge">{assemblageLots.length}</span>}
+        </button>
+        <button className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setTab('saved')}>
+          <Bookmark size={14} /> Saved
+          {savedProperties?.length > 0 && <span className="tab-badge">{savedProperties.length}</span>}
         </button>
       </div>
 
       <div className="sidebar-content">
 
-        {/* FILTERS TAB */}
-        {activeTab !== 'assemblage' && (
+        {/* ── FILTERS TAB ── */}
+        {activeTab === 'filters' && (
           <div className="tab-panel">
-
-            <div className="section-title">
-              <TrendingUp size={13} />
-              Opportunity Score
-            </div>
+            <div className="section-title"><TrendingUp size={13} /> Opportunity Score</div>
             <div className="slider-group">
               <div className="slider-labels">
                 <span>Minimum</span>
                 <span className="slider-value">{filters.minOpportunityScore}+</span>
               </div>
-              <input
-                type="range" min="0" max="100"
+              <input type="range" min="0" max="100"
                 value={filters.minOpportunityScore}
                 onChange={e => updateFilter('minOpportunityScore', Number(e.target.value))}
                 className="slider"
               />
-              <div className="slider-ticks">
-                <span>Any</span>
-                <span>50</span>
-                <span>Top</span>
-              </div>
+              <div className="slider-ticks"><span>Any</span><span>50</span><span>Top</span></div>
             </div>
 
-            <div className="section-title">
-              <Building2 size={13} />
-              Land Use
-            </div>
+            <div className="section-title"><Building2 size={13} /> Land Use</div>
             <div className="select-group">
-              <select
-                value={filters.landUse}
-                onChange={e => updateFilter('landUse', e.target.value)}
-                className="styled-select"
-              >
-                {LAND_USE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
+              <select value={filters.landUse} onChange={e => updateFilter('landUse', e.target.value)} className="styled-select">
+                {LAND_USE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
             </div>
 
-            <div className="section-title">
-              <Building2 size={13} />
-              Zoning Type
-            </div>
+            <div className="section-title"><Building2 size={13} /> Zoning Type</div>
             <div className="zone-pills">
               {ZONE_TYPES.map(z => (
                 <button
                   key={z.value}
                   className={`zone-pill ${(filters.zoningType || 'all') === z.value ? 'active' : ''}`}
                   onClick={() => updateFilter('zoningType', z.value)}
-                >
-                  {z.label}
-                </button>
+                >{z.label}</button>
               ))}
             </div>
 
-            <div className="section-title">
-              <TrendingUp size={13} />
-              Min Allowed FAR
-            </div>
+            <div className="section-title"><TrendingUp size={13} /> Min Allowed FAR</div>
             <div className="slider-group">
               <div className="slider-labels">
                 <span>Minimum</span>
                 <span className="slider-value">{filters.minAllowedFAR > 0 ? `${filters.minAllowedFAR}+` : 'Any'}</span>
               </div>
-              <input
-                type="range" min="0" max="15" step="0.5"
+              <input type="range" min="0" max="15" step="0.5"
                 value={filters.minAllowedFAR || 0}
                 onChange={e => updateFilter('minAllowedFAR', Number(e.target.value))}
                 className="slider"
               />
-              <div className="slider-ticks">
-                <span>Any</span>
-                <span>R8 (~6)</span>
-                <span>R10 (15)</span>
-              </div>
+              <div className="slider-ticks"><span>Any</span><span>R8 (~6)</span><span>R10 (15)</span></div>
             </div>
 
             <div className="section-title">Quick Filters</div>
             <div className="toggle-group">
               <label className="toggle-label">
                 <span>Vacant lots only</span>
-                <div
-                  className={`toggle ${filters.showVacantOnly ? 'on' : ''}`}
-                  onClick={() => updateFilter('showVacantOnly', !filters.showVacantOnly)}
-                />
+                <div className={`toggle ${filters.showVacantOnly ? 'on' : ''}`}
+                  onClick={() => updateFilter('showVacantOnly', !filters.showVacantOnly)} />
               </label>
             </div>
 
-            <button
-              className="reset-btn"
-              onClick={() => setFilters(DEFAULT_FILTERS)}
-            >
-              <RotateCcw size={12} />
-              Reset Filters
+            <button className="reset-btn" onClick={() => setFilters(DEFAULT_FILTERS)}>
+              <RotateCcw size={12} /> Reset Filters
             </button>
           </div>
         )}
 
-        {/* ASSEMBLAGE TAB */}
+        {/* ── ASSEMBLAGE TAB ── */}
         {activeTab === 'assemblage' && (
           <div className="tab-panel">
             <div className="assemblage-header">
@@ -198,14 +167,9 @@ export default function Sidebar({ filters, setFilters, assemblageLots, setAssemb
                     <div className="lot-number">{i + 1}</div>
                     <div className="lot-info">
                       <div className="lot-address">{lot.address || lot.bbl}</div>
-                      <div className="lot-stats">
-                        {Number(lot.lot_area || 0).toLocaleString()} SF · FAR {lot.res_far || '—'}
-                      </div>
+                      <div className="lot-stats">{Number(lot.lot_area || 0).toLocaleString()} SF · FAR {lot.res_far || '—'}</div>
                     </div>
-                    <button
-                      className="remove-btn"
-                      onClick={() => setAssemblageLots(prev => prev.filter(l => l.bbl !== lot.bbl))}
-                    >×</button>
+                    <button className="remove-btn" onClick={() => setAssemblageLots(prev => prev.filter(l => l.bbl !== lot.bbl))}>×</button>
                   </div>
                 ))}
 
@@ -214,15 +178,11 @@ export default function Sidebar({ filters, setFilters, assemblageLots, setAssemb
                   <div className="summary-stats">
                     <div className="stat-row">
                       <span>Total Lot Area</span>
-                      <span className="stat-val">
-                        {assemblageLots.reduce((s, l) => s + Number(l.lot_area || 0), 0).toLocaleString()} SF
-                      </span>
+                      <span className="stat-val">{assemblageLots.reduce((s, l) => s + Number(l.lot_area || 0), 0).toLocaleString()} SF</span>
                     </div>
                     <div className="stat-row">
                       <span>Max Buildable</span>
-                      <span className="stat-val highlight">
-                        {assemblageLots.reduce((s, l) => s + (Number(l.res_far || 0) * Number(l.lot_area || 0)), 0).toLocaleString()} SF
-                      </span>
+                      <span className="stat-val highlight">{assemblageLots.reduce((s, l) => s + (Number(l.res_far || 0) * Number(l.lot_area || 0)), 0).toLocaleString()} SF</span>
                     </div>
                     <div className="stat-row">
                       <span>Est. Air Rights Value</span>
@@ -238,14 +198,59 @@ export default function Sidebar({ filters, setFilters, assemblageLots, setAssemb
                       <span className="stat-val">{assemblageLots.length}</span>
                     </div>
                   </div>
-                  <button className="clear-assemblage-btn" onClick={() => setAssemblageLots([])}>
-                    Clear All
-                  </button>
+                  <button className="clear-assemblage-btn" onClick={() => setAssemblageLots([])}>Clear All</button>
                 </div>
               </div>
             )}
           </div>
         )}
+
+        {/* ── SAVED TAB ── */}
+        {activeTab === 'saved' && (
+          <div className="tab-panel">
+            <div className="saved-header">
+              <Bookmark size={16} color="#f59e0b" />
+              <div>
+                <div className="assemblage-title">Saved Properties</div>
+                <div className="assemblage-sub">Click a lot to fly to it on the map</div>
+              </div>
+            </div>
+
+            {!savedProperties || savedProperties.length === 0 ? (
+              <div className="empty-state">
+                <Bookmark size={32} color="#333" />
+                <p>No saved properties</p>
+                <p className="empty-sub">Click the bookmark icon in any property drawer to save it here</p>
+              </div>
+            ) : (
+              <div className="saved-list">
+                {savedProperties.map(prop => {
+                  const color = DEAL_TYPE_COLORS[prop.deal_type] || '#f97316'
+                  const label = DEAL_TYPE_LABELS[prop.deal_type] || 'Teardown'
+                  return (
+                    <div key={prop.bbl} className="saved-item" onClick={() => onSelectSaved && onSelectSaved(prop)}>
+                      <div className="saved-item-body">
+                        <div className="saved-address">{prop.address || prop.bbl}</div>
+                        <div className="saved-meta">
+                          <span className="saved-type-chip" style={{ color, borderColor: `${color}44`, background: `${color}11` }}>{label}</span>
+                          <span className="saved-score">Score {prop.score || 0}</span>
+                        </div>
+                      </div>
+                      <div className="saved-item-actions">
+                        <MapPin size={12} color="#444" />
+                        <button
+                          className="remove-btn"
+                          onClick={e => { e.stopPropagation(); removeSaved && removeSaved(prop.bbl) }}
+                        >×</button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
 
       <div className="sidebar-footer">

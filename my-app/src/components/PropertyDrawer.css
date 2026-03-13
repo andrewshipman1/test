@@ -27,6 +27,42 @@
   margin-bottom: 10px;
 }
 
+.drawer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.header-icon-btn {
+  background: #12121a;
+  border: 1px solid #1e1e2e;
+  border-radius: 7px;
+  padding: 6px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.header-icon-btn:hover {
+  border-color: #f59e0b44;
+  color: #f59e0b;
+}
+
+.header-icon-btn.active-save {
+  background: #f59e0b18;
+  border-color: #f59e0b66;
+  color: #f59e0b;
+}
+
+.header-icon-btn.active-copy {
+  background: #22c55e18;
+  border-color: #22c55e66;
+  color: #22c55e;
+}
+
 .drawer-address {
   font-size: 15px;
   font-weight: 700;
@@ -365,4 +401,64 @@
   font-size: 11px;
   color: #555;
   text-align: center;
+}
+
+/* ── Recent Sales ───────────────────────────────────────────────────────── */
+
+.sales-list {
+  padding: 4px 0;
+}
+
+.sale-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid #ffffff05;
+}
+
+.sale-row:last-child {
+  border-bottom: none;
+}
+
+.sale-date {
+  color: #666;
+  font-variant-numeric: tabular-nums;
+}
+
+.sale-price {
+  color: #e8e8f0;
+  font-weight: 600;
+}
+
+.sales-empty {
+  padding: 12px;
+  font-size: 11px;
+  color: #444;
+  text-align: center;
+}
+
+.sales-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.sales-skeleton {
+  height: 14px;
+  background: linear-gradient(90deg, #1e1e2e 25%, #252535 50%, #1e1e2e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+}
+
+.sales-skeleton.short {
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

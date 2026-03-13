@@ -1,5 +1,7 @@
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, Target, Landmark, DollarSign, Layers } from 'lucide-react'
+import { useState } from 'react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown } from 'lucide-react'
 import { NEIGHBORHOOD_PSF } from '../hooks/usePlutoData'
+import { useAcrisComps } from '../hooks/useAcrisData'
 import './PropertyDrawer.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -25,8 +27,19 @@ const LAND_USE_LABELS = {
 function fmt(n) { return Number(n || 0).toLocaleString() }
 function fmtM(n) { return `$${(n / 1e6).toFixed(1)}M` }
 
+function formatBBL(bbl) {
+  const s = String(Math.round(Number(bbl))).padStart(10, '0')
+  return `${s[0]}-${s.slice(1, 6)}-${s.slice(6)}`
+}
+
 function scoreColor(s) {
   return s >= 80 ? '#ef4444' : s >= 60 ? '#f97316' : s >= 40 ? '#f59e0b' : '#eab308'
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—'
+  const [y, m, d] = iso.slice(0, 10).split('-')
+  return `${m}/${d}/${y}`
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -81,9 +94,11 @@ function ScoreBar({ label, points, max, value }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export default function PropertyDrawer({ property, onClose, assemblageLots, setAssemblageLots }) {
+export default function PropertyDrawer({ property, onClose, assemblageLots, setAssemblageLots, isSaved, toggleSave }) {
   if (!property) return null
 
+  const [copied, setCopied] = useState(false)
+  const saved = isSaved ? isSaved(property.bbl) : false
   const isInAssemblage = assemblageLots.some(l => l.bbl === property.bbl)
   const isCoop   = property.deal_type === 'COOP'
   const isCondo  = property.deal_type === 'CONDO'
@@ -101,8 +116,8 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
   // Economics
   const nbhd       = NEIGHBORHOOD_PSF[property.zipcode] || { name: 'Manhattan', psf: 2500 }
   const grossSellout = maxBuildable * nbhd.psf
-  const constructionCost = maxBuildable * 500   // ~$500/SF luxury
-  const devProfit  = grossSellout * 0.18         // ~18% developer margin
+  const constructionCost = maxBuildable * 500
+  const devProfit  = grossSellout * 0.18
   const impliedLandValue = Math.max(0, grossSellout - constructionCost - devProfit)
   const pricePerBuildableSF = maxBuildable > 0 ? Math.round(impliedLandValue / maxBuildable) : 0
   const assessedValue = Number(property.assess_total) || 0
@@ -111,6 +126,9 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
 
   // Deal type
   const dtConfig = DEAL_TYPE_CONFIG[property.deal_type] || DEAL_TYPE_CONFIG.TEARDOWN
+
+  // ACRIS comps
+  const { sales, loading: salesLoading } = useAcrisComps(property.bbl)
 
   // Score components
   const scoreComponents = [
@@ -154,6 +172,32 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
     }
   }
 
+  const handleCopy = () => {
+    const text = [
+      `${property.address || 'No Address'} — BBL ${formatBBL(property.bbl)}`,
+      `Deal Type: ${dtConfig.label} | Score: ${score}`,
+      `${nbhd.name} | $${nbhd.psf.toLocaleString()}/SF market`,
+      '',
+      'THE BUILD',
+      `  Lot: ${fmt(lotArea)} SF | Max Buildable: ${fmt(maxBuildable)} SF | Unused FAR: ${fmt(availFAR)} SF`,
+      `  Zone: ${property.zone_dist || '—'} | Res FAR: ${residFar || '—'} | Built FAR: ${builtFar || '—'}`,
+      '',
+      'ECONOMICS (EST.)',
+      `  Gross Sellout: ${grossSellout > 0 ? fmtM(grossSellout) : '—'} | Implied Land Value: ${impliedLandValue > 0 ? fmtM(impliedLandValue) : '—'}`,
+      `  $/Buildable SF: ${pricePerBuildableSF > 0 ? `$${pricePerBuildableSF.toLocaleString()}` : '—'} | Assessed: ${assessedValue > 0 ? fmtM(assessedValue) : '—'}`,
+      '',
+      'OWNERSHIP',
+      `  Owner: ${property.owner_name || '—'} | Units: ${property.units_res || 0}`,
+      '',
+      'Source: NYC PLUTO + ATLAS',
+    ].join('\n')
+
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   return (
     <div className="property-drawer">
 
@@ -162,9 +206,25 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
         <div className="drawer-header-top">
           <div>
             <div className="drawer-address">{property.address || 'No Address'}</div>
-            <div className="drawer-neighborhood">{nbhd.name} · BBL {property.bbl}</div>
+            <div className="drawer-neighborhood">{nbhd.name} · BBL {formatBBL(property.bbl)}</div>
           </div>
-          <button className="close-btn" onClick={onClose}><X size={16} /></button>
+          <div className="drawer-header-actions">
+            <button
+              className={`header-icon-btn ${saved ? 'active-save' : ''}`}
+              onClick={() => toggleSave && toggleSave(property)}
+              title={saved ? 'Remove from saved' : 'Save property'}
+            >
+              {saved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+            </button>
+            <button
+              className={`header-icon-btn ${copied ? 'active-copy' : ''}`}
+              onClick={handleCopy}
+              title="Copy deal brief"
+            >
+              {copied ? <CheckCheck size={15} /> : <Copy size={15} />}
+            </button>
+            <button className="close-btn" onClick={onClose}><X size={16} /></button>
+          </div>
         </div>
 
         <div className="drawer-header-tags">
@@ -213,7 +273,7 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
           </div>
         </div>
 
-        {/* ── The Economics ── */}
+        {/* ── Economics ── */}
         <div className="drawer-section">
           <div className="section-header"><DollarSign size={13} /> Economics (Est.)</div>
           <div className="econ-neighborhood">
@@ -236,19 +296,41 @@ export default function PropertyDrawer({ property, onClose, assemblageLots, setA
           </div>
         </div>
 
+        {/* ── Recent Sales (ACRIS) ── */}
+        <div className="drawer-section">
+          <div className="section-header"><TrendingDown size={13} /> Recent Sales</div>
+          {salesLoading ? (
+            <div className="sales-loading">
+              <div className="sales-skeleton" />
+              <div className="sales-skeleton" />
+              <div className="sales-skeleton short" />
+            </div>
+          ) : sales.length > 0 ? (
+            <div className="sales-list">
+              {sales.map((s, i) => (
+                <div key={i} className="sale-row">
+                  <span className="sale-date">{fmtDate(s.date)}</span>
+                  <span className="sale-price">{s.price > 0 ? fmtM(s.price) : '—'}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="sales-empty">No recorded arm's-length transfers</div>
+          )}
+        </div>
+
         {/* ── Ownership ── */}
         <div className="drawer-section">
           <div className="section-header"><User size={13} /> Ownership</div>
           <div className="info-rows">
             <InfoRow label="Owner" value={property.owner_name} />
             <InfoRow label="Building Class" value={property.bldg_class} />
-
             <InfoRow label="Residential Units" value={property.units_res > 0 ? property.units_res : 'N/A'} />
             <InfoRow label="Assessed Value" value={assessedValue > 0 ? `$${fmt(assessedValue)}` : '—'} />
           </div>
         </div>
 
-        {/* ── Opportunity Score Breakdown ── */}
+        {/* ── Score Breakdown ── */}
         <div className="drawer-section">
           <div className="section-header"><TrendingUp size={13} /> Score Breakdown</div>
           <div className="score-bars">
