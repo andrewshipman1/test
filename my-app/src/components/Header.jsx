@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { MapPin, Bell, Search, X, Loader } from 'lucide-react'
+import { MapPin, Search, X, Loader } from 'lucide-react'
 import './Header.css'
 
 export default function Header({ onSearch }) {
@@ -137,10 +137,6 @@ export default function Header({ onSearch }) {
           <span className="pulse-dot" />
           <span className="pulse-text">Live Data</span>
         </div>
-        <button className="icon-btn">
-          <Bell size={18} />
-        </button>
-        <button className="upgrade-btn">Pro Access</button>
       </div>
     </header>
   )
