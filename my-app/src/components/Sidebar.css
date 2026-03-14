@@ -1315,3 +1315,58 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── Saved note preview ──────────────────────────────────────────────────── */
+
+.saved-note-preview {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-style: italic;
+  line-height: 1.4;
+  padding: 3px 6px;
+  background: rgba(245,158,11,0.06);
+  border-left: 2px solid rgba(245,158,11,0.25);
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── Pipeline map toggle button (in pipeline header) ─────────────────────── */
+
+.pipeline-map-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 9px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.pipeline-map-btn:hover {
+  border-color: #22d3ee44;
+  color: #22d3ee;
+}
+
+.pipeline-map-btn.active {
+  border-color: #22d3ee55;
+  color: #22d3ee;
+  background: rgba(34,211,238,0.08);
+}
+
+.pipeline-map-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pipeline-map-dot.nb { background: #22d3ee; }
+.pipeline-map-dot.dm { background: #f97316; }

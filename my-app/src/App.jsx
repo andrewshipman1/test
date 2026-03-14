@@ -7,6 +7,8 @@ import { useSavedProperties } from './hooks/useSavedProperties'
 import { useUnderwritingAssumptions } from './hooks/useUnderwritingAssumptions'
 import { useMarketPsf } from './hooks/useMarketPsf'
 import { usePipelineData } from './hooks/usePipelineData'
+import { useDealNotes } from './hooks/useDealNotes'
+import { useMarketSignals } from './hooks/useMarketSignals'
 import './App.css'
 
 export default function App() {
@@ -27,6 +29,7 @@ export default function App() {
   const [showPipeline, setShowPipeline] = useState(false)
 
   const { savedProperties, isSaved, toggleSave, removeSaved } = useSavedProperties()
+  const { notes, setNote, getNote } = useDealNotes()
   const {
     assumptions, updateAssumption, resetAssumptions,
     getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
@@ -34,6 +37,7 @@ export default function App() {
   } = useUnderwritingAssumptions()
   const { livePsf } = useMarketPsf()
   const { permits, loading: pipelineLoading, summary: pipelineSummary } = usePipelineData()
+  const { signals: marketSignals } = useMarketSignals()
 
   // Pipeline GeoJSON: built directly from lat/lng on each permit (no BBL join needed)
   const pipelineGeoJSON = useMemo(() => {
@@ -109,6 +113,9 @@ export default function App() {
           pipelineLoading={pipelineLoading}
           pipelineSummary={pipelineSummary}
           onSelectPermit={handleSelectPermit}
+          notes={notes}
+          showPipeline={showPipeline}
+          onTogglePipeline={setShowPipeline}
         />
         <MapView
           filters={filters}
@@ -122,6 +129,7 @@ export default function App() {
           pipelineData={pipelineGeoJSON}
           showPipeline={showPipeline}
           onTogglePipeline={setShowPipeline}
+          marketSignals={marketSignals}
         />
         {selectedProperty && (
           <PropertyDrawer
@@ -138,6 +146,11 @@ export default function App() {
             hasOverride={hasOverride}
             livePsf={livePsf}
             allFeatures={allFeatures}
+            getNote={getNote}
+            setNote={setNote}
+            onOpenModelTab={() => setFilters(prev => ({ ...prev, _tab: 'proforma' }))}
+            marketSignals={marketSignals}
+            onFlyToLot={(lat, lng, label) => setSearchTarget({ lat, lng, label })}
           />
         )}
       </div>

@@ -81,6 +81,9 @@ export default function Sidebar({
   pipelineLoading = false,
   pipelineSummary = { nbCount: 0, dmCount: 0 },
   onSelectPermit,
+  notes = {},
+  showPipeline = false,
+  onTogglePipeline,
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
@@ -414,6 +417,13 @@ export default function Sidebar({
                           <span className="saved-type-chip" style={{ color, borderColor: `${color}44`, background: `${color}11` }}>{label}</span>
                           <span className="saved-score">Score {prop.score || 0}</span>
                         </div>
+                        {notes?.[prop.bbl] && (
+                          <div className="saved-note-preview">
+                            {notes[prop.bbl].length > 70
+                              ? notes[prop.bbl].slice(0, 70) + '…'
+                              : notes[prop.bbl]}
+                          </div>
+                        )}
                       </div>
                       <div className="saved-item-actions">
                         <MapPin size={12} color="#444" />
@@ -658,6 +668,15 @@ export default function Sidebar({
                     : `${pipelineSummary.nbCount} new buildings · ${pipelineSummary.dmCount} demolitions`}
                 </div>
               </div>
+              <button
+                className={`pipeline-map-btn ${showPipeline ? 'active' : ''}`}
+                onClick={() => onTogglePipeline && onTogglePipeline(!showPipeline)}
+                title={showPipeline ? 'Hide dots on map' : 'Show permits on map'}
+              >
+                <span className="pipeline-map-dot nb" />
+                <span className="pipeline-map-dot dm" />
+                {showPipeline ? 'On Map' : 'Map'}
+              </button>
             </div>
 
             {/* Filter pills */}

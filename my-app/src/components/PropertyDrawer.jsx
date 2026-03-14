@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight } from 'lucide-react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight, FileText, Wind } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { getBlockNeighbors, isUnderbuilt } from '../utils/assemblageUtils'
+import { useOwnerPortfolio } from '../hooks/useOwnerPortfolio'
 import './PropertyDrawer.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -42,6 +43,44 @@ function fmtDate(iso) {
   if (!iso) return '—'
   const [y, m, d] = iso.slice(0, 10).split('-')
   return `${m}/${d}/${y}`
+}
+
+function fmtMonthYear(iso) {
+  if (!iso) return null
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+
+function holdingYears(iso) {
+  if (!iso) return null
+  const ms = Date.now() - new Date(iso + 'T12:00:00').getTime()
+  const yrs = Math.floor(ms / (365.25 * 24 * 3600 * 1000))
+  return yrs
+}
+
+function detectOwnerType(name) {
+  if (!name) return null
+  const n = name.toUpperCase()
+  if (/\b(LLC|LP|LLP|CORP|INC|TRUST|FUND|ASSOCIATION|PARTNERS?|REALTY|HOLDINGS?|PROPERTIES|ESTATES?)\b/.test(n)) return 'Entity'
+  return 'Individual'
+}
+
+const ZONE_DESCRIPTIONS = {
+  R1: 'Very low-density detached', R2: 'Low-density detached',
+  R3: 'Low-density residential mix', R4: 'Low-density residential',
+  R5: 'Low-density walk-up', R6: 'Medium-density contextual',
+  R7: 'Medium-density residential', R8: 'High-density residential',
+  R9: 'High-density tower', R10: 'Ultra-high-density (FAR 10+)',
+  C1: 'Local commercial overlay', C2: 'Local service commercial',
+  C4: 'Regional commercial', C5: 'Restricted central commercial',
+  C6: 'Dense central commercial', C8: 'Heavy commercial / auto',
+  M1: 'Light industrial', M2: 'Medium industrial', M3: 'Heavy industrial',
+}
+
+function getZoneDesc(zoneDist) {
+  if (!zoneDist) return null
+  const key2 = zoneDist.replace(/[^A-Z0-9]/gi, '').slice(0, 2).toUpperCase()
+  const key1 = key2[0]
+  return ZONE_DESCRIPTIONS[key2] || ZONE_DESCRIPTIONS[key1] || null
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -111,11 +150,22 @@ export default function PropertyDrawer({
   globalAssumptions, getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
   livePsf = {},
   allFeatures = [],
+  getNote,
+  setNote,
+  onOpenModelTab,
+  marketSignals,
+  onFlyToLot,
 }) {
   // All hooks MUST come before any conditional returns (Rules of Hooks)
   const [showOverrides, setShowOverrides] = useState(false)
   const [showBlockNeighbors, setShowBlockNeighbors] = useState(false)
+  const [showPortfolio, setShowPortfolio] = useState(false)
+  const [localNote, setLocalNote] = useState('')
   const { sales, loading: salesLoading } = useAcrisComps(property?.bbl)
+  const { portfolio, count: portfolioCount, loading: portfolioLoading } = useOwnerPortfolio(
+    property?.owner_name,
+    property?.bbl
+  )
 
   // Local editable values for per-property PSF / hard cost overrides
   const [localPsf,      setLocalPsf]      = useState(null)
@@ -128,6 +178,7 @@ export default function PropertyDrawer({
     setLocalPsf(a.selloutPsf ?? getEffectivePsf(property.zipcode, a, livePsf))
     setLocalHardCost(a.hardCostPerSF ?? (globalAssumptions?.hardCostPerSF ?? DEFAULT_ASSUMPTIONS.hardCostPerSF))
     setShowOverrides(false)
+    setLocalNote(getNote ? getNote(property.bbl) : '')
   }, [property?.bbl]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!property) return null
@@ -338,6 +389,43 @@ export default function PropertyDrawer({
           </div>
         )}
 
+        {/* ── Market Activity Signals ── */}
+        {(() => {
+          const bblKey = String(Math.round(Number(property.bbl || 0)))
+          const signals = (marketSignals?.[bblKey] || property.market_signals || [])
+          if (!signals.length) return null
+          const SIGNAL_CONFIG = {
+            recent_sale:   { icon: '🔄', label: 'Recent Deed Transfer', color: '#f97316' },
+            demo_permit:   { icon: '🔨', label: 'Demo Permit Filed',    color: '#ef4444' },
+            new_building:  { icon: '🏗',  label: 'New Building Permit',  color: '#22d3ee' },
+            city_owned:    { icon: '🏛',  label: 'City-Owned Property',  color: '#8b5cf6' },
+          }
+          return (
+            <div className="drawer-section activity-section">
+              <div className="section-header"><TrendingUp size={13} color="#f59e0b" /> Market Activity</div>
+              <div className="activity-signals">
+                {signals.map((s, i) => {
+                  const cfg = SIGNAL_CONFIG[s.type] || { icon: '•', label: s.label, color: '#555' }
+                  return (
+                    <div key={i} className="activity-chip" style={{ borderColor: `${cfg.color}33`, background: `${cfg.color}0d` }}>
+                      <span className="activity-icon">{cfg.icon}</span>
+                      <div className="activity-body">
+                        <span className="activity-label" style={{ color: cfg.color }}>{cfg.label}</span>
+                        {s.date && (
+                          <span className="activity-date">
+                            {new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        )}
+                        {s.agency && <span className="activity-date">{s.agency}</span>}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* ── The Build ── */}
         <div className="drawer-section">
           <div className="section-header"><Building2 size={13} /> The Build</div>
@@ -470,6 +558,11 @@ export default function PropertyDrawer({
               <div className="econ-disclaimer">
                 Estimates only. Land residual = max supportable land cost given target returns. Not investment advice.
               </div>
+              {onOpenModelTab && (
+                <button className="model-tab-link" onClick={onOpenModelTab}>
+                  <Calculator size={11} /> Edit global assumptions →
+                </button>
+              )}
             </>
           ) : (
             <div className="sales-empty">Insufficient zoning data to model</div>
@@ -503,11 +596,170 @@ export default function PropertyDrawer({
         <div className="drawer-section">
           <div className="section-header"><User size={13} /> Ownership</div>
           <div className="info-rows">
-            <InfoRow label="Owner"             value={property.owner_name} />
+            <InfoRow label="Owner" value={property.owner_name} />
+            {(() => {
+              const ownerType = detectOwnerType(property.owner_name)
+              const lastSale = sales[0]
+              const heldSince = lastSale?.date
+              const yrs = holdingYears(heldSince)
+              const mo  = fmtMonthYear(heldSince)
+              return (
+                <>
+                  {ownerType && (
+                    <div className="owner-type-row">
+                      <span className={`owner-type-badge ${ownerType === 'Entity' ? 'entity' : 'individual'}`}>
+                        {ownerType === 'Entity' ? '🏢 Entity / LLC' : '👤 Individual'}
+                      </span>
+                      {ownerType === 'Entity' && (
+                        <span className="owner-type-hint">May be harder to reach directly</span>
+                      )}
+                    </div>
+                  )}
+                  {heldSince ? (
+                    <div className="held-since-row">
+                      <span className="held-since-label">Last Purchased</span>
+                      <span className={`held-since-value ${yrs >= 10 ? 'long-hold' : ''}`}>
+                        {mo}
+                        {yrs >= 0 && <span className="held-since-years">({yrs > 0 ? `${yrs}yr hold` : '<1yr'})</span>}
+                        {yrs >= 15 && <span className="held-since-flag">Long-term hold</span>}
+                      </span>
+                    </div>
+                  ) : !salesLoading && (
+                    <div className="held-since-row">
+                      <span className="held-since-label">Ownership History</span>
+                      <span className="held-since-value" style={{ color: '#555' }}>No arm's-length transfer on record</span>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
             <InfoRow label="Building Class"    value={property.bldg_class} />
             <InfoRow label="Residential Units" value={property.units_res > 0 ? property.units_res : 'N/A'} />
             <InfoRow label="Assessed Value"    value={assessedValue > 0 ? `$${fmt(assessedValue)}` : '—'} />
           </div>
+
+          {/* Owner portfolio */}
+          {!portfolioLoading && (portfolioCount > 0) && (
+            <div className="portfolio-section">
+              <button
+                className="portfolio-toggle"
+                onClick={() => setShowPortfolio(v => !v)}
+              >
+                {showPortfolio ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+                <span className="portfolio-toggle-label">
+                  Owner holds <strong>{portfolioCount}</strong> other lot{portfolioCount !== 1 ? 's' : ''} in Manhattan
+                </span>
+                {portfolioCount >= 5 && (
+                  <span className="portfolio-serial-badge">Repeat Seller</span>
+                )}
+              </button>
+              {showPortfolio && (
+                <div className="portfolio-list">
+                  {portfolio.slice(0, 20).map(lot => {
+                    const farUtil = lot.resFar > 0 ? lot.builtFar / lot.resFar : 1
+                    const isUnderbuilt = farUtil < 0.6 && lot.resFar >= 2
+                    return (
+                      <div
+                        key={lot.bbl}
+                        className={`portfolio-lot-row ${onFlyToLot && lot.lat ? 'clickable' : ''}`}
+                        onClick={() => onFlyToLot && lot.lat && onFlyToLot(lot.lat, lot.lng, lot.address)}
+                      >
+                        <div className="portfolio-lot-info">
+                          <span className="portfolio-lot-address">{lot.address || lot.bbl}</span>
+                          <span className="portfolio-lot-meta">
+                            {lot.zone} · {lot.lotArea.toLocaleString()} SF
+                            {isUnderbuilt && <span className="portfolio-underbuilt">Underbuilt</span>}
+                          </span>
+                        </div>
+                        {onFlyToLot && lot.lat && <MapPin size={11} color="#444" />}
+                      </div>
+                    )
+                  })}
+                  {portfolioCount > 20 && (
+                    <div className="portfolio-more">+{portfolioCount - 20} more lots not shown</div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          {portfolioLoading && (
+            <div className="portfolio-loading">Looking up owner portfolio…</div>
+          )}
+        </div>
+
+        {/* ── Zoning Detail ── */}
+        <div className="drawer-section">
+          <div className="section-header"><MapPin size={13} /> Zoning Detail</div>
+          {getZoneDesc(property.zone_dist) && (
+            <div className="zone-desc-badge">{property.zone_dist} — {getZoneDesc(property.zone_dist)}</div>
+          )}
+          <div className="info-rows">
+            {property.overlay1 && <InfoRow label="Commercial Overlay" value={property.overlay1} highlight />}
+            {property.overlay2 && <InfoRow label="Overlay 2"          value={property.overlay2} />}
+            {property.spdist1  && <InfoRow label="Special District"   value={property.spdist1}  highlight />}
+            {property.ltdheight && <InfoRow label="Height Limit"      value={`LH-${property.ltdheight}`} />}
+            <InfoRow label="Residential FAR"         value={residFar || '—'} />
+            {property.comm_far > 0 && <InfoRow label="Commercial FAR" value={property.comm_far} />}
+            {property.fac_far  > 0 && <InfoRow label="Community Facility FAR" value={property.fac_far} />}
+          </div>
+          <a
+            href={`https://zola.planning.nyc.gov/?search=${encodeURIComponent((property.address || '') + ', New York, NY')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="zr-link"
+          >
+            View on NYC ZoLa →
+          </a>
+        </div>
+
+        {/* ── Air Rights / TDR (landmarks only) ── */}
+        {property.has_landmark && availFAR > 0 && (
+          <div className="drawer-section">
+            <div className="section-header"><Wind size={13} /> Air Rights (TDR)</div>
+            <div className="tdr-card">
+              <div className="tdr-headline">
+                <span className="tdr-label">Est. Transferable Development Rights</span>
+                <span className="tdr-sf">{fmt(availFAR)} SF</span>
+              </div>
+              <div className="tdr-value-range">
+                <span className="tdr-range-label">Value range</span>
+                <span className="tdr-range-value">
+                  {fmtM(availFAR * 25)} – {fmtM(availFAR * 60)}
+                  <span className="tdr-psf-note">($25–$60/SF)</span>
+                </span>
+              </div>
+              {property.landmark_name && (
+                <div className="tdr-name">{property.landmark_name}</div>
+              )}
+              <div className="tdr-note">
+                LPC-designated landmark. Unused development rights may be transferred to a receiving site per NYC ZR §74-79. TDR pricing reflects recent Manhattan market ($25–$60/SF depending on proximity and receiving site density).
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Deal Notes ── */}
+        <div className="drawer-section">
+          <div className="section-header">
+            <FileText size={13} /> Deal Notes
+            {localNote && <span className="notes-saved-dot" title="Note saved" />}
+          </div>
+          <textarea
+            className="deal-notes-textarea"
+            placeholder="Private notes on this deal… (auto-saved locally)"
+            value={localNote}
+            onChange={e => setLocalNote(e.target.value)}
+            onBlur={() => setNote && setNote(property.bbl, localNote)}
+            rows={3}
+          />
+          {localNote && (
+            <button
+              className="notes-clear-btn"
+              onClick={() => { setLocalNote(''); setNote && setNote(property.bbl, '') }}
+            >
+              Clear
+            </button>
+          )}
         </div>
 
         {/* ── Score Breakdown ── */}

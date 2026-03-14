@@ -179,6 +179,12 @@ function toFeature(lot, index) {
       deal_type:        getDealType(lot.bldgclass, landUse),
       rent_stab_risk:   isLikelyRentStabilized(landUse, lot.unitsres, lot.yearbuilt),
       has_landmark:     !!(lot.landmark && lot.landmark.trim().length > 0),
+      landmark_name:    (lot.landmark || '').trim(),
+      fac_far:          parseFloat(lot.facfar) || 0,
+      overlay1:         lot.overlay1 || '',
+      overlay2:         lot.overlay2 || '',
+      spdist1:          lot.spdist1 || '',
+      ltdheight:        lot.ltdheight || '',
       longitude:        parseFloat(lot.longitude),
       latitude:         parseFloat(lot.latitude),
     }
@@ -201,8 +207,9 @@ export function usePlutoData(filters) {
           $select: [
             'bbl', 'address', 'zipcode', 'ownername', 'landuse', 'bldgclass',
             'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
-            'residfar', 'commfar', 'builtfar', 'numfloors', 'yearbuilt',
-            'unitsres', 'assesstot', 'latitude', 'longitude', 'landmark'
+            'residfar', 'commfar', 'facfar', 'builtfar', 'numfloors', 'yearbuilt',
+            'unitsres', 'assesstot', 'latitude', 'longitude', 'landmark',
+            'overlay1', 'overlay2', 'spdist1', 'ltdheight'
           ].join(','),
           $where: 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0',
           $order: 'lotarea DESC'
