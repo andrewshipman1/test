@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, Copy, CheckCheck, TrendingDown, Calculator, RotateCcw, MapPin } from 'lucide-react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
@@ -111,7 +111,6 @@ export default function PropertyDrawer({
   livePsf = {},
 }) {
   // All hooks MUST come before any conditional returns (Rules of Hooks)
-  const [copied, setCopied]       = useState(false)
   const [showOverrides, setShowOverrides] = useState(false)
   const { sales, loading: salesLoading } = useAcrisComps(property?.bbl)
 
@@ -228,7 +227,8 @@ export default function PropertyDrawer({
     setLocalHardCost(baseAssumptions.hardCostPerSF)
   }
 
-  const handleCopy = () => {
+  // (copy function removed — use PDF export from Saved tab)
+  if (false) {
     const lines = [
       `${property.address || 'No Address'} — BBL ${formatBBL(property.bbl)}`,
       `Deal Type: ${dtConfig.label} | Score: ${score}`,
@@ -261,10 +261,6 @@ export default function PropertyDrawer({
       'Source: NYC PLUTO + ATLAS',
     )
 
-    navigator.clipboard.writeText(lines.filter(l => l !== null).join('\n')).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
   }
 
   return (
@@ -293,13 +289,6 @@ export default function PropertyDrawer({
               title={saved ? 'Remove from saved' : 'Save property'}
             >
               {saved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
-            </button>
-            <button
-              className={`header-icon-btn ${copied ? 'active-copy' : ''}`}
-              onClick={handleCopy}
-              title="Copy deal brief"
-            >
-              {copied ? <CheckCheck size={15} /> : <Copy size={15} />}
             </button>
             <button className="close-btn" onClick={onClose}><X size={16} /></button>
           </div>

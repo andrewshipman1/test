@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
-import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight } from 'lucide-react'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download } from 'lucide-react'
 import { DEFAULT_ASSUMPTIONS } from '../hooks/useUnderwritingAssumptions'
 import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS } from '../hooks/usePlutoData'
+import { exportSavedToPdf } from '../utils/exportPdf'
 import './Sidebar.css'
 
 const SCENARIOS = [
@@ -262,10 +263,20 @@ export default function Sidebar({
           <div className="tab-panel">
             <div className="saved-header">
               <Bookmark size={16} color="#f59e0b" />
-              <div>
+              <div style={{ flex: 1 }}>
                 <div className="assemblage-title">Saved Properties</div>
                 <div className="assemblage-sub">Click a lot to fly to it on the map</div>
               </div>
+              {savedProperties?.length > 0 && (
+                <button
+                  className="saved-export-btn"
+                  onClick={() => exportSavedToPdf(savedProperties, assumptions)}
+                  title="Export to PDF"
+                >
+                  <Download size={13} />
+                  PDF
+                </button>
+              )}
             </div>
 
             {!savedProperties || savedProperties.length === 0 ? (
