@@ -610,3 +610,125 @@
 .pf-override-input-group:focus-within { border-color: var(--accent-border); }
 
 .pf-override-hint { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
+
+/* ── Block Neighbors ─────────────────────────────────────────────────────── */
+
+.block-neighbors-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.block-neighbor-count {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+.block-neighbors-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.block-neighbor-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 8px;
+}
+
+.block-neighbor-row:last-of-type { border-bottom: none; }
+
+.block-neighbor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.block-neighbor-address {
+  font-size: 11px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block-neighbor-stats {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.block-neighbor-flags {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.underbuilt-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.block-totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.block-totals-label { color: var(--text-secondary); }
+.block-totals-val   { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+.add-underbuilt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: calc(100% - 24px);
+  margin: 8px 12px 10px;
+  padding: 9px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+
+.add-underbuilt-btn:hover {
+  background: rgba(245,158,11,0.18);
+  border-color: rgba(245,158,11,0.55);
+}

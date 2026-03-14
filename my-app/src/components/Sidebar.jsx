@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
-import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download } from 'lucide-react'
-import { DEFAULT_ASSUMPTIONS } from '../hooks/useUnderwritingAssumptions'
-import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS } from '../hooks/usePlutoData'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download, AlertTriangle } from 'lucide-react'
+import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
+import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS, getEffectivePsf } from '../hooks/usePlutoData'
 import { exportSavedToPdf } from '../utils/exportPdf'
+import { computeAssemblageScore } from '../utils/assemblageUtils'
 import './Sidebar.css'
 
 const SCENARIOS = [
@@ -75,6 +76,7 @@ export default function Sidebar({
   assumptions, updateAssumption, resetAssumptions,
   updatePsfOverride, resetPsfOverride, resetAllPsf,
   livePsf = {},
+  allFeatures = [],
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
@@ -109,6 +111,16 @@ export default function Sidebar({
 
   const liveCount = Object.keys(livePsf).length
   const currentAdj = Math.round(((uw.psfMultiplier ?? 1.0) - 1) * 100)
+
+  // ── Assemblage analysis (computed from lots already added) ──
+  const assemblageAnalysis = useMemo(() => {
+    if (!assemblageLots.length) return null
+    const scoreData  = computeAssemblageScore(assemblageLots)
+    const zipcode    = assemblageLots[0]?.zipcode
+    const psf        = zipcode ? getEffectivePsf(zipcode, uw, livePsf) : 2500
+    const pf         = computeCondoProForma(scoreData.totalResidualSF, psf, uw)
+    return { ...scoreData, pf, psf }
+  }, [assemblageLots, uw, livePsf])
 
   return (
     <div className="sidebar">
@@ -202,58 +214,151 @@ export default function Sidebar({
             <div className="assemblage-header">
               <Target size={16} color="#f59e0b" />
               <div>
-                <div className="assemblage-title">Assemblage Simulator</div>
-                <div className="assemblage-sub">Click lots on the map to add them</div>
+                <div className="assemblage-title">Block Assemblage</div>
+                <div className="assemblage-sub">
+                  {assemblageLots.length === 0
+                    ? 'Open a lot → expand Block Neighbors → add underbuilt lots'
+                    : `${assemblageLots.length} lot${assemblageLots.length !== 1 ? 's' : ''} · ${assemblageAnalysis?.totalResidualSF?.toLocaleString() || 0} SF residual`}
+                </div>
               </div>
             </div>
 
             {assemblageLots.length === 0 ? (
               <div className="empty-state">
-                <Target size={32} color="#333" />
+                <Target size={32} color="#2e4060" />
                 <p>No lots selected</p>
-                <p className="empty-sub">Click any lot on the map, then tap "Add to Assemblage" in the property panel</p>
+                <p className="empty-sub">Open any property, expand "Block Neighbors", and tap "Add underbuilt neighbors" to start an assemblage</p>
               </div>
             ) : (
-              <div className="assemblage-lots">
-                {assemblageLots.map((lot, i) => (
-                  <div key={lot.bbl} className="assemblage-lot-item">
-                    <div className="lot-number">{i + 1}</div>
-                    <div className="lot-info">
-                      <div className="lot-address">{lot.address || lot.bbl}</div>
-                      <div className="lot-stats">{Number(lot.lot_area || 0).toLocaleString()} SF · FAR {lot.res_far || '—'}</div>
+              <>
+                {/* Lot list */}
+                <div className="assemblage-lots">
+                  {assemblageLots.map((lot, i) => (
+                    <div key={lot.bbl} className="assemblage-lot-item">
+                      <div className="lot-number">{i + 1}</div>
+                      <div className="lot-info">
+                        <div className="lot-address">{lot.address || lot.bbl}</div>
+                        <div className="lot-stats">
+                          {Number(lot.lot_area || 0).toLocaleString()} SF · FAR {lot.res_far || '—'}
+                          {lot.has_landmark ? ' · 🏛' : ''}
+                          {lot.rent_stab_risk ? ' · 🏘' : ''}
+                        </div>
+                      </div>
+                      <button className="remove-btn" onClick={() => setAssemblageLots(prev => prev.filter(l => l.bbl !== lot.bbl))}>×</button>
                     </div>
-                    <button className="remove-btn" onClick={() => setAssemblageLots(prev => prev.filter(l => l.bbl !== lot.bbl))}>×</button>
-                  </div>
-                ))}
-
-                <div className="assemblage-summary">
-                  <div className="summary-title">Combined Analysis</div>
-                  <div className="summary-stats">
-                    <div className="stat-row">
-                      <span>Total Lot Area</span>
-                      <span className="stat-val">{assemblageLots.reduce((s, l) => s + Number(l.lot_area || 0), 0).toLocaleString()} SF</span>
-                    </div>
-                    <div className="stat-row">
-                      <span>Max Buildable</span>
-                      <span className="stat-val highlight">{assemblageLots.reduce((s, l) => s + (Number(l.res_far || 0) * Number(l.lot_area || 0)), 0).toLocaleString()} SF</span>
-                    </div>
-                    <div className="stat-row">
-                      <span>Est. Air Rights Value</span>
-                      <span className="stat-val highlight">
-                        ${(assemblageLots.reduce((s, l) => {
-                          const avail = (Number(l.res_far || 0) - Number(l.built_far || 0)) * Number(l.lot_area || 0)
-                          return s + Math.max(0, avail * 350)
-                        }, 0) / 1000000).toFixed(1)}M
-                      </span>
-                    </div>
-                    <div className="stat-row">
-                      <span>Lots Selected</span>
-                      <span className="stat-val">{assemblageLots.length}</span>
-                    </div>
-                  </div>
-                  <button className="clear-assemblage-btn" onClick={() => setAssemblageLots([])}>Clear All</button>
+                  ))}
                 </div>
-              </div>
+
+                {/* Assemblage Score */}
+                {assemblageAnalysis && (
+                  <div className="assemblage-score-card">
+                    <div className="assemblage-score-label">Assemblage Score</div>
+                    <div
+                      className="assemblage-score-number"
+                      style={{ color: assemblageAnalysis.score >= 70 ? '#22c55e' : assemblageAnalysis.score >= 40 ? '#f59e0b' : '#ef4444' }}
+                    >
+                      {assemblageAnalysis.score}
+                    </div>
+                    <div className="assemblage-score-bars">
+                      {Object.values(assemblageAnalysis.components).map(c => (
+                        <div key={c.label} className="asm-bar-row">
+                          <div className="asm-bar-header">
+                            <span className="asm-bar-label">{c.label}</span>
+                            <span className="asm-bar-pts" style={{ color: c.pts >= c.max * 0.7 ? '#22c55e' : '#f59e0b' }}>{c.pts}/{c.max}</span>
+                          </div>
+                          <div className="asm-bar-track">
+                            <div
+                              className="asm-bar-fill"
+                              style={{ width: `${c.pct * 100}%`, background: c.pts >= c.max * 0.7 ? '#22c55e' : c.pts > 0 ? '#f59e0b' : '#ef4444' }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Red Flags */}
+                {assemblageAnalysis && (
+                  assemblageAnalysis.landmarkLots.length > 0 ||
+                  assemblageAnalysis.rentStabLots.length > 0 ||
+                  assemblageAnalysis.condoCoopLots.length > 0
+                ) && (
+                  <div className="red-flags-section">
+                    <div className="red-flags-title"><AlertTriangle size={11} /> Risk Flags</div>
+                    {assemblageAnalysis.landmarkLots.map(l => (
+                      <div key={l.bbl} className="red-flag-item">🏛 {l.address || l.bbl} — Landmark</div>
+                    ))}
+                    {assemblageAnalysis.rentStabLots.map(l => (
+                      <div key={l.bbl} className="red-flag-item">🏘 {l.address || l.bbl} — Likely Rent Stabilized</div>
+                    ))}
+                    {assemblageAnalysis.condoCoopLots.map(l => (
+                      <div key={l.bbl} className="red-flag-item">⚠️ {l.address || l.bbl} — {l.deal_type === 'COOP' ? 'Co-op' : 'Condo'}</div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Combined Pro Forma */}
+                {assemblageAnalysis?.pf && (
+                  <div className="asm-pf-card">
+                    <div className="asm-pf-headline">
+                      <div className="asm-pf-headline-label">Land Residual (Max Bid)</div>
+                      <div
+                        className="asm-pf-headline-value"
+                        style={{ color: assemblageAnalysis.pf.landResidual > 0 ? '#22c55e' : '#ef4444' }}
+                      >
+                        {assemblageAnalysis.pf.landResidual > 0
+                          ? `$${(assemblageAnalysis.pf.landResidual / 1e6).toFixed(1)}M`
+                          : `−$${(Math.abs(assemblageAnalysis.pf.landResidual) / 1e6).toFixed(1)}M`}
+                      </div>
+                      <div className="asm-pf-headline-sub">
+                        ${assemblageAnalysis.pf.landPerSF?.toLocaleString() || '—'}/SF residual · {assemblageAnalysis.totalResidualSF.toLocaleString()} SF buildable
+                      </div>
+                    </div>
+                    <div className="asm-pf-rows">
+                      <div className="asm-pf-row">
+                        <span className="asm-pf-row-label">Gross Sellout</span>
+                        <span className="asm-pf-row-val">${(assemblageAnalysis.pf.grossSellout / 1e6).toFixed(1)}M</span>
+                      </div>
+                      <div className="asm-pf-row">
+                        <span className="asm-pf-row-label">− Hard Costs</span>
+                        <span className="asm-pf-row-val">−${(assemblageAnalysis.pf.hardCost / 1e6).toFixed(1)}M</span>
+                      </div>
+                      <div className="asm-pf-row">
+                        <span className="asm-pf-row-label">− Soft Costs</span>
+                        <span className="asm-pf-row-val">−${(assemblageAnalysis.pf.softCost / 1e6).toFixed(1)}M</span>
+                      </div>
+                      <div className="asm-pf-row">
+                        <span className="asm-pf-row-label">− Carry</span>
+                        <span className="asm-pf-row-val">−${(assemblageAnalysis.pf.carry / 1e6).toFixed(1)}M</span>
+                      </div>
+                      <div className="asm-pf-row">
+                        <span className="asm-pf-row-label">− Broker / Mktg</span>
+                        <span className="asm-pf-row-val">−${(assemblageAnalysis.pf.brokerCost / 1e6).toFixed(1)}M</span>
+                      </div>
+                      <div className="asm-pf-row">
+                        <span className="asm-pf-row-label">− Dev Profit ({uw.profitTargetPct}%)</span>
+                        <span className="asm-pf-row-val">−${(assemblageAnalysis.pf.devProfit / 1e6).toFixed(1)}M</span>
+                      </div>
+                      <div className={`asm-pf-row asm-pf-row-total ${assemblageAnalysis.pf.landResidual > 0 ? 'asm-pf-row-positive' : 'asm-pf-row-negative'}`}>
+                        <span className="asm-pf-row-label">= Land Residual</span>
+                        <span className="asm-pf-row-val">
+                          {assemblageAnalysis.pf.landResidual > 0
+                            ? `$${(assemblageAnalysis.pf.landResidual / 1e6).toFixed(1)}M`
+                            : `−$${(Math.abs(assemblageAnalysis.pf.landResidual) / 1e6).toFixed(1)}M`}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="asm-pf-psf-note">
+                      PSF: ${assemblageAnalysis.psf.toLocaleString()}/SF · {assemblageAnalysis.landmarkLots.length > 0 ? '⚠️ Landmark risk' : 'From global assumptions'}
+                    </div>
+                  </div>
+                )}
+
+                <button className="clear-assemblage-btn" onClick={() => setAssemblageLots([])}>
+                  Clear All Lots
+                </button>
+              </>
             )}
           </div>
         )}

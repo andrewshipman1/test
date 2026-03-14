@@ -22,6 +22,7 @@ export default function App() {
   const [assemblageLots, setAssemblageLots] = useState([])
   const [zoningDistricts, setZoningDistricts] = useState([])
   const [searchTarget, setSearchTarget] = useState(null)
+  const [allFeatures, setAllFeatures] = useState([])
 
   const { savedProperties, isSaved, toggleSave, removeSaved } = useSavedProperties()
   const {
@@ -63,6 +64,7 @@ export default function App() {
           resetPsfOverride={resetPsfOverride}
           resetAllPsf={resetAllPsf}
           livePsf={livePsf}
+          allFeatures={allFeatures}
         />
         <MapView
           filters={filters}
@@ -71,6 +73,7 @@ export default function App() {
           assemblageLots={assemblageLots}
           setAssemblageLots={setAssemblageLots}
           onZoningDistrictsLoaded={setZoningDistricts}
+          onFeaturesLoaded={setAllFeatures}
           searchTarget={searchTarget}
         />
         {selectedProperty && (
@@ -87,6 +90,7 @@ export default function App() {
             clearPropertyOverride={clearPropertyOverride}
             hasOverride={hasOverride}
             livePsf={livePsf}
+            allFeatures={allFeatures}
           />
         )}
       </div>

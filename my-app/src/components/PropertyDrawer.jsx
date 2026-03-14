@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
+import { getBlockNeighbors, isUnderbuilt } from '../utils/assemblageUtils'
 import './PropertyDrawer.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -109,9 +110,11 @@ export default function PropertyDrawer({
   property, onClose, assemblageLots, setAssemblageLots, isSaved, toggleSave,
   globalAssumptions, getPropertyAssumptions, setPropertyOverride, clearPropertyOverride, hasOverride,
   livePsf = {},
+  allFeatures = [],
 }) {
   // All hooks MUST come before any conditional returns (Rules of Hooks)
   const [showOverrides, setShowOverrides] = useState(false)
+  const [showBlockNeighbors, setShowBlockNeighbors] = useState(false)
   const { sales, loading: salesLoading } = useAcrisComps(property?.bbl)
 
   // Local editable values for per-property PSF / hard cost overrides
@@ -145,6 +148,22 @@ export default function PropertyDrawer({
   const usingScenario  = multiplier !== 1.0 && !propAssumptions.selloutPsf && localPsf === null
 
   const activeAssumptions = { ...baseAssumptions, ...propAssumptions, hardCostPerSF: activeHardCost }
+
+  // ── Block Neighbors ──
+  const blockNeighbors = useMemo(
+    () => getBlockNeighbors(property.bbl, allFeatures),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [property.bbl, allFeatures.length]
+  )
+  const underbuiltNeighbors = useMemo(
+    () => blockNeighbors.filter(f => isUnderbuilt(f.properties)),
+    [blockNeighbors]
+  )
+  const blockTotalResidual = useMemo(
+    () => blockNeighbors.reduce((s, f) => s + Number(f.properties.available_far_sqft || 0), 0)
+        + Number(property.available_far_sqft || 0),
+    [blockNeighbors, property.available_far_sqft]
+  )
 
   // ── Core numbers ──
   const saved    = isSaved ? isSaved(property.bbl) : false
@@ -500,6 +519,71 @@ export default function PropertyDrawer({
             ))}
           </div>
         </div>
+
+        {/* ── Block Neighbors ── */}
+        {blockNeighbors.length > 0 && (
+          <div className="drawer-section">
+            <button
+              className="section-header block-neighbors-toggle"
+              onClick={() => setShowBlockNeighbors(v => !v)}
+            >
+              {showBlockNeighbors ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              <Layers size={12} /> Block Neighbors
+              <span className="block-neighbor-count">{blockNeighbors.length} lots on block</span>
+            </button>
+
+            {showBlockNeighbors && (
+              <div className="block-neighbors-body">
+                {blockNeighbors.map(f => {
+                  const p = f.properties
+                  const ub = isUnderbuilt(p)
+                  const avail = Number(p.available_far_sqft || 0)
+                  return (
+                    <div key={p.bbl} className="block-neighbor-row">
+                      <div className="block-neighbor-info">
+                        <span className="block-neighbor-address">{p.address || p.bbl}</span>
+                        <span className="block-neighbor-stats">
+                          {p.num_floors > 0 ? `${p.num_floors} fl` : '—'}
+                          {avail > 0 ? ` · ${avail.toLocaleString()} SF avail` : ' · Built out'}
+                          {p.has_landmark ? ' · 🏛' : ''}
+                          {p.rent_stab_risk ? ' · 🏘' : ''}
+                        </span>
+                      </div>
+                      <div className="block-neighbor-flags">
+                        {ub && <span className="underbuilt-badge">Underbuilt</span>}
+                      </div>
+                    </div>
+                  )
+                })}
+
+                <div className="block-totals-row">
+                  <span className="block-totals-label">Block Residual (all lots)</span>
+                  <span className="block-totals-val">{blockTotalResidual.toLocaleString()} SF</span>
+                </div>
+
+                {underbuiltNeighbors.length > 0 && (
+                  <button
+                    className="add-underbuilt-btn"
+                    onClick={() => {
+                      setAssemblageLots(prev => {
+                        const existing = new Set(prev.map(l => String(l.bbl)))
+                        const toAdd = []
+                        if (!existing.has(String(property.bbl))) toAdd.push(property)
+                        underbuiltNeighbors.forEach(f => {
+                          if (!existing.has(String(f.properties.bbl))) toAdd.push(f.properties)
+                        })
+                        return [...prev, ...toAdd]
+                      })
+                    }}
+                  >
+                    <Plus size={13} />
+                    Add {underbuiltNeighbors.length} underbuilt neighbor{underbuiltNeighbors.length !== 1 ? 's' : ''} to Assemblage
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Assemblage ── */}
         <div className="drawer-section">

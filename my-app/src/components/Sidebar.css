@@ -1002,3 +1002,171 @@
   letter-spacing: 0.5px;
   margin-top: 1px;
 }
+
+/* ── Assemblage Score ─────────────────────────────────────────────────────── */
+
+.assemblage-score-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  text-align: center;
+}
+
+.assemblage-score-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.assemblage-score-number {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.assemblage-score-bars {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+}
+
+.asm-bar-row { display: flex; flex-direction: column; gap: 3px; }
+
+.asm-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.asm-bar-label { font-size: 10px; color: var(--text-secondary); }
+.asm-bar-pts   { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.asm-bar-track {
+  height: 3px;
+  background: var(--bg-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.asm-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ── Red Flags ───────────────────────────────────────────────────────────── */
+
+.red-flags-section {
+  background: var(--bg-surface);
+  border: 1px solid rgba(239,68,68,0.22);
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+}
+
+.red-flags-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ef4444;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.red-flag-item {
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.red-flag-item:last-child { border-bottom: none; }
+
+/* ── Assemblage Pro Forma ────────────────────────────────────────────────── */
+
+.asm-pf-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.asm-pf-headline {
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.asm-pf-headline-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+}
+
+.asm-pf-headline-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.asm-pf-headline-sub {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.asm-pf-rows {
+  padding: 8px 14px 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.asm-pf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.asm-pf-row:last-child { border-bottom: none; }
+.asm-pf-row-label { color: var(--text-secondary); }
+.asm-pf-row-val   { color: var(--text-primary); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+.asm-pf-row-total .asm-pf-row-label {
+  color: var(--text-primary);
+  font-weight: 700;
+  border-top: 1px solid var(--border);
+  padding-top: 4px;
+  margin-top: 2px;
+  display: block;
+}
+
+.asm-pf-row-total .asm-pf-row-val { font-weight: 700; }
+.asm-pf-row-positive .asm-pf-row-val { color: #22c55e; }
+.asm-pf-row-negative .asm-pf-row-val { color: #ef4444; }
+
+.asm-pf-psf-note {
+  padding: 5px 14px 10px;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  border-top: 1px solid var(--border-subtle);
+}

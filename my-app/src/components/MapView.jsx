@@ -85,6 +85,7 @@ export default function MapView({
   assemblageLots,
   marketSignals,
   onZoningDistrictsLoaded,
+  onFeaturesLoaded,
   searchTarget
 }) {
   const mapRef = useRef(null)
@@ -104,7 +105,7 @@ export default function MapView({
     })
   }, [searchTarget])
 
-  const { data: plutoData, loading: dataLoading, stats, zoningDistricts } = usePlutoData(filters)
+  const { data: plutoData, allFeatures, loading: dataLoading, stats, zoningDistricts } = usePlutoData(filters)
 
   // Pass zoning districts up to App when loaded
   useEffect(() => {
@@ -112,6 +113,14 @@ export default function MapView({
       onZoningDistrictsLoaded(zoningDistricts)
     }
   }, [zoningDistricts, onZoningDistrictsLoaded])
+
+  // Hoist allFeatures to App once data arrives
+  useEffect(() => {
+    if (allFeatures.length > 0 && onFeaturesLoaded) {
+      onFeaturesLoaded(allFeatures)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allFeatures.length])
 
   const handleMapLoad = useCallback(() => setMapLoaded(true), [])
 

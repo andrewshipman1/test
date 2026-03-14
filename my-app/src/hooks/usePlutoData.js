@@ -261,5 +261,5 @@ export function usePlutoData(filters) {
     vacant: data?.features?.filter(f => f.properties.land_use === '11').length || 0,
   }), [data])
 
-  return { data, loading, error, stats, zoningDistricts }
+  return { data, allFeatures, loading, error, stats, zoningDistricts }
 }
