@@ -148,6 +148,10 @@ function toFeature(lot, index) {
   const landUse = (lot.landuse || '').padStart(2, '0')
   const bblInt = Math.round(parseFloat(lot.bbl))
 
+  // Normalize community district to 1-12 (PLUTO sometimes stores as 101-112)
+  const rawCd = parseInt(lot.cd) || 0
+  const cd    = rawCd > 12 ? rawCd - 100 : rawCd
+
   return {
     type: 'Feature',
     id: index,
@@ -187,6 +191,7 @@ function toFeature(lot, index) {
       ltdheight:        '',
       longitude:        parseFloat(lot.longitude),
       latitude:         parseFloat(lot.latitude),
+      cd,
     }
   }
 }
@@ -209,7 +214,7 @@ export function usePlutoData(filters) {
             'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
             'residfar', 'commfar', 'facilfar', 'builtfar', 'numfloors', 'yearbuilt',
             'unitsres', 'assesstot', 'latitude', 'longitude',
-            'overlay1'
+            'overlay1', 'cd'
           ].join(','),
           $where: 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0',
           $order: 'lotarea DESC'
@@ -246,21 +251,40 @@ export function usePlutoData(filters) {
   const data = useMemo(() => {
     if (!allFeatures.length) return null
     const filtered = allFeatures.filter(f => {
-      const p = f.properties
+      const p    = f.properties
       const zone = (p.zone_dist || '').toUpperCase()
+      const lu   = p.land_use
+
+      // Opportunity score threshold
       if (filters.minOpportunityScore > 0 && p.score < filters.minOpportunityScore) return false
-      if (filters.landUse !== 'all' && p.land_use !== filters.landUse) return false
-      if (filters.showVacantOnly && p.land_use !== '11') return false
+
+      // Deal type (replaces land use dropdown)
+      if (filters.dealType && filters.dealType !== 'all') {
+        if (filters.dealType === 'vacant'     && lu !== '11') return false
+        if (filters.dealType === 'parking'    && lu !== '10' && p.deal_type !== 'GARAGE') return false
+        if (filters.dealType === 'teardown'   && !['01','02','03'].includes(lu)) return false
+        if (filters.dealType === 'commercial' && !['04','05'].includes(lu)) return false
+      }
+
+      // Neighborhood (community district)
+      if (filters.neighborhood && filters.neighborhood !== 'all') {
+        if (p.cd !== parseInt(filters.neighborhood)) return false
+      }
+
+      // Zoning type
       if (filters.zoningType && filters.zoningType !== 'all') {
-        if (filters.zoningType === 'residential' && !zone.startsWith('R')) return false
-        if (filters.zoningType === 'commercial' && !zone.startsWith('C')) return false
+        if (filters.zoningType === 'residential'   && !zone.startsWith('R')) return false
+        if (filters.zoningType === 'commercial'    && !zone.startsWith('C')) return false
         if (filters.zoningType === 'manufacturing' && !zone.startsWith('M')) return false
       }
-      if (filters.minAllowedFAR > 0 && p.res_far < filters.minAllowedFAR) return false
+
+      // Min buildable SF (replaces min allowed FAR)
+      if (filters.minBuildableSF > 0 && p.available_far_sqft < filters.minBuildableSF) return false
+
       return true
     })
     return { type: 'FeatureCollection', features: filtered }
-  }, [allFeatures, filters.minOpportunityScore, filters.landUse, filters.showVacantOnly, filters.zoningType, filters.minAllowedFAR])
+  }, [allFeatures, filters.minOpportunityScore, filters.dealType, filters.neighborhood, filters.zoningType, filters.minBuildableSF])
 
   const stats = useMemo(() => ({
     total: data?.features?.length || 0,

@@ -1370,3 +1370,66 @@
 
 .pipeline-map-dot.nb { background: #22d3ee; }
 .pipeline-map-dot.dm { background: #f97316; }
+
+/* ── Deal Type Pills ──────────────────────────────────────────────────────── */
+
+.deal-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 14px 14px;
+}
+
+.deal-type-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+}
+
+.deal-type-pill.full-width {
+  grid-column: 1 / -1;
+  justify-content: center;
+}
+
+.deal-type-pill:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: rgba(245,158,11,0.06);
+}
+
+.deal-type-pill.active {
+  border-color: var(--accent);
+  background: rgba(245,158,11,0.12);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.dt-icon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dt-label {
+  white-space: nowrap;
+}
+
+/* ── Filter hint text ─────────────────────────────────────────────────────── */
+
+.filter-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 3px 2px 0;
+  font-style: italic;
+}

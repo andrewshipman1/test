@@ -27,19 +27,28 @@ const DEAL_TYPE_LABELS = {
   CONVERSION: 'Conversion', COMMERCIAL: 'Commercial', COOP: 'Co-op', CONDO: 'Condo',
 }
 
-const LAND_USE_OPTIONS = [
-  { value: 'all',  label: 'All Land Uses' },
-  { value: '01',   label: '01 · One & Two Family' },
-  { value: '02',   label: '02 · Multi-Family Walk-Up' },
-  { value: '03',   label: '03 · Multi-Family Elevator' },
-  { value: '04',   label: '04 · Mixed Residential & Commercial' },
-  { value: '05',   label: '05 · Commercial & Office' },
-  { value: '06',   label: '06 · Industrial & Manufacturing' },
-  { value: '07',   label: '07 · Transportation & Utility' },
-  { value: '08',   label: '08 · Public Facilities & Institutions' },
-  { value: '09',   label: '09 · Open Space & Recreation' },
-  { value: '10',   label: '10 · Parking Facilities' },
-  { value: '11',   label: '11 · Vacant Land' },
+const DEAL_TYPES = [
+  { value: 'all',        label: 'All Sites',     icon: '✦',  desc: 'Show every lot' },
+  { value: 'vacant',     label: 'Vacant Land',   icon: '🟢', desc: 'Nothing built — ready to develop' },
+  { value: 'parking',    label: 'Parking',        icon: '🅿', desc: 'Surface lots & garages' },
+  { value: 'teardown',   label: 'Teardown',       icon: '🔨', desc: '1–3 family & walk-up buildings' },
+  { value: 'commercial', label: 'Commercial',     icon: '🏢', desc: 'Retail, office & mixed-use' },
+]
+
+const NEIGHBORHOODS = [
+  { value: 'all', label: 'All Manhattan' },
+  { value: '1',   label: 'Financial District / Tribeca' },
+  { value: '2',   label: 'Greenwich Village / SoHo' },
+  { value: '3',   label: 'Lower East Side / Chinatown' },
+  { value: '4',   label: "Chelsea / Hell's Kitchen" },
+  { value: '5',   label: 'Midtown' },
+  { value: '6',   label: 'Murray Hill / Gramercy' },
+  { value: '7',   label: 'Upper West Side' },
+  { value: '8',   label: 'Upper East Side' },
+  { value: '9',   label: 'Morningside Hts / Hamilton Hts' },
+  { value: '10',  label: 'Central Harlem' },
+  { value: '11',  label: 'East Harlem' },
+  { value: '12',  label: 'Washington Heights / Inwood' },
 ]
 
 const ZONE_TYPES = [
@@ -50,14 +59,13 @@ const ZONE_TYPES = [
 ]
 
 const DEFAULT_FILTERS = {
-  minAvailableFAR: 0,
-  landUse: 'all',
+  dealType: 'all',
+  neighborhood: 'all',
   zoningType: 'all',
   zoningDistrict: 'all',
   minOpportunityScore: 0,
-  minAllowedFAR: 0,
+  minBuildableSF: 0,
   showLandmarks: true,
-  showVacantOnly: false,
   cityOfYesOnly: false,
 }
 
@@ -161,27 +169,36 @@ export default function Sidebar({
         {/* ── FILTERS TAB ── */}
         {activeTab === 'filters' && (
           <div className="tab-panel">
-            <div className="section-title"><TrendingUp size={13} /> Opportunity Score</div>
-            <div className="slider-group">
-              <div className="slider-labels">
-                <span>Minimum</span>
-                <span className="slider-value">{filters.minOpportunityScore}+</span>
-              </div>
-              <input type="range" min="0" max="100"
-                value={filters.minOpportunityScore}
-                onChange={e => updateFilter('minOpportunityScore', Number(e.target.value))}
-                className="slider"
-              />
-              <div className="slider-ticks"><span>Any</span><span>50</span><span>Top</span></div>
+
+            {/* 1. DEAL TYPE */}
+            <div className="section-title"><Building2 size={13} /> What are you looking for?</div>
+            <div className="deal-type-grid">
+              {DEAL_TYPES.map(dt => (
+                <button
+                  key={dt.value}
+                  className={`deal-type-pill ${(filters.dealType || 'all') === dt.value ? 'active' : ''} ${dt.value === 'all' ? 'full-width' : ''}`}
+                  onClick={() => updateFilter('dealType', dt.value)}
+                  title={dt.desc}
+                >
+                  <span className="dt-icon">{dt.icon}</span>
+                  <span className="dt-label">{dt.label}</span>
+                </button>
+              ))}
             </div>
 
-            <div className="section-title"><Building2 size={13} /> Land Use</div>
+            {/* 2. NEIGHBORHOOD */}
+            <div className="section-title"><MapPin size={13} /> Neighborhood</div>
             <div className="select-group">
-              <select value={filters.landUse} onChange={e => updateFilter('landUse', e.target.value)} className="styled-select">
-                {LAND_USE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+              <select
+                value={filters.neighborhood || 'all'}
+                onChange={e => updateFilter('neighborhood', e.target.value)}
+                className="styled-select"
+              >
+                {NEIGHBORHOODS.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
               </select>
             </div>
 
+            {/* 3. ZONING TYPE */}
             <div className="section-title"><Building2 size={13} /> Zoning Type</div>
             <div className="zone-pills">
               {ZONE_TYPES.map(z => (
@@ -193,27 +210,37 @@ export default function Sidebar({
               ))}
             </div>
 
-            <div className="section-title"><TrendingUp size={13} /> Min Allowed FAR</div>
+            {/* 4. MIN BUILDABLE SF */}
+            <div className="section-title"><TrendingUp size={13} /> Min Available to Build</div>
             <div className="slider-group">
               <div className="slider-labels">
                 <span>Minimum</span>
-                <span className="slider-value">{filters.minAllowedFAR > 0 ? `${filters.minAllowedFAR}+` : 'Any'}</span>
+                <span className="slider-value">
+                  {filters.minBuildableSF > 0 ? `${Math.round((filters.minBuildableSF)/1000)}k+ SF` : 'Any'}
+                </span>
               </div>
-              <input type="range" min="0" max="15" step="0.5"
-                value={filters.minAllowedFAR || 0}
-                onChange={e => updateFilter('minAllowedFAR', Number(e.target.value))}
+              <input type="range" min="0" max="50000" step="5000"
+                value={filters.minBuildableSF || 0}
+                onChange={e => updateFilter('minBuildableSF', Number(e.target.value))}
                 className="slider"
               />
-              <div className="slider-ticks"><span>Any</span><span>R8 (~6)</span><span>R10 (15)</span></div>
+              <div className="slider-ticks"><span>Any</span><span>25k SF</span><span>50k+</span></div>
             </div>
 
-            <div className="section-title">Quick Filters</div>
-            <div className="toggle-group">
-              <label className="toggle-label">
-                <span>Vacant lots only</span>
-                <div className={`toggle ${filters.showVacantOnly ? 'on' : ''}`}
-                  onClick={() => updateFilter('showVacantOnly', !filters.showVacantOnly)} />
-              </label>
+            {/* 5. MIN QUALITY SCORE */}
+            <div className="section-title"><TrendingUp size={13} /> Min Quality Score</div>
+            <div className="slider-group">
+              <div className="slider-labels">
+                <span>Threshold</span>
+                <span className="slider-value">{filters.minOpportunityScore > 0 ? `${filters.minOpportunityScore}+` : 'Any'}</span>
+              </div>
+              <input type="range" min="0" max="100"
+                value={filters.minOpportunityScore}
+                onChange={e => updateFilter('minOpportunityScore', Number(e.target.value))}
+                className="slider"
+              />
+              <div className="slider-ticks"><span>Any</span><span>50</span><span>Top</span></div>
+              <div className="filter-hint">Based on unused FAR, lot size &amp; land use</div>
             </div>
 
             <button className="reset-btn" onClick={() => setFilters(DEFAULT_FILTERS)}>

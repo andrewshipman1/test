@@ -14,12 +14,13 @@ import './App.css'
 export default function App() {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [filters, setFilters] = useState({
-    minAvailableFAR: 0,
-    landUse: 'all',
+    dealType: 'all',
+    neighborhood: 'all',
+    zoningType: 'all',
     zoningDistrict: 'all',
     minOpportunityScore: 0,
+    minBuildableSF: 0,
     showLandmarks: true,
-    showVacantOnly: false,
     cityOfYesOnly: false,
   })
   const [assemblageLots, setAssemblageLots] = useState([])
