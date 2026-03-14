@@ -133,8 +133,8 @@ export default function MapView({
     const map = mapRef.current.getMap()
     map.flyTo({
       center: [searchTarget.lng, searchTarget.lat],
-      zoom: 16,
-      duration: 1800,
+      zoom:     searchTarget.zoom ?? 16,
+      duration: searchTarget.zoom ? 1400 : 1800,
       essential: true
     })
   }, [searchTarget])

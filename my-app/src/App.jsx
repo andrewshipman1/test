@@ -117,6 +117,7 @@ export default function App() {
           notes={notes}
           showPipeline={showPipeline}
           onTogglePipeline={setShowPipeline}
+          onNeighborhoodZoom={(lat, lng, zoom) => setSearchTarget({ lat, lng, zoom })}
         />
         <MapView
           filters={filters}

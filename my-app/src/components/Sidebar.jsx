@@ -35,6 +35,21 @@ const DEAL_TYPES = [
   { value: 'commercial', label: 'Commercial',     icon: '🏢', desc: 'Retail, office & mixed-use' },
 ]
 
+const NEIGHBORHOOD_CENTERS = {
+  '1':  { lat: 40.716, lng: -74.008 },
+  '2':  { lat: 40.731, lng: -74.002 },
+  '3':  { lat: 40.715, lng: -73.989 },
+  '4':  { lat: 40.748, lng: -74.002 },
+  '5':  { lat: 40.754, lng: -73.984 },
+  '6':  { lat: 40.748, lng: -73.977 },
+  '7':  { lat: 40.783, lng: -73.982 },
+  '8':  { lat: 40.773, lng: -73.958 },
+  '9':  { lat: 40.808, lng: -73.952 },
+  '10': { lat: 40.813, lng: -73.948 },
+  '11': { lat: 40.797, lng: -73.939 },
+  '12': { lat: 40.851, lng: -73.934 },
+}
+
 const NEIGHBORHOODS = [
   { value: 'all', label: 'All Manhattan' },
   { value: '1',   label: 'Financial District / Tribeca' },
@@ -92,6 +107,7 @@ export default function Sidebar({
   notes = {},
   showPipeline = false,
   onTogglePipeline,
+  onNeighborhoodZoom,
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
@@ -191,7 +207,14 @@ export default function Sidebar({
             <div className="select-group">
               <select
                 value={filters.neighborhood || 'all'}
-                onChange={e => updateFilter('neighborhood', e.target.value)}
+                onChange={e => {
+                  const v = e.target.value
+                  updateFilter('neighborhood', v)
+                  if (v !== 'all' && NEIGHBORHOOD_CENTERS[v] && onNeighborhoodZoom) {
+                    const { lat, lng } = NEIGHBORHOOD_CENTERS[v]
+                    onNeighborhoodZoom(lat, lng, 13)
+                  }
+                }}
                 className="styled-select"
               >
                 {NEIGHBORHOODS.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
