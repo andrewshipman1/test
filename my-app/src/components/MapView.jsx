@@ -1,9 +1,37 @@
 import { useRef, useCallback, useState, useEffect } from 'react'
-import Map, { Source, Layer, NavigationControl, ScaleControl, Marker } from 'react-map-gl/maplibre'
+import Map, { Source, Layer, NavigationControl, ScaleControl, Marker, Popup } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
 import { MapPin } from 'lucide-react'
 import './MapView.css'
+
+// Pipeline layer — New Building (teal)
+const pipelineNbLayer = {
+  id: 'pipeline-nb',
+  type: 'circle',
+  filter: ['==', ['get', 'type'], 'NB'],
+  paint: {
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 4, 14, 8, 16, 13],
+    'circle-color': '#22d3ee',
+    'circle-opacity': 0.9,
+    'circle-stroke-width': 1.5,
+    'circle-stroke-color': '#ffffff',
+  },
+}
+
+// Pipeline layer — Demolition (orange)
+const pipelineDmLayer = {
+  id: 'pipeline-dm',
+  type: 'circle',
+  filter: ['==', ['get', 'type'], 'DM'],
+  paint: {
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 4, 14, 8, 16, 13],
+    'circle-color': '#f97316',
+    'circle-opacity': 0.9,
+    'circle-stroke-width': 1.5,
+    'circle-stroke-color': '#ffffff',
+  },
+}
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
@@ -86,12 +114,16 @@ export default function MapView({
   marketSignals,
   onZoningDistrictsLoaded,
   onFeaturesLoaded,
-  searchTarget
+  searchTarget,
+  pipelineData,
+  showPipeline,
+  onTogglePipeline,
 }) {
   const mapRef = useRef(null)
   const [cursor, setCursor] = useState('grab')
   const [hoveredId, setHoveredId] = useState(null)
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [pipelinePopup, setPipelinePopup] = useState(null)
 
   // Fly to searched location
   useEffect(() => {
@@ -150,16 +182,35 @@ export default function MapView({
   const handleClick = useCallback((event) => {
     const map = mapRef.current?.getMap()
     if (!map) return
+
+    // Check pipeline dots first (they sit on top)
+    if (showPipeline) {
+      const pipelineFeatures = map.queryRenderedFeatures(event.point, {
+        layers: ['pipeline-nb', 'pipeline-dm'],
+      })
+      if (pipelineFeatures.length > 0) {
+        const props = pipelineFeatures[0].properties
+        setPipelinePopup({
+          lng: event.lngLat.lng,
+          lat: event.lngLat.lat,
+          ...props,
+        })
+        return
+      }
+    }
+
+    // Close any open pipeline popup when clicking elsewhere
+    setPipelinePopup(null)
+
     const features = map.queryRenderedFeatures(event.point, {
-      layers: ['tax-lots-circle', 'coy-lots-circle']
+      layers: ['tax-lots-circle', 'coy-lots-circle'],
     })
     if (features.length > 0) {
       const props = features[0].properties
-      // Attach market signals if available
       const signals = marketSignals?.[props.bbl] || []
       setSelectedProperty({ ...props, market_signals: signals })
     }
-  }, [setSelectedProperty, marketSignals])
+  }, [setSelectedProperty, marketSignals, showPipeline])
 
   const emptyData = { type: 'FeatureCollection', features: [] }
 
@@ -183,6 +234,43 @@ export default function MapView({
           <Layer {...lotCircleLayer} />
           <Layer {...coyCircleLayer} />
         </Source>
+
+        {/* Pipeline overlay — NB (teal) and DM (orange) dots */}
+        {showPipeline && pipelineData && (
+          <Source id="pipeline" type="geojson" data={pipelineData}>
+            <Layer {...pipelineNbLayer} />
+            <Layer {...pipelineDmLayer} />
+          </Source>
+        )}
+
+        {/* Pipeline popup */}
+        {pipelinePopup && (
+          <Popup
+            longitude={pipelinePopup.lng}
+            latitude={pipelinePopup.lat}
+            anchor="bottom"
+            onClose={() => setPipelinePopup(null)}
+            closeOnClick={false}
+          >
+            <div className="pipeline-popup-content">
+              <div className={`pipeline-popup-badge ${pipelinePopup.type === 'NB' ? 'pipeline-nb' : 'pipeline-dm'}`}>
+                {pipelinePopup.type === 'NB' ? 'New Building' : 'Demolition'}
+              </div>
+              <div className="pipeline-popup-address">{pipelinePopup.address}</div>
+              {pipelinePopup.filingDate && (
+                <div className="pipeline-popup-meta">
+                  Filed {new Date(pipelinePopup.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </div>
+              )}
+              {pipelinePopup.cost && (
+                <div className="pipeline-popup-cost">{pipelinePopup.cost}</div>
+              )}
+              {pipelinePopup.description && (
+                <div className="pipeline-popup-desc">{pipelinePopup.description}</div>
+              )}
+            </div>
+          </Popup>
+        )}
 
         {/* Search result pin */}
         {searchTarget && (
@@ -235,6 +323,21 @@ export default function MapView({
             <span className="map-stat-val">Manhattan</span>
             <span className="map-stat-label">Coverage</span>
           </div>
+          <div className="map-stat-divider" />
+          <button
+            className={`pipeline-toggle-btn ${showPipeline ? 'active' : ''}`}
+            onClick={() => onTogglePipeline(!showPipeline)}
+            title={showPipeline ? 'Hide pipeline activity' : 'Show DOB permits & demolitions'}
+          >
+            <span className="pipeline-toggle-dots">
+              <span className="pipeline-dot nb" />
+              <span className="pipeline-dot dm" />
+            </span>
+            Pipeline
+            {showPipeline && pipelineData?.features?.length > 0 && (
+              <span className="pipeline-toggle-count">{pipelineData.features.length}</span>
+            )}
+          </button>
         </div>
       )}
 

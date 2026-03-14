@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download, AlertTriangle } from 'lucide-react'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download, AlertTriangle, Activity } from 'lucide-react'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS, getEffectivePsf } from '../hooks/usePlutoData'
 import { exportSavedToPdf } from '../utils/exportPdf'
@@ -77,11 +77,16 @@ export default function Sidebar({
   updatePsfOverride, resetPsfOverride, resetAllPsf,
   livePsf = {},
   allFeatures = [],
+  permits = [],
+  pipelineLoading = false,
+  pipelineSummary = { nbCount: 0, dmCount: 0 },
+  onSelectPermit,
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
   const [showNbhdTable, setShowNbhdTable] = useState(false)
+  const [pipelineFilter, setPipelineFilter] = useState('all') // 'all' | 'NB' | 'DM'
 
   // Safe fallbacks if underwriting props aren't wired yet
   const uw      = assumptions || DEFAULT_ASSUMPTIONS
@@ -139,6 +144,12 @@ export default function Sidebar({
         </button>
         <button className={`tab-btn ${activeTab === 'proforma' ? 'active' : ''}`} onClick={() => setTab('proforma')}>
           <Calculator size={13} /> Model
+        </button>
+        <button className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`} onClick={() => setTab('pipeline')}>
+          <Activity size={13} /> Pipeline
+          {(pipelineSummary.nbCount + pipelineSummary.dmCount) > 0 && (
+            <span className="tab-badge">{pipelineSummary.nbCount + pipelineSummary.dmCount}</span>
+          )}
         </button>
       </div>
 
@@ -631,6 +642,87 @@ export default function Sidebar({
             <div className="uw-note">
               PSFs from live ACRIS condo sales where available, otherwise estimated. Open any property drawer to override PSF or hard cost for a specific site.
             </div>
+          </div>
+        )}
+
+        {/* ── PIPELINE TAB ── */}
+        {activeTab === 'pipeline' && (
+          <div className="tab-panel">
+            <div className="pipeline-header">
+              <Activity size={16} color="#22d3ee" />
+              <div style={{ flex: 1 }}>
+                <div className="assemblage-title">DOB Pipeline</div>
+                <div className="assemblage-sub">
+                  {pipelineLoading
+                    ? 'Loading permit data…'
+                    : `${pipelineSummary.nbCount} new buildings · ${pipelineSummary.dmCount} demolitions`}
+                </div>
+              </div>
+            </div>
+
+            {/* Filter pills */}
+            <div className="pipeline-filter-pills">
+              {[
+                { key: 'all', label: 'All' },
+                { key: 'NB',  label: '🏗 New Buildings' },
+                { key: 'DM',  label: '🔴 Demolitions' },
+              ].map(f => (
+                <button
+                  key={f.key}
+                  className={`pipeline-filter-pill ${pipelineFilter === f.key ? 'active' : ''}`}
+                  onClick={() => setPipelineFilter(f.key)}
+                >{f.label}</button>
+              ))}
+            </div>
+
+            {pipelineLoading ? (
+              <div className="empty-state">
+                <div className="loading-spinner-sm" />
+                <p>Loading permits…</p>
+              </div>
+            ) : permits.length === 0 ? (
+              <div className="empty-state">
+                <Activity size={32} color="#2e4060" />
+                <p>No pipeline data</p>
+                <p className="empty-sub">DOB permit data will appear here once loaded</p>
+              </div>
+            ) : (
+              <div className="pipeline-list">
+                {permits
+                  .filter(p => pipelineFilter === 'all' || p.type === pipelineFilter)
+                  .slice(0, 150)
+                  .map((p, i) => (
+                    <div
+                      key={`${p.bbl}-${p.type}-${i}`}
+                      className="pipeline-permit-card"
+                      onClick={() => onSelectPermit && onSelectPermit(p)}
+                    >
+                      <div className="pipeline-card-top">
+                        <span className={`pipeline-type-badge ${p.type === 'NB' ? 'pipeline-nb' : 'pipeline-dm'}`}>
+                          {p.type === 'NB' ? 'NB' : 'DM'}
+                        </span>
+                        <span className="pipeline-permit-date">
+                          {p.filingDate
+                            ? new Date(p.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
+                            : '—'}
+                        </span>
+                        {p.cost && <span className="pipeline-cost">{p.cost}</span>}
+                      </div>
+                      <div className="pipeline-permit-address">
+                        {p.address || p.bbl}
+                      </div>
+                      {p.description && (
+                        <div className="pipeline-permit-desc">{p.description}</div>
+                      )}
+                    </div>
+                  ))}
+                {permits.filter(p => pipelineFilter === 'all' || p.type === pipelineFilter).length > 150 && (
+                  <div className="pipeline-more">
+                    + {permits.filter(p => pipelineFilter === 'all' || p.type === pipelineFilter).length - 150} more · toggle Pipeline on map to see all
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

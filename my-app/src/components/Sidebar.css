@@ -1170,3 +1170,148 @@
   text-align: center;
   border-top: 1px solid var(--border-subtle);
 }
+
+/* ── Pipeline Tab ────────────────────────────────────────────────────────── */
+
+.pipeline-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+
+.pipeline-filter-pills {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.pipeline-filter-pill {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 4px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.pipeline-filter-pill:hover {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.pipeline-filter-pill.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.pipeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pipeline-permit-card {
+  padding: 9px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.pipeline-permit-card:hover {
+  border-color: var(--accent-border);
+  background: var(--bg-elevated);
+}
+
+.pipeline-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.pipeline-type-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.pipeline-type-badge.pipeline-nb {
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: #22d3ee;
+}
+
+.pipeline-type-badge.pipeline-dm {
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+}
+
+.pipeline-permit-date {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.pipeline-cost {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.pipeline-permit-address {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline-permit-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline-more {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+.loading-spinner-sm {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
