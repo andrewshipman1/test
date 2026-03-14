@@ -47,7 +47,7 @@ export function usePipelineData() {
           address:    buildAddress(row),
           filingDate: row.issuance_date ? row.issuance_date.slice(0, 10) : null,
           status:     row.permit_status || '',
-          description: row.bldg_type || '',
+          description: type === 'NB' ? 'New construction permit' : 'Demolition — site being cleared',
           lat:  Number(row.gis_latitude)  || null,
           lng:  Number(row.gis_longitude) || null,
         })

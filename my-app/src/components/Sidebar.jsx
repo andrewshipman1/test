@@ -173,7 +173,7 @@ export default function Sidebar({
           <Calculator size={13} /> Model
         </button>
         <button className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`} onClick={() => setTab('pipeline')}>
-          <Activity size={13} /> Pipeline
+          <Activity size={13} /> Activity
           {(pipelineSummary.nbCount + pipelineSummary.dmCount) > 0 && (
             <span className="tab-badge">{pipelineSummary.nbCount + pipelineSummary.dmCount}</span>
           )}
@@ -711,21 +711,21 @@ export default function Sidebar({
             <div className="pipeline-header">
               <Activity size={16} color="#22d3ee" />
               <div style={{ flex: 1 }}>
-                <div className="assemblage-title">DOB Pipeline</div>
+                <div className="assemblage-title">Construction Activity</div>
                 <div className="assemblage-sub">
                   {pipelineLoading
                     ? 'Loading permit data…'
-                    : `${pipelineSummary.nbCount} new buildings · ${pipelineSummary.dmCount} demolitions`}
+                    : `${pipelineSummary.nbCount} new builds · ${pipelineSummary.dmCount} sites being cleared`}
                 </div>
               </div>
               <button
                 className={`pipeline-map-btn ${showPipeline ? 'active' : ''}`}
                 onClick={() => onTogglePipeline && onTogglePipeline(!showPipeline)}
-                title={showPipeline ? 'Hide dots on map' : 'Show permits on map'}
+                title={showPipeline ? 'Hide on map' : 'Show on map'}
               >
                 <span className="pipeline-map-dot nb" />
                 <span className="pipeline-map-dot dm" />
-                {showPipeline ? 'On Map' : 'Map'}
+                {showPipeline ? 'Showing ✓' : 'Show on Map'}
               </button>
             </div>
 
@@ -733,8 +733,8 @@ export default function Sidebar({
             <div className="pipeline-filter-pills">
               {[
                 { key: 'all', label: 'All' },
-                { key: 'NB',  label: '🏗 New Buildings' },
-                { key: 'DM',  label: '🔴 Demolitions' },
+                { key: 'NB',  label: '🏗 New Construction' },
+                { key: 'DM',  label: '🔨 Site Clearing' },
               ].map(f => (
                 <button
                   key={f.key}
@@ -768,11 +768,11 @@ export default function Sidebar({
                     >
                       <div className="pipeline-card-top">
                         <span className={`pipeline-type-badge ${p.type === 'NB' ? 'pipeline-nb' : 'pipeline-dm'}`}>
-                          {p.type === 'NB' ? 'NB' : 'DM'}
+                          {p.type === 'NB' ? 'New Build' : 'Demo'}
                         </span>
                         <span className="pipeline-permit-date">
                           {p.filingDate
-                            ? new Date(p.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
+                            ? new Date(p.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                             : '—'}
                         </span>
                         {p.cost && <span className="pipeline-cost">{p.cost}</span>}
