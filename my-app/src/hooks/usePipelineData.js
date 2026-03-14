@@ -1,12 +1,28 @@
 import { useState, useEffect } from 'react'
 
+// DOB Permit Issuance dataset — has gis_latitude/gis_longitude directly
 const DOB_API = 'https://data.cityofnewyork.us/resource/ipu4-2q9a.json'
 
-function formatCost(costStr) {
-  const n = Number(costStr)
-  if (!n || n < 1000) return null
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`
-  return `$${Math.round(n / 1e3)}K`
+const BOROUGH_CODE = {
+  MANHATTAN:  '1',
+  BRONX:      '2',
+  BROOKLYN:   '3',
+  QUEENS:     '4',
+  'STATEN IS': '5',
+}
+
+function buildBbl(row) {
+  const code  = BOROUGH_CODE[row.borough] || '1'
+  const block = String(row.block || '').replace(/^0+/, '') || '0'
+  const lot   = String(row.lot   || '').replace(/^0+/, '') || '0'
+  return `${code}${block.padStart(5, '0')}${lot.padStart(4, '0')}`
+}
+
+function buildAddress(row) {
+  const h = (row.house__ || '').trim()
+  const s = (row.street_name || '').trim()
+  if (h && s) return `${h} ${s}`
+  return s || h || ''
 }
 
 export function usePipelineData() {
@@ -16,34 +32,30 @@ export function usePipelineData() {
   useEffect(() => {
     async function load() {
       try {
-        const now = new Date()
-        const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate())
-          .toISOString().slice(0, 10)
-        const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
-          .toISOString().slice(0, 10)
-
-        const fields = '$select=bbl,job_type,filing_date,initial_cost,job_status,job_description,building_type'
+        const fields = '$select=borough,block,lot,house__,street_name,job_type,issuance_date,gis_latitude,gis_longitude,permit_status,bldg_type'
 
         const [nbRes, dmRes] = await Promise.all([
-          fetch(`${DOB_API}?$where=job_type='NB' AND filing_date >= '${twoYearsAgo}T00:00:00.000'&${fields}&$limit=5000&$order=filing_date DESC`),
-          fetch(`${DOB_API}?$where=job_type='DM' AND filing_date >= '${oneYearAgo}T00:00:00.000'&${fields}&$limit=2000&$order=filing_date DESC`),
+          fetch(`${DOB_API}?$where=job_type='NB' AND borough='MANHATTAN' AND gis_latitude IS NOT NULL&${fields}&$limit=3000&$order=issuance_date DESC`),
+          fetch(`${DOB_API}?$where=job_type='DM' AND borough='MANHATTAN' AND gis_latitude IS NOT NULL&${fields}&$limit=1500&$order=issuance_date DESC`),
         ])
 
         const [nbData, dmData] = await Promise.all([nbRes.json(), dmRes.json()])
 
         const normalize = (row, type) => ({
-          bbl: String(Math.round(Number(row.bbl || 0))).padStart(10, '0'),
+          bbl:        buildBbl(row),
           type,
-          filingDate: row.filing_date ? row.filing_date.slice(0, 10) : null,
-          cost: formatCost(row.initial_cost),
-          rawCost: Number(row.initial_cost) || 0,
-          status: row.job_status || '',
-          description: (row.job_description || row.building_type || '').slice(0, 80),
+          address:    buildAddress(row),
+          filingDate: row.issuance_date ? row.issuance_date.slice(0, 10) : null,
+          status:     row.permit_status || '',
+          description: row.bldg_type || '',
+          lat:  Number(row.gis_latitude)  || null,
+          lng:  Number(row.gis_longitude) || null,
         })
 
         const nb = Array.isArray(nbData) ? nbData.map(r => normalize(r, 'NB')) : []
         const dm = Array.isArray(dmData) ? dmData.map(r => normalize(r, 'DM')) : []
 
+        // Sort newest first; nulls to end
         const all = [...nb, ...dm].sort((a, b) =>
           (b.filingDate || '').localeCompare(a.filingDate || '')
         )

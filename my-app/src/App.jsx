@@ -35,7 +35,27 @@ export default function App() {
   const { livePsf } = useMarketPsf()
   const { permits, loading: pipelineLoading, summary: pipelineSummary } = usePipelineData()
 
-  // Build BBL → PLUTO feature lookup for joining pipeline permits with coordinates
+  // Pipeline GeoJSON: built directly from lat/lng on each permit (no BBL join needed)
+  const pipelineGeoJSON = useMemo(() => {
+    const features = permits
+      .filter(p => p.lat && p.lng)
+      .map((p, i) => ({
+        type: 'Feature',
+        id: i,
+        geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
+        properties: {
+          type:        p.type,
+          address:     p.address,
+          filingDate:  p.filingDate,
+          status:      p.status,
+          description: p.description,
+          bbl:         p.bbl,
+        },
+      }))
+    return { type: 'FeatureCollection', features }
+  }, [permits])
+
+  // Build BBL → PLUTO feature lookup (for permit fly-to from sidebar)
   const bblToFeature = useMemo(() => {
     const map = {}
     allFeatures.forEach(f => {
@@ -44,41 +64,6 @@ export default function App() {
     })
     return map
   }, [allFeatures])
-
-  // Enrich permits with PLUTO address for sidebar display
-  const enrichedPermits = useMemo(() => {
-    return permits.map(p => ({
-      ...p,
-      address: bblToFeature[p.bbl]?.properties?.address || p.bbl,
-    }))
-  }, [permits, bblToFeature])
-
-  // Pipeline GeoJSON: join permits with PLUTO coordinates + address
-  const pipelineGeoJSON = useMemo(() => {
-    if (!permits.length || !Object.keys(bblToFeature).length) {
-      return { type: 'FeatureCollection', features: [] }
-    }
-    const features = []
-    permits.forEach((p, i) => {
-      const pluto = bblToFeature[p.bbl]
-      if (!pluto?.geometry?.coordinates) return
-      features.push({
-        type: 'Feature',
-        id: i,
-        geometry: { type: 'Point', coordinates: pluto.geometry.coordinates },
-        properties: {
-          type: p.type,
-          address: pluto.properties?.address || p.bbl,
-          filingDate: p.filingDate,
-          cost: p.cost || '',
-          status: p.status,
-          description: p.description,
-          bbl: p.bbl,
-        },
-      })
-    })
-    return { type: 'FeatureCollection', features }
-  }, [permits, bblToFeature])
 
   // When clicking a saved lot in sidebar: fly to it and open drawer
   const handleSelectSaved = (property) => {
@@ -94,12 +79,10 @@ export default function App() {
 
   // When clicking a permit in the sidebar list: fly to it on the map
   const handleSelectPermit = useCallback((permit) => {
-    const pluto = bblToFeature[permit.bbl]
-    if (pluto?.geometry?.coordinates) {
-      const [lng, lat] = pluto.geometry.coordinates
-      setSearchTarget({ lng, lat, label: permit.address || permit.bbl })
+    if (permit.lat && permit.lng) {
+      setSearchTarget({ lng: permit.lng, lat: permit.lat, label: permit.address || permit.bbl })
     }
-  }, [bblToFeature])
+  }, [])
 
   return (
     <div className="app-container">
@@ -122,7 +105,7 @@ export default function App() {
           resetAllPsf={resetAllPsf}
           livePsf={livePsf}
           allFeatures={allFeatures}
-          permits={enrichedPermits}
+          permits={permits}
           pipelineLoading={pipelineLoading}
           pipelineSummary={pipelineSummary}
           onSelectPermit={handleSelectPermit}

@@ -35,39 +35,41 @@ const pipelineDmLayer = {
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
-// Main lots layer colored by opportunity score
-const lotCircleLayer = {
-  id: 'tax-lots-circle',
-  type: 'circle',
-  filter: ['!=', ['get', 'city_of_yes'], true],
-  paint: {
-    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 3, 14, 6, 16, 10],
-    'circle-color': [
-      'case',
-      ['==', ['get', 'land_use'], '11'], '#22c55e',
-      ['>=', ['get', 'score'], 80], '#ef4444',
-      ['>=', ['get', 'score'], 60], '#f97316',
-      ['>=', ['get', 'score'], 40], '#f59e0b',
-      ['>=', ['get', 'score'], 20], '#eab308',
-      '#3a3a5a'
-    ],
-    'circle-opacity': [
-      'case',
-      ['boolean', ['feature-state', 'selected'], false], 1.0,
-      ['boolean', ['feature-state', 'hover'], false], 0.95,
-      0.75
-    ],
-    'circle-stroke-width': [
-      'case',
-      ['boolean', ['feature-state', 'selected'], false], 2,
-      ['boolean', ['feature-state', 'hover'], false], 1.5,
-      0.5
-    ],
-    'circle-stroke-color': [
-      'case',
-      ['boolean', ['feature-state', 'selected'], false], '#f59e0b',
-      '#ffffff44'
-    ]
+// Main lots layer — opacity is dimmed when pipeline mode is active
+function makeLotCircleLayer(dimmed) {
+  return {
+    id: 'tax-lots-circle',
+    type: 'circle',
+    filter: ['!=', ['get', 'city_of_yes'], true],
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, dimmed ? 2 : 3, 14, dimmed ? 4 : 6, 16, dimmed ? 7 : 10],
+      'circle-color': [
+        'case',
+        ['==', ['get', 'land_use'], '11'], '#22c55e',
+        ['>=', ['get', 'score'], 80], '#ef4444',
+        ['>=', ['get', 'score'], 60], '#f97316',
+        ['>=', ['get', 'score'], 40], '#f59e0b',
+        ['>=', ['get', 'score'], 20], '#eab308',
+        '#3a3a5a'
+      ],
+      'circle-opacity': [
+        'case',
+        ['boolean', ['feature-state', 'selected'], false], dimmed ? 0.6 : 1.0,
+        ['boolean', ['feature-state', 'hover'], false],   dimmed ? 0.5 : 0.95,
+        dimmed ? 0.2 : 0.75
+      ],
+      'circle-stroke-width': [
+        'case',
+        ['boolean', ['feature-state', 'selected'], false], 2,
+        ['boolean', ['feature-state', 'hover'], false], 1.5,
+        dimmed ? 0 : 0.5
+      ],
+      'circle-stroke-color': [
+        'case',
+        ['boolean', ['feature-state', 'selected'], false], '#f59e0b',
+        '#ffffff44'
+      ]
+    }
   }
 }
 
@@ -231,7 +233,7 @@ export default function MapView({
         <ScaleControl position="bottom-right" />
 
         <Source id="tax-lots" type="geojson" data={plutoData || emptyData}>
-          <Layer {...lotCircleLayer} />
+          <Layer {...makeLotCircleLayer(showPipeline)} />
           <Layer {...coyCircleLayer} />
         </Source>
 
