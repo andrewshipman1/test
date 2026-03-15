@@ -1615,8 +1615,8 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
-    padding: 6px 4px;
-    font-size: 9px;
+    padding: 6px 8px;
+    font-size: 10px;
     border-bottom: none;
     border-top: 2px solid transparent;
     border-radius: 0;

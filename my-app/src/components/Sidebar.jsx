@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from 'react'
-import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download, AlertTriangle, Activity } from 'lucide-react'
+import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download, AlertTriangle } from 'lucide-react'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS, getEffectivePsf } from '../hooks/usePlutoData'
 import { exportSavedToPdf } from '../utils/exportPdf'
@@ -85,19 +85,6 @@ const DEFAULT_FILTERS = {
   cityOfYesOnly: false,
 }
 
-function timeAgo(dateStr) {
-  if (!dateStr) return null
-  // Don't append time if the string already contains one (ISO datetime from APIs)
-  const parsed = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T12:00:00')
-  const ms   = Date.now() - parsed.getTime()
-  if (isNaN(ms)) return null
-  const days = Math.floor(ms / (1000 * 60 * 60 * 24))
-  if (days < 1)   return 'Today'
-  if (days < 7)   return `${days}d ago`
-  if (days < 30)  return `${Math.floor(days / 7)}w ago`
-  if (days < 365) return `${Math.floor(days / 30)}mo ago`
-  return `${Math.floor(days / 365)}yr ago`
-}
 
 const HARD_COST_PRESETS = [
   { label: 'Conversion', value: 275 },
@@ -115,15 +102,7 @@ export default function Sidebar({
   updatePsfOverride, resetPsfOverride, resetAllPsf,
   livePsf = {},
   allFeatures = [],
-  permits = [],
-  salesFlat = [],
-  cityOwnedFlat = [],
-  pipelineLoading = false,
-  pipelineSummary = { nbCount: 0, dmCount: 0 },
-  onSelectPermit,
   notes = {},
-  showPipeline = false,
-  onTogglePipeline,
   onNeighborhoodZoom,
   lotsByBbl = {},
   onSelectProperty,
@@ -132,7 +111,6 @@ export default function Sidebar({
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
   const [showNbhdTable, setShowNbhdTable] = useState(false)
-  const [activityFilter, setActivityFilter] = useState('all') // 'all'|'NB'|'DM'|'sale'|'city_owned'
   const [sheetOpen, setSheetOpen] = useState(false)
   const { handleRef: sheetHandleRef, dragStyle: sheetDragStyle } = useSwipeToDismiss({
     onDismiss: () => setSheetOpen(false),
@@ -180,44 +158,6 @@ export default function Sidebar({
     return { ...scoreData, pf, psf }
   }, [assemblageLots, uw, livePsf])
 
-  // ── Activity tab: unified market feed ──
-  const ACTIVITY_CONFIG = {
-    NB:         { icon: '🏗', label: 'New Build',     color: '#22d3ee', why: 'Active development — watch this block' },
-    DM:         { icon: '🔨', label: 'Demo Permit',   color: '#f97316', why: 'Site being cleared — track for opportunity' },
-    sale:       { icon: '💰', label: 'Deed Transfer', color: '#22c55e', why: 'Ownership change — development window opens' },
-    city_owned: { icon: '🏛', label: 'City-Owned',    color: '#8b5cf6', why: null }, // dynamic
-  }
-
-  const activityFeed = useMemo(() => {
-    const items = []
-    permits.forEach(p => items.push({
-      id: `permit-${p.bbl}-${p.filingDate}-${p.type}`,
-      type: p.type, bbl: p.bbl, address: p.address, date: p.filingDate,
-    }))
-    salesFlat.forEach(s => items.push({
-      id: `sale-${s.bbl}-${s.date}`,
-      type: 'sale', bbl: s.bbl, address: null, date: s.date,
-    }))
-    cityOwnedFlat.forEach(c => items.push({
-      id: `city-${c.bbl}`,
-      type: 'city_owned', bbl: c.bbl, address: c.address, agency: c.agency, date: null,
-    }))
-    items.sort((a, b) => {
-      if (!a.date && !b.date) return 0
-      if (!a.date) return 1
-      if (!b.date) return -1
-      return new Date(b.date) - new Date(a.date)
-    })
-    return items
-  }, [permits, salesFlat, cityOwnedFlat])
-
-  const filteredFeed = useMemo(() => {
-    const base = activityFilter === 'all'
-      ? activityFeed
-      : activityFeed.filter(i => i.type === activityFilter)
-    return base.slice(0, 200)
-  }, [activityFeed, activityFilter])
-
   const handleTabClick = (tab) => {
     if (activeTab === tab && sheetOpen) {
       setSheetOpen(false)
@@ -225,22 +165,6 @@ export default function Sidebar({
       setTab(tab)
       setSheetOpen(true)
     }
-  }
-
-  const handlePermitClick = (item) => {
-    const bblKey  = String(Math.round(Number(item.bbl || 0))).padStart(10, '0')
-    const feature = lotsByBbl?.[bblKey]
-
-    // Fly to the lot — prefer PLUTO centroid, fall back to permit lat/lng
-    if (feature?.geometry?.coordinates) {
-      const [lng, lat] = feature.geometry.coordinates
-      if (onNeighborhoodZoom) onNeighborhoodZoom(lat, lng, 18)
-    } else if (item.lat && item.lng && onSelectPermit) {
-      onSelectPermit(item)
-    }
-
-    // Open the property drawer if we have a PLUTO feature
-    if (feature && onSelectProperty) onSelectProperty(feature.properties)
   }
 
   return (
@@ -260,12 +184,6 @@ export default function Sidebar({
         </button>
         <button className={`tab-btn ${activeTab === 'proforma' ? 'active' : ''}`} onClick={() => handleTabClick('proforma')}>
           <Calculator size={13} /> Model
-        </button>
-        <button className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`} onClick={() => handleTabClick('pipeline')}>
-          <Activity size={13} /> Activity
-          {(pipelineSummary.nbCount + pipelineSummary.dmCount) > 0 && (
-            <span className="tab-badge">{pipelineSummary.nbCount + pipelineSummary.dmCount}</span>
-          )}
         </button>
       </div>
 
@@ -801,128 +719,6 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* ── ACTIVITY TAB ── */}
-        {activeTab === 'pipeline' && (
-          <div className="tab-panel">
-            {/* Header */}
-            <div className="pipeline-header">
-              <div style={{ flex: 1 }}>
-                <div className="assemblage-title">Market Activity</div>
-                <div className="assemblage-sub">
-                  {pipelineLoading
-                    ? 'Loading activity data…'
-                    : `${pipelineSummary.nbCount} builds · ${pipelineSummary.dmCount} demos · ${salesFlat.length} sales · ${cityOwnedFlat.length} city lots`}
-                </div>
-              </div>
-              <button
-                className={`pipeline-map-btn ${showPipeline ? 'active' : ''}`}
-                onClick={(e) => { e.stopPropagation(); onTogglePipeline && onTogglePipeline(!showPipeline) }}
-                title={showPipeline ? 'Hide on map' : 'Show permits on map'}
-              >
-                <span className="pipeline-map-dot nb" />
-                <span className="pipeline-map-dot dm" />
-                {showPipeline ? 'Showing ✓' : 'Show on Map'}
-              </button>
-            </div>
-
-            {/* What is this? */}
-            <div className="activity-explainer">
-              Live signals from DOB permits, ACRIS deed transfers, and city-owned properties — updated daily.
-            </div>
-
-            {/* Filter pills */}
-            <div className="pipeline-filter-pills">
-              {[
-                { key: 'all',        label: 'All' },
-                { key: 'NB',         label: '🏗 Builds' },
-                { key: 'DM',         label: '🔨 Demos' },
-                { key: 'sale',       label: '💰 Sales' },
-                { key: 'city_owned', label: '🏛 City' },
-              ].map(f => (
-                <button
-                  key={f.key}
-                  className={`pipeline-filter-pill ${activityFilter === f.key ? 'active' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); setActivityFilter(f.key) }}
-                >{f.label}</button>
-              ))}
-            </div>
-
-            {pipelineLoading ? (
-              <div className="empty-state">
-                <div className="loading-spinner-sm" />
-                <p>Loading activity…</p>
-              </div>
-            ) : activityFeed.length === 0 ? (
-              <div className="empty-state">
-                <Activity size={32} color="#2e4060" />
-                <p>No activity data</p>
-                <p className="empty-sub">Market signals will appear once loaded</p>
-              </div>
-            ) : (
-              <div className="pipeline-list">
-                {filteredFeed.map((item) => {
-                  const cfg        = ACTIVITY_CONFIG[item.type]
-                  const bblKey     = String(Math.round(Number(item.bbl || 0))).padStart(10, '0')
-                  const plutoProps = lotsByBbl?.[bblKey]?.properties
-                  const displayAddr = item.address || plutoProps?.address || item.bbl
-                  const ago        = timeAgo(item.date)
-                  const whyText    = item.type === 'city_owned'
-                    ? `Managed by ${item.agency || 'City agency'} — potential future disposition`
-                    : cfg?.why
-
-                  return (
-                    <div
-                      key={item.id}
-                      className={`pipeline-permit-card ${plutoProps ? 'pipeline-card-linked' : ''}`}
-                      onClick={() => plutoProps && handlePermitClick(item)}
-                    >
-                      {/* Type badge + timestamp */}
-                      <div className="pipeline-card-top">
-                        <span
-                          className="pipeline-type-badge"
-                          style={{ background: `${cfg?.color}22`, color: cfg?.color, borderColor: `${cfg?.color}44` }}
-                        >
-                          {cfg?.icon} {cfg?.label}
-                        </span>
-                        {ago && <span className="pipeline-permit-ago">{ago}</span>}
-                      </div>
-
-                      {/* Address */}
-                      {displayAddr && (
-                        <div className="pipeline-permit-address">{displayAddr}</div>
-                      )}
-
-                      {/* Why it matters */}
-                      {whyText && (
-                        <div className="activity-why">{whyText}</div>
-                      )}
-
-                      {/* PLUTO link row */}
-                      {plutoProps ? (
-                        <div className="pipeline-pluto-row">
-                          <span className="pipeline-pluto-score" style={{ color: plutoProps.score >= 70 ? '#f97316' : '#f59e0b' }}>
-                            Score {plutoProps.score}
-                          </span>
-                          {plutoProps.deal_type && (
-                            <span className="pipeline-pluto-type">
-                              {plutoProps.deal_type.charAt(0) + plutoProps.deal_type.slice(1).toLowerCase()}
-                            </span>
-                          )}
-                          <span className="pipeline-view-lot">View lot →</span>
-                        </div>
-                      ) : null}
-                    </div>
-                  )
-                })}
-                {activityFeed.filter(i => activityFilter === 'all' || i.type === activityFilter).length > 200 && (
-                  <div className="pipeline-more">
-                    Showing top 200 · toggle map view to see all permits
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
 
       </div>
 

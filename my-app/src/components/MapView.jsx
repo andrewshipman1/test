@@ -1,76 +1,46 @@
 import { useRef, useCallback, useState, useEffect } from 'react'
-import Map, { Source, Layer, NavigationControl, ScaleControl, Marker, Popup } from 'react-map-gl/maplibre'
+import Map, { Source, Layer, NavigationControl, ScaleControl, Marker } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
 import { MapPin } from 'lucide-react'
 import CoachMarks from './CoachMarks'
 import './MapView.css'
 
-// Pipeline layer — New Building (teal)
-const pipelineNbLayer = {
-  id: 'pipeline-nb',
-  type: 'circle',
-  filter: ['==', ['get', 'type'], 'NB'],
-  paint: {
-    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 4, 14, 8, 16, 13],
-    'circle-color': '#22d3ee',
-    'circle-opacity': 0.9,
-    'circle-stroke-width': 1.5,
-    'circle-stroke-color': '#ffffff',
-  },
-}
-
-// Pipeline layer — Demolition (orange)
-const pipelineDmLayer = {
-  id: 'pipeline-dm',
-  type: 'circle',
-  filter: ['==', ['get', 'type'], 'DM'],
-  paint: {
-    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 4, 14, 8, 16, 13],
-    'circle-color': '#f97316',
-    'circle-opacity': 0.9,
-    'circle-stroke-width': 1.5,
-    'circle-stroke-color': '#ffffff',
-  },
-}
-
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
-// Main lots layer — opacity is dimmed when pipeline mode is active
-function makeLotCircleLayer(dimmed) {
-  return {
-    id: 'tax-lots-circle',
-    type: 'circle',
-    filter: ['!=', ['get', 'city_of_yes'], true],
-    paint: {
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, dimmed ? 2 : 3, 14, dimmed ? 4 : 6, 16, dimmed ? 7 : 10],
-      'circle-color': [
-        'case',
-        ['==', ['get', 'land_use'], '11'], '#22c55e',
-        ['>=', ['get', 'score'], 80], '#ef4444',
-        ['>=', ['get', 'score'], 60], '#f97316',
-        ['>=', ['get', 'score'], 40], '#f59e0b',
-        ['>=', ['get', 'score'], 20], '#eab308',
-        '#3a3a5a'
-      ],
-      'circle-opacity': [
-        'case',
-        ['boolean', ['feature-state', 'selected'], false], dimmed ? 0.6 : 1.0,
-        ['boolean', ['feature-state', 'hover'], false],   dimmed ? 0.5 : 0.95,
-        dimmed ? 0.2 : 0.75
-      ],
-      'circle-stroke-width': [
-        'case',
-        ['boolean', ['feature-state', 'selected'], false], 2,
-        ['boolean', ['feature-state', 'hover'], false], 1.5,
-        dimmed ? 0 : 0.5
-      ],
-      'circle-stroke-color': [
-        'case',
-        ['boolean', ['feature-state', 'selected'], false], '#f59e0b',
-        '#ffffff44'
-      ]
-    }
+// Main lots layer
+const lotCircleLayer = {
+  id: 'tax-lots-circle',
+  type: 'circle',
+  filter: ['!=', ['get', 'city_of_yes'], true],
+  paint: {
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 3, 14, 6, 16, 10],
+    'circle-color': [
+      'case',
+      ['==', ['get', 'land_use'], '11'], '#22c55e',
+      ['>=', ['get', 'score'], 80], '#ef4444',
+      ['>=', ['get', 'score'], 60], '#f97316',
+      ['>=', ['get', 'score'], 40], '#f59e0b',
+      ['>=', ['get', 'score'], 20], '#eab308',
+      '#3a3a5a'
+    ],
+    'circle-opacity': [
+      'case',
+      ['boolean', ['feature-state', 'selected'], false], 1.0,
+      ['boolean', ['feature-state', 'hover'], false], 0.95,
+      0.75
+    ],
+    'circle-stroke-width': [
+      'case',
+      ['boolean', ['feature-state', 'selected'], false], 2,
+      ['boolean', ['feature-state', 'hover'], false], 1.5,
+      0.5
+    ],
+    'circle-stroke-color': [
+      'case',
+      ['boolean', ['feature-state', 'selected'], false], '#f59e0b',
+      '#ffffff44'
+    ]
   }
 }
 
@@ -118,16 +88,12 @@ export default function MapView({
   onZoningDistrictsLoaded,
   onFeaturesLoaded,
   searchTarget,
-  pipelineData,
-  showPipeline,
-  onTogglePipeline,
   allFeaturesCount = 0,
 }) {
   const mapRef = useRef(null)
   const [cursor, setCursor] = useState('grab')
   const [hoveredId, setHoveredId] = useState(null)
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [pipelinePopup, setPipelinePopup] = useState(null)
 
   // Fly to searched location
   useEffect(() => {
@@ -187,25 +153,6 @@ export default function MapView({
     const map = mapRef.current?.getMap()
     if (!map) return
 
-    // Check pipeline dots first (they sit on top)
-    if (showPipeline) {
-      const pipelineFeatures = map.queryRenderedFeatures(event.point, {
-        layers: ['pipeline-nb', 'pipeline-dm'],
-      })
-      if (pipelineFeatures.length > 0) {
-        const props = pipelineFeatures[0].properties
-        setPipelinePopup({
-          lng: event.lngLat.lng,
-          lat: event.lngLat.lat,
-          ...props,
-        })
-        return
-      }
-    }
-
-    // Close any open pipeline popup when clicking elsewhere
-    setPipelinePopup(null)
-
     const features = map.queryRenderedFeatures(event.point, {
       layers: ['tax-lots-circle', 'coy-lots-circle'],
     })
@@ -214,7 +161,7 @@ export default function MapView({
       const signals = marketSignals?.[props.bbl] || []
       setSelectedProperty({ ...props, market_signals: signals })
     }
-  }, [setSelectedProperty, marketSignals, showPipeline])
+  }, [setSelectedProperty, marketSignals])
 
   const emptyData = { type: 'FeatureCollection', features: [] }
 
@@ -235,46 +182,9 @@ export default function MapView({
         <ScaleControl position="bottom-right" />
 
         <Source id="tax-lots" type="geojson" data={plutoData || emptyData}>
-          <Layer {...makeLotCircleLayer(showPipeline)} />
+          <Layer {...lotCircleLayer} />
           <Layer {...coyCircleLayer} />
         </Source>
-
-        {/* Pipeline overlay — NB (teal) and DM (orange) dots */}
-        {showPipeline && pipelineData && (
-          <Source id="pipeline" type="geojson" data={pipelineData}>
-            <Layer {...pipelineNbLayer} />
-            <Layer {...pipelineDmLayer} />
-          </Source>
-        )}
-
-        {/* Pipeline popup */}
-        {pipelinePopup && (
-          <Popup
-            longitude={pipelinePopup.lng}
-            latitude={pipelinePopup.lat}
-            anchor="bottom"
-            onClose={() => setPipelinePopup(null)}
-            closeOnClick={false}
-          >
-            <div className="pipeline-popup-content">
-              <div className={`pipeline-popup-badge ${pipelinePopup.type === 'NB' ? 'pipeline-nb' : 'pipeline-dm'}`}>
-                {pipelinePopup.type === 'NB' ? 'New Building' : 'Demolition'}
-              </div>
-              <div className="pipeline-popup-address">{pipelinePopup.address}</div>
-              {pipelinePopup.filingDate && (
-                <div className="pipeline-popup-meta">
-                  Filed {new Date(pipelinePopup.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                </div>
-              )}
-              {pipelinePopup.cost && (
-                <div className="pipeline-popup-cost">{pipelinePopup.cost}</div>
-              )}
-              {pipelinePopup.description && (
-                <div className="pipeline-popup-desc">{pipelinePopup.description}</div>
-              )}
-            </div>
-          </Popup>
-        )}
 
         {/* Search result pin */}
         {searchTarget && (

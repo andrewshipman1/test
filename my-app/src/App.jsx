@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import MapView from './components/MapView'
 import Sidebar from './components/Sidebar'
 import PropertyDrawer from './components/PropertyDrawer'
@@ -6,7 +6,6 @@ import Header from './components/Header'
 import { useSavedProperties } from './hooks/useSavedProperties'
 import { useUnderwritingAssumptions } from './hooks/useUnderwritingAssumptions'
 import { useMarketPsf } from './hooks/useMarketPsf'
-import { usePipelineData } from './hooks/usePipelineData'
 import { useDealNotes } from './hooks/useDealNotes'
 import { useMarketSignals } from './hooks/useMarketSignals'
 import './App.css'
@@ -27,7 +26,6 @@ export default function App() {
   const [zoningDistricts, setZoningDistricts] = useState([])
   const [searchTarget, setSearchTarget] = useState(null)
   const [allFeatures, setAllFeatures] = useState([])
-  const [showPipeline, setShowPipeline] = useState(false)
 
   const { savedProperties, isSaved, toggleSave, removeSaved } = useSavedProperties()
   const { notes, setNote, getNote } = useDealNotes()
@@ -37,30 +35,9 @@ export default function App() {
     updatePsfOverride, resetPsfOverride, resetAllPsf,
   } = useUnderwritingAssumptions()
   const { livePsf } = useMarketPsf()
-  const { permits, loading: pipelineLoading, summary: pipelineSummary } = usePipelineData()
-  const { signals: marketSignals, salesFlat, cityOwnedFlat } = useMarketSignals()
+  const { signals: marketSignals } = useMarketSignals()
 
-  // Pipeline GeoJSON: built directly from lat/lng on each permit (no BBL join needed)
-  const pipelineGeoJSON = useMemo(() => {
-    const features = permits
-      .filter(p => p.lat && p.lng)
-      .map((p, i) => ({
-        type: 'Feature',
-        id: i,
-        geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
-        properties: {
-          type:        p.type,
-          address:     p.address,
-          filingDate:  p.filingDate,
-          status:      p.status,
-          description: p.description,
-          bbl:         p.bbl,
-        },
-      }))
-    return { type: 'FeatureCollection', features }
-  }, [permits])
-
-  // Build BBL → PLUTO feature lookup (for permit fly-to from sidebar)
+  // Build BBL → PLUTO feature lookup (for sidebar lot fly-to)
   const bblToFeature = useMemo(() => {
     const map = {}
     allFeatures.forEach(f => {
@@ -81,13 +58,6 @@ export default function App() {
       })
     }
   }
-
-  // When clicking a permit in the sidebar list: fly to it on the map
-  const handleSelectPermit = useCallback((permit) => {
-    if (permit.lat && permit.lng) {
-      setSearchTarget({ lng: permit.lng, lat: permit.lat, label: permit.address || permit.bbl })
-    }
-  }, [])
 
   return (
     <div className="app-container">
@@ -110,15 +80,7 @@ export default function App() {
           resetAllPsf={resetAllPsf}
           livePsf={livePsf}
           allFeatures={allFeatures}
-          permits={permits}
-          salesFlat={salesFlat}
-          cityOwnedFlat={cityOwnedFlat}
-          pipelineLoading={pipelineLoading}
-          pipelineSummary={pipelineSummary}
-          onSelectPermit={handleSelectPermit}
           notes={notes}
-          showPipeline={showPipeline}
-          onTogglePipeline={setShowPipeline}
           onNeighborhoodZoom={(lat, lng, zoom) => setSearchTarget({ lat, lng, zoom })}
           lotsByBbl={bblToFeature}
           onSelectProperty={(props) => setSelectedProperty(props)}
@@ -132,9 +94,6 @@ export default function App() {
           onZoningDistrictsLoaded={setZoningDistricts}
           onFeaturesLoaded={setAllFeatures}
           searchTarget={searchTarget}
-          pipelineData={pipelineGeoJSON}
-          showPipeline={showPipeline}
-          onTogglePipeline={setShowPipeline}
           marketSignals={marketSignals}
           allFeaturesCount={allFeatures.length}
         />
