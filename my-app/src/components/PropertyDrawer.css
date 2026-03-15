@@ -1180,9 +1180,13 @@
     min-width: 0;
     height: 85vh;
     border-left: none;
-    border-top: 1px solid var(--border);
+    border-top: 2px solid rgba(245,158,11,0.20);
     border-radius: 16px 16px 0 0;
+    /* Elevated above the map — lighter than --bg-panel */
+    background: #131c30;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.70), 0 -1px 0 rgba(245,158,11,0.12);
     z-index: 250;
+    overflow: hidden;
     animation: drawer-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
@@ -1191,19 +1195,20 @@
     to   { transform: translateY(0);    opacity: 1;   }
   }
 
-  /* Drag handle at top of drawer */
+  /* Drag handle pill at top of drawer */
   .drawer-header::before {
     content: '';
     display: block;
-    width: 36px;
+    width: 40px;
     height: 4px;
-    background: var(--border);
+    background: rgba(255,255,255,0.15);
     border-radius: 2px;
     margin: 10px auto 0;
   }
 
   .drawer-header {
     padding: 4px 14px 10px;
+    background: #131c30;
   }
 
   .drawer-address {
@@ -1225,9 +1230,12 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  /* Ensure bottom content isn't hidden behind the nav bar */
+  /* Scrollable body — clear the nav bar height at bottom */
   .drawer-body {
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 10px);
   }
 }
 

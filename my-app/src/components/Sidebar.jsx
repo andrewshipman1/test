@@ -220,6 +220,13 @@ export default function Sidebar({
 
       <div className="sidebar-content" onClick={e => e.stopPropagation()}>
 
+        {/* ── Sheet close handle (mobile only) ── */}
+        <div className="sheet-handle-row">
+          <button className="sheet-handle-btn" onClick={() => setSheetOpen(false)} aria-label="Close panel">
+            <ChevronDown size={18} />
+          </button>
+        </div>
+
         {/* ── FILTERS TAB ── */}
         {activeTab === 'filters' && (
           <div className="tab-panel">
