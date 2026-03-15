@@ -1591,6 +1591,8 @@
     overscroll-behavior: contain;
     padding: 0 14px 14px;
     will-change: transform; /* pre-promote to compositor layer for smooth swipe */
+    position: relative;
+    z-index: 160; /* must exceed ::before backdrop z-index (150) so clicks reach content */
   }
 
   /* Bottom nav: always visible at bottom */

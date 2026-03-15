@@ -332,21 +332,6 @@ export default function MapView({
             <span className="map-stat-val">Manhattan</span>
             <span className="map-stat-label">Coverage</span>
           </div>
-          <div className="map-stat-divider" />
-          <button
-            className={`pipeline-toggle-btn ${showPipeline ? 'active' : ''}`}
-            onClick={() => onTogglePipeline(!showPipeline)}
-            title={showPipeline ? 'Hide pipeline activity' : 'Show DOB permits & demolitions'}
-          >
-            <span className="pipeline-toggle-dots">
-              <span className="pipeline-dot nb" />
-              <span className="pipeline-dot dm" />
-            </span>
-            Pipeline
-            {showPipeline && pipelineData?.features?.length > 0 && (
-              <span className="pipeline-toggle-count">{pipelineData.features.length}</span>
-            )}
-          </button>
         </div>
       )}
 

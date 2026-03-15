@@ -87,7 +87,10 @@ const DEFAULT_FILTERS = {
 
 function timeAgo(dateStr) {
   if (!dateStr) return null
-  const ms   = Date.now() - new Date(dateStr + 'T12:00:00').getTime()
+  // Don't append time if the string already contains one (ISO datetime from APIs)
+  const parsed = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T12:00:00')
+  const ms   = Date.now() - parsed.getTime()
+  if (isNaN(ms)) return null
   const days = Math.floor(ms / (1000 * 60 * 60 * 24))
   if (days < 1)   return 'Today'
   if (days < 7)   return `${days}d ago`
@@ -224,15 +227,24 @@ export default function Sidebar({
     }
   }
 
-  const handlePermitClick = (permit) => {
-    if (onSelectPermit) onSelectPermit(permit)
-    const bblKey = String(Math.round(Number(permit.bbl || 0))).padStart(10, '0')
+  const handlePermitClick = (item) => {
+    const bblKey  = String(Math.round(Number(item.bbl || 0))).padStart(10, '0')
     const feature = lotsByBbl?.[bblKey]
+
+    // Fly to the lot — prefer PLUTO centroid, fall back to permit lat/lng
+    if (feature?.geometry?.coordinates) {
+      const [lng, lat] = feature.geometry.coordinates
+      if (onNeighborhoodZoom) onNeighborhoodZoom(lat, lng, 18)
+    } else if (item.lat && item.lng && onSelectPermit) {
+      onSelectPermit(item)
+    }
+
+    // Open the property drawer if we have a PLUTO feature
     if (feature && onSelectProperty) onSelectProperty(feature.properties)
   }
 
   return (
-    <div className={`sidebar ${sheetOpen ? 'sheet-open' : ''}`} onClick={() => setSheetOpen(false)}>
+    <div className={`sidebar ${sheetOpen ? 'sheet-open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setSheetOpen(false) }}>
       {/* Tab navigation — becomes bottom nav on mobile */}
       <div className="sidebar-tabs" onClick={e => e.stopPropagation()}>
         <button className={`tab-btn ${activeTab === 'filters' ? 'active' : ''}`} onClick={() => handleTabClick('filters')}>
@@ -794,7 +806,6 @@ export default function Sidebar({
           <div className="tab-panel">
             {/* Header */}
             <div className="pipeline-header">
-              <Activity size={16} color="#22d3ee" />
               <div style={{ flex: 1 }}>
                 <div className="assemblage-title">Market Activity</div>
                 <div className="assemblage-sub">
@@ -805,7 +816,7 @@ export default function Sidebar({
               </div>
               <button
                 className={`pipeline-map-btn ${showPipeline ? 'active' : ''}`}
-                onClick={() => onTogglePipeline && onTogglePipeline(!showPipeline)}
+                onClick={(e) => { e.stopPropagation(); onTogglePipeline && onTogglePipeline(!showPipeline) }}
                 title={showPipeline ? 'Hide on map' : 'Show permits on map'}
               >
                 <span className="pipeline-map-dot nb" />
@@ -831,7 +842,7 @@ export default function Sidebar({
                 <button
                   key={f.key}
                   className={`pipeline-filter-pill ${activityFilter === f.key ? 'active' : ''}`}
-                  onClick={() => setActivityFilter(f.key)}
+                  onClick={(e) => { e.stopPropagation(); setActivityFilter(f.key) }}
                 >{f.label}</button>
               ))}
             </div>
