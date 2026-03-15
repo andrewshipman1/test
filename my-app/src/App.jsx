@@ -38,7 +38,7 @@ export default function App() {
   } = useUnderwritingAssumptions()
   const { livePsf } = useMarketPsf()
   const { permits, loading: pipelineLoading, summary: pipelineSummary } = usePipelineData()
-  const { signals: marketSignals } = useMarketSignals()
+  const { signals: marketSignals, salesFlat, cityOwnedFlat } = useMarketSignals()
 
   // Pipeline GeoJSON: built directly from lat/lng on each permit (no BBL join needed)
   const pipelineGeoJSON = useMemo(() => {
@@ -111,6 +111,8 @@ export default function App() {
           livePsf={livePsf}
           allFeatures={allFeatures}
           permits={permits}
+          salesFlat={salesFlat}
+          cityOwnedFlat={cityOwnedFlat}
           pipelineLoading={pipelineLoading}
           pipelineSummary={pipelineSummary}
           onSelectPermit={handleSelectPermit}

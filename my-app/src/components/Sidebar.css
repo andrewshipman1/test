@@ -1484,6 +1484,25 @@
   color: var(--accent, #f59e0b);
 }
 
+/* ── Activity feed — new classes ─────────────────────────────────────────── */
+
+.activity-explainer {
+  font-size: 10px;
+  color: var(--text-secondary, #5b7296);
+  line-height: 1.5;
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 4px;
+}
+
+.activity-why {
+  font-size: 10px;
+  color: var(--text-secondary, #5b7296);
+  font-style: italic;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    MOBILE: sidebar → bottom-sheet + bottom nav bar
    ══════════════════════════════════════════════════════════════════════════ */

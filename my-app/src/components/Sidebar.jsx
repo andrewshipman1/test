@@ -113,6 +113,8 @@ export default function Sidebar({
   livePsf = {},
   allFeatures = [],
   permits = [],
+  salesFlat = [],
+  cityOwnedFlat = [],
   pipelineLoading = false,
   pipelineSummary = { nbCount: 0, dmCount: 0 },
   onSelectPermit,
@@ -127,7 +129,7 @@ export default function Sidebar({
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
   const [showNbhdTable, setShowNbhdTable] = useState(false)
-  const [pipelineFilter, setPipelineFilter] = useState('all') // 'all' | 'NB' | 'DM'
+  const [activityFilter, setActivityFilter] = useState('all') // 'all'|'NB'|'DM'|'sale'|'city_owned'
   const [sheetOpen, setSheetOpen] = useState(false)
   const { handleRef: sheetHandleRef, dragStyle: sheetDragStyle } = useSwipeToDismiss({
     onDismiss: () => setSheetOpen(false),
@@ -175,13 +177,43 @@ export default function Sidebar({
     return { ...scoreData, pf, psf }
   }, [assemblageLots, uw, livePsf])
 
-  // ── Activity tab: sorted permits + BBL lookup ──
-  const filteredPermits = useMemo(() =>
-    permits
-      .filter(p => pipelineFilter === 'all' || p.type === pipelineFilter)
-      .sort((a, b) => new Date(b.filingDate || 0) - new Date(a.filingDate || 0)),
-    [permits, pipelineFilter]
-  )
+  // ── Activity tab: unified market feed ──
+  const ACTIVITY_CONFIG = {
+    NB:         { icon: '🏗', label: 'New Build',     color: '#22d3ee', why: 'Active development — watch this block' },
+    DM:         { icon: '🔨', label: 'Demo Permit',   color: '#f97316', why: 'Site being cleared — track for opportunity' },
+    sale:       { icon: '💰', label: 'Deed Transfer', color: '#22c55e', why: 'Ownership change — development window opens' },
+    city_owned: { icon: '🏛', label: 'City-Owned',    color: '#8b5cf6', why: null }, // dynamic
+  }
+
+  const activityFeed = useMemo(() => {
+    const items = []
+    permits.forEach(p => items.push({
+      id: `permit-${p.bbl}-${p.filingDate}-${p.type}`,
+      type: p.type, bbl: p.bbl, address: p.address, date: p.filingDate,
+    }))
+    salesFlat.forEach(s => items.push({
+      id: `sale-${s.bbl}-${s.date}`,
+      type: 'sale', bbl: s.bbl, address: null, date: s.date,
+    }))
+    cityOwnedFlat.forEach(c => items.push({
+      id: `city-${c.bbl}`,
+      type: 'city_owned', bbl: c.bbl, address: c.address, agency: c.agency, date: null,
+    }))
+    items.sort((a, b) => {
+      if (!a.date && !b.date) return 0
+      if (!a.date) return 1
+      if (!b.date) return -1
+      return new Date(b.date) - new Date(a.date)
+    })
+    return items
+  }, [permits, salesFlat, cityOwnedFlat])
+
+  const filteredFeed = useMemo(() => {
+    const base = activityFilter === 'all'
+      ? activityFeed
+      : activityFeed.filter(i => i.type === activityFilter)
+    return base.slice(0, 200)
+  }, [activityFeed, activityFilter])
 
   const handleTabClick = (tab) => {
     if (activeTab === tab && sheetOpen) {
@@ -757,23 +789,24 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* ── PIPELINE TAB ── */}
+        {/* ── ACTIVITY TAB ── */}
         {activeTab === 'pipeline' && (
           <div className="tab-panel">
+            {/* Header */}
             <div className="pipeline-header">
               <Activity size={16} color="#22d3ee" />
               <div style={{ flex: 1 }}>
-                <div className="assemblage-title">Construction Activity</div>
+                <div className="assemblage-title">Market Activity</div>
                 <div className="assemblage-sub">
                   {pipelineLoading
-                    ? 'Loading permit data…'
-                    : `${pipelineSummary.nbCount} new builds · ${pipelineSummary.dmCount} sites being cleared`}
+                    ? 'Loading activity data…'
+                    : `${pipelineSummary.nbCount} builds · ${pipelineSummary.dmCount} demos · ${salesFlat.length} sales · ${cityOwnedFlat.length} city lots`}
                 </div>
               </div>
               <button
                 className={`pipeline-map-btn ${showPipeline ? 'active' : ''}`}
                 onClick={() => onTogglePipeline && onTogglePipeline(!showPipeline)}
-                title={showPipeline ? 'Hide on map' : 'Show on map'}
+                title={showPipeline ? 'Hide on map' : 'Show permits on map'}
               >
                 <span className="pipeline-map-dot nb" />
                 <span className="pipeline-map-dot dm" />
@@ -781,17 +814,24 @@ export default function Sidebar({
               </button>
             </div>
 
+            {/* What is this? */}
+            <div className="activity-explainer">
+              Live signals from DOB permits, ACRIS deed transfers, and city-owned properties — updated daily.
+            </div>
+
             {/* Filter pills */}
             <div className="pipeline-filter-pills">
               {[
-                { key: 'all', label: 'All' },
-                { key: 'NB',  label: '🏗 New Construction' },
-                { key: 'DM',  label: '🔨 Site Clearing' },
+                { key: 'all',        label: 'All' },
+                { key: 'NB',         label: '🏗 Builds' },
+                { key: 'DM',         label: '🔨 Demos' },
+                { key: 'sale',       label: '💰 Sales' },
+                { key: 'city_owned', label: '🏛 City' },
               ].map(f => (
                 <button
                   key={f.key}
-                  className={`pipeline-filter-pill ${pipelineFilter === f.key ? 'active' : ''}`}
-                  onClick={() => setPipelineFilter(f.key)}
+                  className={`pipeline-filter-pill ${activityFilter === f.key ? 'active' : ''}`}
+                  onClick={() => setActivityFilter(f.key)}
                 >{f.label}</button>
               ))}
             </div>
@@ -799,33 +839,54 @@ export default function Sidebar({
             {pipelineLoading ? (
               <div className="empty-state">
                 <div className="loading-spinner-sm" />
-                <p>Loading permits…</p>
+                <p>Loading activity…</p>
               </div>
-            ) : permits.length === 0 ? (
+            ) : activityFeed.length === 0 ? (
               <div className="empty-state">
                 <Activity size={32} color="#2e4060" />
-                <p>No pipeline data</p>
-                <p className="empty-sub">DOB permit data will appear here once loaded</p>
+                <p>No activity data</p>
+                <p className="empty-sub">Market signals will appear once loaded</p>
               </div>
             ) : (
               <div className="pipeline-list">
-                {filteredPermits.slice(0, 150).map((p, i) => {
-                  const bblKey     = String(Math.round(Number(p.bbl || 0))).padStart(10, '0')
+                {filteredFeed.map((item) => {
+                  const cfg        = ACTIVITY_CONFIG[item.type]
+                  const bblKey     = String(Math.round(Number(item.bbl || 0))).padStart(10, '0')
                   const plutoProps = lotsByBbl?.[bblKey]?.properties
-                  const ago        = timeAgo(p.filingDate)
+                  const displayAddr = item.address || plutoProps?.address || item.bbl
+                  const ago        = timeAgo(item.date)
+                  const whyText    = item.type === 'city_owned'
+                    ? `Managed by ${item.agency || 'City agency'} — potential future disposition`
+                    : cfg?.why
+
                   return (
                     <div
-                      key={`${p.bbl}-${p.type}-${i}`}
+                      key={item.id}
                       className={`pipeline-permit-card ${plutoProps ? 'pipeline-card-linked' : ''}`}
-                      onClick={() => handlePermitClick(p)}
+                      onClick={() => plutoProps && handlePermitClick(item)}
                     >
+                      {/* Type badge + timestamp */}
                       <div className="pipeline-card-top">
-                        <span className={`pipeline-type-badge ${p.type === 'NB' ? 'pipeline-nb' : 'pipeline-dm'}`}>
-                          {p.type === 'NB' ? 'New Build' : 'Site Clearing'}
+                        <span
+                          className="pipeline-type-badge"
+                          style={{ background: `${cfg?.color}22`, color: cfg?.color, borderColor: `${cfg?.color}44` }}
+                        >
+                          {cfg?.icon} {cfg?.label}
                         </span>
                         {ago && <span className="pipeline-permit-ago">{ago}</span>}
                       </div>
-                      <div className="pipeline-permit-address">{p.address || p.bbl}</div>
+
+                      {/* Address */}
+                      {displayAddr && (
+                        <div className="pipeline-permit-address">{displayAddr}</div>
+                      )}
+
+                      {/* Why it matters */}
+                      {whyText && (
+                        <div className="activity-why">{whyText}</div>
+                      )}
+
+                      {/* PLUTO link row */}
                       {plutoProps ? (
                         <div className="pipeline-pluto-row">
                           <span className="pipeline-pluto-score" style={{ color: plutoProps.score >= 70 ? '#f97316' : '#f59e0b' }}>
@@ -838,15 +899,13 @@ export default function Sidebar({
                           )}
                           <span className="pipeline-view-lot">View lot →</span>
                         </div>
-                      ) : (
-                        p.description && <div className="pipeline-permit-desc">{p.description}</div>
-                      )}
+                      ) : null}
                     </div>
                   )
                 })}
-                {filteredPermits.length > 150 && (
+                {activityFeed.filter(i => activityFilter === 'all' || i.type === activityFilter).length > 200 && (
                   <div className="pipeline-more">
-                    +{filteredPermits.length - 150} more · toggle Activity on map to see all
+                    Showing top 200 · toggle map view to see all permits
                   </div>
                 )}
               </div>

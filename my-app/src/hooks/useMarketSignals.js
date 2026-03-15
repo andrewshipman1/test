@@ -96,7 +96,9 @@ async function fetchSurplusProperties() {
 }
 
 export function useMarketSignals() {
-  const [signals, setSignals] = useState({})
+  const [signals,      setSignals]      = useState({})
+  const [salesFlat,    setSalesFlat]    = useState([])
+  const [cityOwnedFlat,setCityOwnedFlat]= useState([])
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState({ recentSales: 0, demoPermits: 0, newBuildings: 0, cityOwned: 0 })
 
@@ -125,6 +127,8 @@ export function useMarketSignals() {
         cityOwned.forEach(addSignal)
 
         setSignals(signalMap)
+        setSalesFlat(sales)
+        setCityOwnedFlat(cityOwned)
         setSummary({
           recentSales: sales.length,
           demoPermits: demos.length,
@@ -141,5 +145,5 @@ export function useMarketSignals() {
     fetchAll()
   }, [])
 
-  return { signals, loading, summary }
+  return { signals, loading, summary, salesFlat, cityOwnedFlat }
 }
