@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
-import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight, FileText, Wind } from 'lucide-react'
+import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight, FileText, Wind, Info } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { getBlockNeighbors, isUnderbuilt } from '../utils/assemblageUtils'
 import { useOwnerPortfolio } from '../hooks/useOwnerPortfolio'
+import Tooltip from './Tooltip'
+import { GLOSSARY } from '../utils/glossary'
 import './PropertyDrawer.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -368,9 +370,11 @@ export default function PropertyDrawer({
           <div className="deal-type-tag" style={{ color: dtConfig.color, background: dtConfig.bg, borderColor: `${dtConfig.color}33` }}>
             {dtConfig.label}
           </div>
-          <div className="score-tag" style={{ color: scoreColor(score), background: `${scoreColor(score)}18`, borderColor: `${scoreColor(score)}33` }}>
-            Score {score}
-          </div>
+          <Tooltip content={GLOSSARY.opportunityScore}>
+            <div className="score-tag" style={{ color: scoreColor(score), background: `${scoreColor(score)}18`, borderColor: `${scoreColor(score)}33`, cursor: 'help' }}>
+              Score {score} <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} />
+            </div>
+          </Tooltip>
         </div>
       </div>
 
@@ -383,7 +387,7 @@ export default function PropertyDrawer({
             <div className="risk-flags">
               {isCoop  && <RiskFlag icon="🚫" color="#ef4444" label="Co-op Building"      desc="Shares owned, not land — extremely difficult to redevelop" />}
               {isCondo && <RiskFlag icon="⚠️" color="#ef4444" label="Condominium"         desc="Must buy out all individual unit owners to redevelop" />}
-              {property.rent_stab_risk && <RiskFlag icon="🏘️" color="#f97316" label="Likely Rent Stabilized" desc="Pre-1974 rental building — significant tenant buyout costs" />}
+              {property.rent_stab_risk && <RiskFlag icon="🏘️" color="#f97316" label={<Tooltip content={GLOSSARY.rentStabilized}><span>Likely Rent Stabilized <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} /></span></Tooltip>} desc="Pre-1974 rental building — significant tenant buyout costs" />}
               {property.has_landmark   && <RiskFlag icon="🏛️" color="#3b82f6" label="Landmark Designation"   desc="LPC approval required — may have transferable air rights (TDR)" />}
             </div>
           </div>
@@ -428,10 +432,19 @@ export default function PropertyDrawer({
 
         {/* ── The Build ── */}
         <div className="drawer-section">
-          <div className="section-header"><Building2 size={13} /> The Build</div>
+          <div className="section-header">
+            <Building2 size={13} /> The Build
+            <Tooltip content={GLOSSARY.far}>
+              <Info size={11} style={{ marginLeft: 5, color: '#2e4060', cursor: 'help' }} />
+            </Tooltip>
+          </div>
           <div className="metrics-grid-4">
             <MetricBox label="Lot Area"      value={`${fmt(lotArea)} SF`} />
-            <MetricBox label="Max Buildable" value={`${fmt(maxBuildable)} SF`} accent />
+            <MetricBox
+              label={<Tooltip content={GLOSSARY.maxBuildable}><span>Max Buildable <Info size={9} style={{ opacity: 0.5, verticalAlign: 'middle' }} /></span></Tooltip>}
+              value={`${fmt(maxBuildable)} SF`}
+              accent
+            />
             <MetricBox label="Unused FAR"    value={availFAR > 0 ? `${fmt(availFAR)} SF` : 'None'} accent={availFAR > 10000} />
             <MetricBox label="Est. Floors"   value={maxBuildable > 0 && lotArea > 0 ? `~${Math.round((maxBuildable / lotArea) * 0.9)}` : '—'} />
           </div>
@@ -439,7 +452,11 @@ export default function PropertyDrawer({
             <InfoRow label="Zoning District"    value={property.zone_dist} />
             <InfoRow label="Max Residential FAR" value={residFar || '—'} />
             <InfoRow label="Built FAR"           value={builtFar || '—'} />
-            <InfoRow label="FAR Utilization"     value={residFar > 0 ? `${Math.round(farUtil * 100)}%` : '—'} highlight={farUtil < 0.5} />
+            <InfoRow
+              label={<Tooltip content={GLOSSARY.farUtilization}><span>FAR Utilization <Info size={9} style={{ opacity: 0.5, verticalAlign: 'middle' }} /></span></Tooltip>}
+              value={residFar > 0 ? `${Math.round(farUtil * 100)}%` : '—'}
+              highlight={farUtil < 0.5}
+            />
             <InfoRow label="Lot Dimensions"      value={property.lot_front && property.lot_depth ? `${property.lot_front}' × ${property.lot_depth}'` : '—'} />
             <InfoRow label="Existing Building"   value={property.bldg_area ? `${fmt(property.bldg_area)} SF` : 'None'} />
             <InfoRow label="Year Built"          value={property.year_built > 0 ? property.year_built : 'N/A'} />

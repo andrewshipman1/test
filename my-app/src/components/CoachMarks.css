@@ -1,0 +1,119 @@
+.coach-card {
+  position: absolute;
+  bottom: 170px;
+  left: 16px;
+  width: 288px;
+  background: #0a0f1e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 100;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.coach-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.coach-step-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.coach-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a2540;
+  transition: background 0.2s;
+}
+
+.coach-dot.active {
+  background: #f59e0b;
+}
+
+.coach-skip {
+  background: none;
+  border: none;
+  color: #2e4060;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.4px;
+  padding: 2px 4px;
+  transition: color 0.15s;
+}
+
+.coach-skip:hover {
+  color: #5b7296;
+}
+
+.coach-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f59e0b;
+  letter-spacing: 0.1px;
+}
+
+.coach-body {
+  font-size: 12px;
+  line-height: 1.65;
+  color: #7a8fb5;
+}
+
+.coach-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.coach-btn-secondary {
+  background: none;
+  border: 1px solid #1a2540;
+  border-radius: 6px;
+  padding: 6px 11px;
+  color: #5b7296;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.coach-btn-secondary:hover {
+  color: #8a9dc0;
+  border-color: #2e4060;
+}
+
+.coach-btn-primary {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 6px;
+  padding: 6px 14px;
+  color: #f59e0b;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.coach-btn-primary:hover {
+  background: rgba(245, 158, 11, 0.22);
+}
+
+/* Gold highlight ring applied imperatively to target elements */
+.coach-highlight {
+  outline: 2px solid rgba(245, 158, 11, 0.65) !important;
+  outline-offset: 3px;
+  border-radius: 6px;
+  transition: outline 0.25s;
+}

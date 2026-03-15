@@ -3,6 +3,7 @@ import Map, { Source, Layer, NavigationControl, ScaleControl, Marker, Popup } fr
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
 import { MapPin } from 'lucide-react'
+import CoachMarks from './CoachMarks'
 import './MapView.css'
 
 // Pipeline layer — New Building (teal)
@@ -120,6 +121,7 @@ export default function MapView({
   pipelineData,
   showPipeline,
   onTogglePipeline,
+  allFeaturesCount = 0,
 }) {
   const mapRef = useRef(null)
   const [cursor, setCursor] = useState('grab')
@@ -308,7 +310,12 @@ export default function MapView({
         <div className="map-stats-bar">
           <div className="map-stat">
             <span className="map-stat-val">{stats.total.toLocaleString()}</span>
-            <span className="map-stat-label">Lots Shown</span>
+            <span className="map-stat-label">
+              {allFeaturesCount > 0 && stats.total < allFeaturesCount ? 'Matching' : 'Lots Shown'}
+            </span>
+            {allFeaturesCount > 0 && stats.total < allFeaturesCount && (
+              <span className="map-stat-subtext">of {allFeaturesCount.toLocaleString()}</span>
+            )}
           </div>
           <div className="map-stat-divider" />
           <div className="map-stat">
@@ -358,6 +365,9 @@ export default function MapView({
           lots in assemblage
         </div>
       )}
+
+      {/* First-run coach marks */}
+      <CoachMarks />
     </div>
   )
 }

@@ -84,6 +84,17 @@ const DEFAULT_FILTERS = {
   cityOfYesOnly: false,
 }
 
+function timeAgo(dateStr) {
+  if (!dateStr) return null
+  const ms   = Date.now() - new Date(dateStr + 'T12:00:00').getTime()
+  const days = Math.floor(ms / (1000 * 60 * 60 * 24))
+  if (days < 1)   return 'Today'
+  if (days < 7)   return `${days}d ago`
+  if (days < 30)  return `${Math.floor(days / 7)}w ago`
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`
+  return `${Math.floor(days / 365)}yr ago`
+}
+
 const HARD_COST_PRESETS = [
   { label: 'Conversion', value: 275 },
   { label: 'Market Rate', value: 350 },
@@ -108,6 +119,8 @@ export default function Sidebar({
   showPipeline = false,
   onTogglePipeline,
   onNeighborhoodZoom,
+  lotsByBbl = {},
+  onSelectProperty,
 }) {
   const activeTab = filters._tab || 'filters'
   const setTab = (tab) => setFilters(prev => ({ ...prev, _tab: tab }))
@@ -153,6 +166,21 @@ export default function Sidebar({
     const pf         = computeCondoProForma(scoreData.totalResidualSF, psf, uw)
     return { ...scoreData, pf, psf }
   }, [assemblageLots, uw, livePsf])
+
+  // ── Activity tab: sorted permits + BBL lookup ──
+  const filteredPermits = useMemo(() =>
+    permits
+      .filter(p => pipelineFilter === 'all' || p.type === pipelineFilter)
+      .sort((a, b) => new Date(b.filingDate || 0) - new Date(a.filingDate || 0)),
+    [permits, pipelineFilter]
+  )
+
+  const handlePermitClick = (permit) => {
+    if (onSelectPermit) onSelectPermit(permit)
+    const bblKey = String(Math.round(Number(permit.bbl || 0))).padStart(10, '0')
+    const feature = lotsByBbl?.[bblKey]
+    if (feature && onSelectProperty) onSelectProperty(feature.properties)
+  }
 
   return (
     <div className="sidebar">
@@ -757,37 +785,44 @@ export default function Sidebar({
               </div>
             ) : (
               <div className="pipeline-list">
-                {permits
-                  .filter(p => pipelineFilter === 'all' || p.type === pipelineFilter)
-                  .slice(0, 150)
-                  .map((p, i) => (
+                {filteredPermits.slice(0, 150).map((p, i) => {
+                  const bblKey     = String(Math.round(Number(p.bbl || 0))).padStart(10, '0')
+                  const plutoProps = lotsByBbl?.[bblKey]?.properties
+                  const ago        = timeAgo(p.filingDate)
+                  return (
                     <div
                       key={`${p.bbl}-${p.type}-${i}`}
-                      className="pipeline-permit-card"
-                      onClick={() => onSelectPermit && onSelectPermit(p)}
+                      className={`pipeline-permit-card ${plutoProps ? 'pipeline-card-linked' : ''}`}
+                      onClick={() => handlePermitClick(p)}
                     >
                       <div className="pipeline-card-top">
                         <span className={`pipeline-type-badge ${p.type === 'NB' ? 'pipeline-nb' : 'pipeline-dm'}`}>
-                          {p.type === 'NB' ? 'New Build' : 'Demo'}
+                          {p.type === 'NB' ? 'New Build' : 'Site Clearing'}
                         </span>
-                        <span className="pipeline-permit-date">
-                          {p.filingDate
-                            ? new Date(p.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                            : '—'}
-                        </span>
-                        {p.cost && <span className="pipeline-cost">{p.cost}</span>}
+                        {ago && <span className="pipeline-permit-ago">{ago}</span>}
                       </div>
-                      <div className="pipeline-permit-address">
-                        {p.address || p.bbl}
-                      </div>
-                      {p.description && (
-                        <div className="pipeline-permit-desc">{p.description}</div>
+                      <div className="pipeline-permit-address">{p.address || p.bbl}</div>
+                      {plutoProps ? (
+                        <div className="pipeline-pluto-row">
+                          <span className="pipeline-pluto-score" style={{ color: plutoProps.score >= 70 ? '#f97316' : '#f59e0b' }}>
+                            Score {plutoProps.score}
+                          </span>
+                          {plutoProps.deal_type && (
+                            <span className="pipeline-pluto-type">
+                              {plutoProps.deal_type.charAt(0) + plutoProps.deal_type.slice(1).toLowerCase()}
+                            </span>
+                          )}
+                          <span className="pipeline-view-lot">View lot →</span>
+                        </div>
+                      ) : (
+                        p.description && <div className="pipeline-permit-desc">{p.description}</div>
                       )}
                     </div>
-                  ))}
-                {permits.filter(p => pipelineFilter === 'all' || p.type === pipelineFilter).length > 150 && (
+                  )
+                })}
+                {filteredPermits.length > 150 && (
                   <div className="pipeline-more">
-                    + {permits.filter(p => pipelineFilter === 'all' || p.type === pipelineFilter).length - 150} more · toggle Pipeline on map to see all
+                    +{filteredPermits.length - 150} more · toggle Activity on map to see all
                   </div>
                 )}
               </div>

@@ -1433,3 +1433,53 @@
   padding: 3px 2px 0;
   font-style: italic;
 }
+
+/* ── Activity tab enriched permit cards ──────────────────────────────────── */
+
+.pipeline-permit-ago {
+  font-size: 10px;
+  color: var(--text-muted, #2e4060);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.pipeline-pluto-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.pipeline-pluto-score {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pipeline-pluto-type {
+  font-size: 10px;
+  color: var(--text-secondary, #5b7296);
+  background: var(--bg-elevated, #141c2e);
+  border: 1px solid var(--border, #1a2540);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.pipeline-view-lot {
+  font-size: 10px;
+  color: var(--text-muted, #2e4060);
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.pipeline-card-linked {
+  cursor: pointer;
+}
+
+.pipeline-card-linked:hover .pipeline-view-lot {
+  opacity: 1;
+  color: var(--accent, #f59e0b);
+}

@@ -314,3 +314,11 @@
   color: #5b7296;
   margin-top: 2px;
 }
+
+.map-stat-subtext {
+  font-size: 9px;
+  color: #2e4060;
+  margin-top: 1px;
+  letter-spacing: 0.3px;
+  display: block;
+}

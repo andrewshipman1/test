@@ -118,6 +118,8 @@ export default function App() {
           showPipeline={showPipeline}
           onTogglePipeline={setShowPipeline}
           onNeighborhoodZoom={(lat, lng, zoom) => setSearchTarget({ lat, lng, zoom })}
+          lotsByBbl={bblToFeature}
+          onSelectProperty={(props) => setSelectedProperty(props)}
         />
         <MapView
           filters={filters}
@@ -132,6 +134,7 @@ export default function App() {
           showPipeline={showPipeline}
           onTogglePipeline={setShowPipeline}
           marketSignals={marketSignals}
+          allFeaturesCount={allFeatures.length}
         />
         {selectedProperty && (
           <PropertyDrawer
