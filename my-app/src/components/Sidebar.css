@@ -1577,7 +1577,7 @@
   .sidebar-tabs {
     height: 56px;
     border-bottom: none;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     position: relative;
@@ -1620,6 +1620,11 @@
   .section-title {
     font-size: 9px;
     margin-top: 14px;
+  }
+
+  /* Hide desktop footer stats strip — redundant on mobile (shown in map bar) */
+  .sidebar-footer {
+    display: none;
   }
 }
 

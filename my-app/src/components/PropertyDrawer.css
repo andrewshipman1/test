@@ -146,6 +146,7 @@
 
 .drawer-body {
   flex: 1;
+  min-height: 0; /* prevent flex child from expanding beyond container */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
