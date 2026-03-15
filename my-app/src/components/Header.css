@@ -229,12 +229,31 @@
     margin: 0 8px;
     max-width: none;
     flex: 1;
+    min-width: 0;
+  }
+  .search-bar {
+    padding: 7px 10px;
   }
   .pulse-text {
     display: none;
   }
   .market-pulse {
     padding: 5px 8px;
+    flex-shrink: 0;
+  }
+  /* Dropdown: use fixed so it can't be clipped by header overflow */
+  .search-dropdown {
+    position: fixed;
+    top: 52px;
+    left: 14px;
+    right: 14px;
+    max-height: 55vh;
+    overflow-y: auto;
+    border-radius: var(--radius);
+    border-top: 1px solid var(--accent-border);
+  }
+  .search-bar--open {
+    border-radius: var(--radius);
   }
 }
 

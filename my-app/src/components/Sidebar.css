@@ -1504,7 +1504,8 @@
     border-top: 1px solid var(--border);
     border-radius: 16px 16px 0 0;
     background: var(--bg-panel);
-    z-index: 200;
+    /* Higher than PropertyDrawer (250) so bottom nav is never hidden */
+    z-index: 310;
   }
 
   /* Backdrop: dims the map when the sheet is open */
@@ -1560,6 +1561,8 @@
     position: relative;
     z-index: 300;
     flex-shrink: 0;
+    /* Brighter than bg-panel so tabs are clearly legible */
+    background: var(--bg-elevated);
   }
 
   /* Tab buttons: icon stacked above label */

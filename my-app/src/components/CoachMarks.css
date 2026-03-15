@@ -3,6 +3,7 @@
   bottom: 170px;
   left: 16px;
   width: 288px;
+  /* Mobile: anchor below the header instead of floating over the stats bar */
   background: #0a0f1e;
   border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 12px;
@@ -116,4 +117,15 @@
   outline-offset: 3px;
   border-radius: 6px;
   transition: outline 0.25s;
+}
+
+@media (max-width: 767px) {
+  .coach-card {
+    position: fixed;
+    top: 60px;        /* just below the 52px header */
+    left: 12px;
+    right: 12px;
+    bottom: auto;
+    width: auto;
+  }
 }
