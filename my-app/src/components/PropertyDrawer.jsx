@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight, FileText, Wind, Info } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
@@ -6,6 +6,7 @@ import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwrit
 import { getBlockNeighbors, isUnderbuilt } from '../utils/assemblageUtils'
 import { useOwnerPortfolio } from '../hooks/useOwnerPortfolio'
 import Tooltip from './Tooltip'
+import { useSwipeToDismiss } from '../hooks/useSwipeToDismiss'
 import { GLOSSARY } from '../utils/glossary'
 import './PropertyDrawer.css'
 
@@ -159,6 +160,13 @@ export default function PropertyDrawer({
   onFlyToLot,
 }) {
   // All hooks MUST come before any conditional returns (Rules of Hooks)
+  const { handleRef: dragHandleRef, dragStyle } = useSwipeToDismiss({
+    onDismiss: onClose,
+    dismissThreshold: 80,
+    velocityThreshold: 0.5,
+    animationDuration: 300,  // matches drawer-slide-up CSS animation duration
+  })
+
   const [showOverrides, setShowOverrides] = useState(false)
   const [showBlockNeighbors, setShowBlockNeighbors] = useState(false)
   const [showPortfolio, setShowPortfolio] = useState(false)
@@ -336,10 +344,10 @@ export default function PropertyDrawer({
   }
 
   return (
-    <div className="property-drawer">
+    <div className="property-drawer" style={dragStyle}>
 
       {/* ── Header ── */}
-      <div className="drawer-header">
+      <div className="drawer-header" ref={dragHandleRef}>
         <div className="drawer-header-top">
           <div>
             <a

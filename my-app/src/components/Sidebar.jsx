@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { Filter, Target, Building2, TrendingUp, RotateCcw, Bookmark, MapPin, Calculator, DollarSign, ChevronDown, ChevronRight, Download, AlertTriangle, Activity } from 'lucide-react'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { NEIGHBORHOOD_PSF, NEIGHBORHOOD_TIERS, getEffectivePsf } from '../hooks/usePlutoData'
 import { exportSavedToPdf } from '../utils/exportPdf'
 import { computeAssemblageScore } from '../utils/assemblageUtils'
 import './Sidebar.css'
+import { useSwipeToDismiss } from '../hooks/useSwipeToDismiss'
 
 const SCENARIOS = [
   { label: 'Bear',  adj: -0.20, color: '#ef4444' },
@@ -128,6 +129,12 @@ export default function Sidebar({
   const [showNbhdTable, setShowNbhdTable] = useState(false)
   const [pipelineFilter, setPipelineFilter] = useState('all') // 'all' | 'NB' | 'DM'
   const [sheetOpen, setSheetOpen] = useState(false)
+  const { handleRef: sheetHandleRef, dragStyle: sheetDragStyle } = useSwipeToDismiss({
+    onDismiss: () => setSheetOpen(false),
+    dismissThreshold: 80,
+    velocityThreshold: 0.5,
+    animationDuration: 0,
+  })
 
   // Safe fallbacks if underwriting props aren't wired yet
   const uw      = assumptions || DEFAULT_ASSUMPTIONS
@@ -218,10 +225,10 @@ export default function Sidebar({
         </button>
       </div>
 
-      <div className="sidebar-content" onClick={e => e.stopPropagation()}>
+      <div className="sidebar-content" style={sheetDragStyle} onClick={e => e.stopPropagation()}>
 
         {/* ── Sheet close handle (mobile only) ── */}
-        <div className="sheet-handle-row">
+        <div className="sheet-handle-row" ref={sheetHandleRef}>
           <button className="sheet-handle-btn" onClick={() => setSheetOpen(false)} aria-label="Close panel">
             <ChevronDown size={18} />
           </button>
