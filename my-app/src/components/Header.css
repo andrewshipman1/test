@@ -202,3 +202,49 @@
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE: compact header
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .header {
+    padding: 0 14px;
+    gap: 10px;
+  }
+  .header-tagline {
+    display: none;
+  }
+  .logo-sub {
+    display: none;
+  }
+  .logo-text {
+    font-size: 14px;
+    letter-spacing: 3px;
+  }
+  .header-left {
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .header-center {
+    margin: 0 8px;
+    max-width: none;
+    flex: 1;
+  }
+  .pulse-text {
+    display: none;
+  }
+  .market-pulse {
+    padding: 5px 8px;
+  }
+}
+
+/* ── Tablet ──────────────────────────────────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .header-center {
+    max-width: 320px;
+    margin: 0 16px;
+  }
+  .header-tagline {
+    display: none;
+  }
+}

@@ -127,6 +127,7 @@ export default function Sidebar({
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
   const [showNbhdTable, setShowNbhdTable] = useState(false)
   const [pipelineFilter, setPipelineFilter] = useState('all') // 'all' | 'NB' | 'DM'
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   // Safe fallbacks if underwriting props aren't wired yet
   const uw      = assumptions || DEFAULT_ASSUMPTIONS
@@ -175,6 +176,15 @@ export default function Sidebar({
     [permits, pipelineFilter]
   )
 
+  const handleTabClick = (tab) => {
+    if (activeTab === tab && sheetOpen) {
+      setSheetOpen(false)
+    } else {
+      setTab(tab)
+      setSheetOpen(true)
+    }
+  }
+
   const handlePermitClick = (permit) => {
     if (onSelectPermit) onSelectPermit(permit)
     const bblKey = String(Math.round(Number(permit.bbl || 0))).padStart(10, '0')
@@ -183,24 +193,24 @@ export default function Sidebar({
   }
 
   return (
-    <div className="sidebar">
-      {/* Tab navigation */}
-      <div className="sidebar-tabs">
-        <button className={`tab-btn ${activeTab === 'filters' ? 'active' : ''}`} onClick={() => setTab('filters')}>
+    <div className={`sidebar ${sheetOpen ? 'sheet-open' : ''}`} onClick={() => setSheetOpen(false)}>
+      {/* Tab navigation — becomes bottom nav on mobile */}
+      <div className="sidebar-tabs" onClick={e => e.stopPropagation()}>
+        <button className={`tab-btn ${activeTab === 'filters' ? 'active' : ''}`} onClick={() => handleTabClick('filters')}>
           <Filter size={13} /> Filters
         </button>
-        <button className={`tab-btn ${activeTab === 'assemblage' ? 'active' : ''}`} onClick={() => setTab('assemblage')}>
+        <button className={`tab-btn ${activeTab === 'assemblage' ? 'active' : ''}`} onClick={() => handleTabClick('assemblage')}>
           <Target size={13} /> Assemble
           {assemblageLots.length > 0 && <span className="tab-badge">{assemblageLots.length}</span>}
         </button>
-        <button className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => setTab('saved')}>
+        <button className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`} onClick={() => handleTabClick('saved')}>
           <Bookmark size={13} /> Saved
           {savedProperties?.length > 0 && <span className="tab-badge">{savedProperties.length}</span>}
         </button>
-        <button className={`tab-btn ${activeTab === 'proforma' ? 'active' : ''}`} onClick={() => setTab('proforma')}>
+        <button className={`tab-btn ${activeTab === 'proforma' ? 'active' : ''}`} onClick={() => handleTabClick('proforma')}>
           <Calculator size={13} /> Model
         </button>
-        <button className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`} onClick={() => setTab('pipeline')}>
+        <button className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`} onClick={() => handleTabClick('pipeline')}>
           <Activity size={13} /> Activity
           {(pipelineSummary.nbCount + pipelineSummary.dmCount) > 0 && (
             <span className="tab-badge">{pipelineSummary.nbCount + pipelineSummary.dmCount}</span>
@@ -208,7 +218,7 @@ export default function Sidebar({
         </button>
       </div>
 
-      <div className="sidebar-content">
+      <div className="sidebar-content" onClick={e => e.stopPropagation()}>
 
         {/* ── FILTERS TAB ── */}
         {activeTab === 'filters' && (

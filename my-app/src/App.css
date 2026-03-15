@@ -41,3 +41,10 @@
   overflow: hidden;
   position: relative;
 }
+
+/* ── Mobile layout ───────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .main-layout {
+    flex-direction: column;
+  }
+}

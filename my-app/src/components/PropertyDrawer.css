@@ -1164,3 +1164,80 @@
   color: var(--text-muted);
   font-style: italic;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE: property drawer → full-width bottom sheet
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  .property-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    min-width: 0;
+    height: 85vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    z-index: 250;
+    animation: drawer-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  @keyframes drawer-slide-up {
+    from { transform: translateY(100%); opacity: 0.6; }
+    to   { transform: translateY(0);    opacity: 1;   }
+  }
+
+  /* Drag handle at top of drawer */
+  .drawer-header::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  .drawer-header {
+    padding: 4px 14px 10px;
+  }
+
+  .drawer-address {
+    font-size: 14px;
+  }
+
+  /* Larger tap target for close button */
+  .close-btn {
+    padding: 10px;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 4-col → 2-col on narrow screen */
+  .metrics-grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Ensure bottom content isn't hidden behind the nav bar */
+  .drawer-body {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Tablet ──────────────────────────────────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .property-drawer {
+    width: 320px;
+    min-width: 320px;
+  }
+  .metrics-grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+}

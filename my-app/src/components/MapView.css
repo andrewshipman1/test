@@ -322,3 +322,40 @@
   letter-spacing: 0.3px;
   display: block;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE: map overlay adjustments
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Stats bar: keep centered, tighten padding */
+  .map-stats-bar {
+    top: 10px;
+    padding: 6px 12px;
+    gap: 10px;
+  }
+  .map-stat-val {
+    font-size: 12px;
+  }
+  .map-stat-label {
+    font-size: 9px;
+  }
+
+  /* Pipeline toggle: compact */
+  .pipeline-toggle-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  /* Legend: raise above bottom nav bar */
+  .map-legend {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 8px);
+    left: 12px;
+  }
+
+  /* MapLibre attribution controls */
+  .maplibregl-ctrl-bottom-right,
+  .maplibregl-ctrl-bottom-left {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
