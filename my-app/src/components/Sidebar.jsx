@@ -8,19 +8,19 @@ import './Sidebar.css'
 import { useSwipeToDismiss } from '../hooks/useSwipeToDismiss'
 
 const SCENARIOS = [
-  { label: 'Bear',  adj: -0.20, color: '#ef4444' },
-  { label: 'Base',  adj:  0.00, color: '#f59e0b' },
-  { label: 'Bull',  adj: +0.20, color: '#22c55e' },
+  { label: 'Bear',  adj: -0.20, color: '#D4CCC1' },
+  { label: 'Base',  adj:  0.00, color: '#C4A06A' },
+  { label: 'Bull',  adj: +0.20, color: '#8E9E8A' },
 ]
 
 const DEAL_TYPE_COLORS = {
-  VACANT:     '#22c55e',
-  TEARDOWN:   '#f97316',
-  GARAGE:     '#f59e0b',
-  CONVERSION: '#8b5cf6',
-  COMMERCIAL: '#06b6d4',
-  COOP:       '#ef4444',
-  CONDO:      '#ef4444',
+  VACANT:     '#8E9E8A',
+  TEARDOWN:   '#D4CCC1',
+  GARAGE:     '#C4A06A',
+  CONVERSION: '#8A8278',
+  COMMERCIAL: '#8A8278',
+  COOP:       '#D4CCC1',
+  CONDO:      '#D4CCC1',
 }
 
 const DEAL_TYPE_LABELS = {
@@ -29,11 +29,11 @@ const DEAL_TYPE_LABELS = {
 }
 
 const DEAL_TYPES = [
-  { value: 'all',        label: 'All Sites',     icon: '✦',  desc: 'Show every lot' },
-  { value: 'vacant',     label: 'Vacant Land',   icon: '🟢', desc: 'Nothing built — ready to develop' },
-  { value: 'parking',    label: 'Parking',        icon: '🅿', desc: 'Surface lots & garages' },
-  { value: 'teardown',   label: 'Teardown',       icon: '🔨', desc: '1–3 family & walk-up buildings' },
-  { value: 'commercial', label: 'Commercial',     icon: '🏢', desc: 'Retail, office & mixed-use' },
+  { value: 'all',        label: 'All Sites',     icon: '—',  desc: 'Every lot' },
+  { value: 'vacant',     label: 'Vacant',        icon: 'V',  desc: 'Nothing built' },
+  { value: 'parking',    label: 'Parking',        icon: 'P',  desc: 'Surface lots and garages' },
+  { value: 'teardown',   label: 'Teardown',       icon: 'T',  desc: '1-3 family and walk-ups' },
+  { value: 'commercial', label: 'Commercial',     icon: 'C',  desc: 'Retail, office, mixed-use' },
 ]
 
 const NEIGHBORHOOD_CENTERS = {
@@ -290,7 +290,7 @@ export default function Sidebar({
         {activeTab === 'assemblage' && (
           <div className="tab-panel">
             <div className="assemblage-header">
-              <Target size={16} color="#f59e0b" />
+              <Target size={16} color="#C4A06A" />
               <div>
                 <div className="assemblage-title">Block Assemblage</div>
                 <div className="assemblage-sub">
@@ -303,7 +303,7 @@ export default function Sidebar({
 
             {assemblageLots.length === 0 ? (
               <div className="empty-state">
-                <Target size={32} color="#2e4060" />
+                <Target size={32} color="#5C5650" />
                 <p>No lots selected</p>
                 <p className="empty-sub">Open any property, expand "Block Neighbors", and tap "Add underbuilt neighbors" to start an assemblage</p>
               </div>
@@ -318,8 +318,8 @@ export default function Sidebar({
                         <div className="lot-address">{lot.address || lot.bbl}</div>
                         <div className="lot-stats">
                           {Number(lot.lot_area || 0).toLocaleString()} SF · FAR {lot.res_far || '—'}
-                          {lot.has_landmark ? ' · 🏛' : ''}
-                          {lot.rent_stab_risk ? ' · 🏘' : ''}
+                          {lot.has_landmark ? ' · LPC' : ''}
+                          {lot.rent_stab_risk ? ' · RS' : ''}
                         </div>
                       </div>
                       <button className="remove-btn" onClick={() => setAssemblageLots(prev => prev.filter(l => l.bbl !== lot.bbl))}>×</button>
@@ -333,7 +333,7 @@ export default function Sidebar({
                     <div className="assemblage-score-label">Assemblage Score</div>
                     <div
                       className="assemblage-score-number"
-                      style={{ color: assemblageAnalysis.score >= 70 ? '#22c55e' : assemblageAnalysis.score >= 40 ? '#f59e0b' : '#ef4444' }}
+                      style={{ color: assemblageAnalysis.score >= 70 ? '#8E9E8A' : assemblageAnalysis.score >= 40 ? '#C4A06A' : '#D4CCC1' }}
                     >
                       {assemblageAnalysis.score}
                     </div>
@@ -342,12 +342,12 @@ export default function Sidebar({
                         <div key={c.label} className="asm-bar-row">
                           <div className="asm-bar-header">
                             <span className="asm-bar-label">{c.label}</span>
-                            <span className="asm-bar-pts" style={{ color: c.pts >= c.max * 0.7 ? '#22c55e' : '#f59e0b' }}>{c.pts}/{c.max}</span>
+                            <span className="asm-bar-pts" style={{ color: c.pts >= c.max * 0.7 ? '#8E9E8A' : '#C4A06A' }}>{c.pts}/{c.max}</span>
                           </div>
                           <div className="asm-bar-track">
                             <div
                               className="asm-bar-fill"
-                              style={{ width: `${c.pct * 100}%`, background: c.pts >= c.max * 0.7 ? '#22c55e' : c.pts > 0 ? '#f59e0b' : '#ef4444' }}
+                              style={{ width: `${c.pct * 100}%`, background: c.pts >= c.max * 0.7 ? '#8E9E8A' : c.pts > 0 ? '#C4A06A' : '#5C5650' }}
                             />
                           </div>
                         </div>
@@ -365,13 +365,13 @@ export default function Sidebar({
                   <div className="red-flags-section">
                     <div className="red-flags-title"><AlertTriangle size={11} /> Risk Flags</div>
                     {assemblageAnalysis.landmarkLots.map(l => (
-                      <div key={l.bbl} className="red-flag-item">🏛 {l.address || l.bbl} — Landmark</div>
+                      <div key={l.bbl} className="red-flag-item">{l.address || l.bbl} — Landmark</div>
                     ))}
                     {assemblageAnalysis.rentStabLots.map(l => (
-                      <div key={l.bbl} className="red-flag-item">🏘 {l.address || l.bbl} — Likely Rent Stabilized</div>
+                      <div key={l.bbl} className="red-flag-item">{l.address || l.bbl} — Likely Rent Stabilized</div>
                     ))}
                     {assemblageAnalysis.condoCoopLots.map(l => (
-                      <div key={l.bbl} className="red-flag-item">⚠️ {l.address || l.bbl} — {l.deal_type === 'COOP' ? 'Co-op' : 'Condo'}</div>
+                      <div key={l.bbl} className="red-flag-item">{l.address || l.bbl} — {l.deal_type === 'COOP' ? 'Co-op' : 'Condo'}</div>
                     ))}
                   </div>
                 )}
@@ -383,7 +383,7 @@ export default function Sidebar({
                       <div className="asm-pf-headline-label">Land Residual (Max Bid)</div>
                       <div
                         className="asm-pf-headline-value"
-                        style={{ color: assemblageAnalysis.pf.landResidual > 0 ? '#22c55e' : '#ef4444' }}
+                        style={{ color: assemblageAnalysis.pf.landResidual > 0 ? '#8E9E8A' : '#D4CCC1' }}
                       >
                         {assemblageAnalysis.pf.landResidual > 0
                           ? `$${(assemblageAnalysis.pf.landResidual / 1e6).toFixed(1)}M`
@@ -428,7 +428,7 @@ export default function Sidebar({
                       </div>
                     </div>
                     <div className="asm-pf-psf-note">
-                      PSF: ${assemblageAnalysis.psf.toLocaleString()}/SF · {assemblageAnalysis.landmarkLots.length > 0 ? '⚠️ Landmark risk' : 'From global assumptions'}
+                      PSF: ${assemblageAnalysis.psf.toLocaleString()}/SF · {assemblageAnalysis.landmarkLots.length > 0 ? 'Landmark risk' : 'From global assumptions'}
                     </div>
                   </div>
                 )}
@@ -445,7 +445,7 @@ export default function Sidebar({
         {activeTab === 'saved' && (
           <div className="tab-panel">
             <div className="saved-header">
-              <Bookmark size={16} color="#f59e0b" />
+              <Bookmark size={16} color="#C4A06A" />
               <div style={{ flex: 1 }}>
                 <div className="assemblage-title">Saved Properties</div>
                 <div className="assemblage-sub">Click a lot to fly to it on the map</div>
@@ -464,14 +464,14 @@ export default function Sidebar({
 
             {!savedProperties || savedProperties.length === 0 ? (
               <div className="empty-state">
-                <Bookmark size={32} color="#333" />
+                <Bookmark size={32} color="#5C5650" />
                 <p>No saved properties</p>
                 <p className="empty-sub">Click the bookmark icon in any property drawer to save it here</p>
               </div>
             ) : (
               <div className="saved-list">
                 {savedProperties.map(prop => {
-                  const color = DEAL_TYPE_COLORS[prop.deal_type] || '#f97316'
+                  const color = DEAL_TYPE_COLORS[prop.deal_type] || '#8A8278'
                   const label = DEAL_TYPE_LABELS[prop.deal_type] || 'Teardown'
                   return (
                     <div key={prop.bbl} className="saved-item" onClick={() => onSelectSaved && onSelectSaved(prop)}>
@@ -490,7 +490,7 @@ export default function Sidebar({
                         )}
                       </div>
                       <div className="saved-item-actions">
-                        <MapPin size={12} color="#444" />
+                        <MapPin size={12} color="#5C5650" />
                         <button
                           className="remove-btn"
                           onClick={e => { e.stopPropagation(); removeSaved && removeSaved(prop.bbl) }}
@@ -508,7 +508,7 @@ export default function Sidebar({
         {activeTab === 'proforma' && (
           <div className="tab-panel">
             <div className="uw-tab-header">
-              <Calculator size={16} color="#f59e0b" />
+              <Calculator size={16} color="#C4A06A" />
               <div>
                 <div className="assemblage-title">Condo Underwriting</div>
                 <div className="assemblage-sub">
@@ -559,11 +559,11 @@ export default function Sidebar({
 
             {(uw.psfMultiplier ?? 1.0) !== 1.0 && (
               <div className="scenario-active-note" style={{
-                color: currentAdj > 0 ? '#22c55e' : '#ef4444',
-                background: currentAdj > 0 ? '#22c55e0a' : '#ef44440a',
-                borderColor: currentAdj > 0 ? '#22c55e22' : '#ef444422',
+                color: currentAdj > 0 ? '#8E9E8A' : '#D4CCC1',
+                background: currentAdj > 0 ? '#8E9E8A0a' : '#D4CCC10a',
+                borderColor: currentAdj > 0 ? '#8E9E8A22' : '#D4CCC122',
               }}>
-                {currentAdj > 0 ? '📈' : '📉'} All PSFs {currentAdj > 0 ? '+' : ''}{currentAdj}% from baseline
+                All PSFs {currentAdj > 0 ? '+' : ''}{currentAdj}% from baseline
               </div>
             )}
 
@@ -614,11 +614,11 @@ export default function Sidebar({
                         </div>
                         {isOverridden
                           ? <button className="nbhd-reset-btn" onClick={() => clearPsfOverride(name)} title="Unpin">✕</button>
-                          : <span className="nbhd-pin-hint">📌</span>
+                          : <span className="nbhd-pin-hint" style={{ color: '#8A8278', fontSize: 10 }}>PIN</span>
                         }
                       </div>
                       {(uw.psfMultiplier ?? 1.0) !== 1.0 && !isOverridden && (
-                        <span className="nbhd-effective" style={{ color: effectivePsf > basePsf ? '#22c55e' : '#ef4444' }}>
+                        <span className="nbhd-effective" style={{ color: effectivePsf > basePsf ? '#8E9E8A' : '#D4CCC1' }}>
                           → ${effectivePsf.toLocaleString()}
                         </span>
                       )}

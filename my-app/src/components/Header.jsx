@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { MapPin, Search, X, Loader } from 'lucide-react'
+import { Search, X, Loader } from 'lucide-react'
 import './Header.css'
 
 export default function Header({ onSearch }) {
@@ -82,16 +82,21 @@ export default function Header({ onSearch }) {
     <header className="header">
       <div className="header-left">
         <div className="logo">
-          <MapPin size={20} color="#f59e0b" />
-          <span className="logo-text">ATLAS</span>
-          <span className="logo-sub">NYC</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="0.5" y="0.5" width="23" height="23" stroke="#EDE5D8" strokeWidth="1.25" fill="none"/>
+            <rect x="3" y="3" width="18" height="18" stroke="#EDE5D8" strokeWidth="0.4" fill="none"/>
+            <line x1="3" y1="16" x2="21" y2="16" stroke="#EDE5D8" strokeWidth="0.4"/>
+            <circle cx="12" cy="10" r="1.75" fill="none" stroke="#C4A06A" strokeWidth="1"/>
+            <circle cx="12" cy="10" r="0.7" fill="#C4A06A"/>
+          </svg>
+          <span className="logo-text">PARCEL</span>
         </div>
-        <div className="header-tagline">Manhattan Development Intelligence</div>
+        <div className="header-tagline">Acquisition Intelligence</div>
       </div>
 
       <div className="header-center" ref={wrapperRef}>
         <div className={`search-bar ${showDropdown && results.length > 0 ? 'search-bar--open' : ''}`}>
-          {loading ? <Loader size={14} color="#f59e0b" className="spin" /> : <Search size={14} color="#666" />}
+          {loading ? <Loader size={14} color="#C4A06A" className="spin" /> : <Search size={14} color="#666" />}
           <input
             type="text"
             placeholder="Search address, BBL, or neighborhood..."
@@ -115,7 +120,7 @@ export default function Header({ onSearch }) {
                 className="search-result-item"
                 onClick={() => handleSelect(feature)}
               >
-                <MapPin size={13} color="#f59e0b" />
+                <span style={{width:5,height:5,borderRadius:'50%',background:'#C4A06A',flexShrink:0}} />
                 <div className="search-result-text">
                   <span className="search-result-label">{feature.properties.name}</span>
                   <span className="search-result-sub">{feature.properties.borough}, NYC</span>
@@ -127,7 +132,7 @@ export default function Header({ onSearch }) {
 
         {showDropdown && results.length === 0 && query && !loading && (
           <div className="search-dropdown">
-            <div className="search-no-results">No Manhattan results found</div>
+            <div className="search-no-results">No results</div>
           </div>
         )}
       </div>

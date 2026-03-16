@@ -3,8 +3,8 @@ import './CoachMarks.css'
 
 const STEPS = [
   {
-    title: 'Welcome to ATLAS',
-    body: 'Every dot on the map is a Manhattan tax lot scored for development potential. Red = very high opportunity, grey = fully built out.',
+    title: 'Welcome to Parcel',
+    body: 'Every dot on the map is a Manhattan tax lot scored for acquisition potential. Bronze = signal (85+), grey = fully built out.',
     target: null,
   },
   {
@@ -29,7 +29,7 @@ export default function CoachMarks() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!localStorage.getItem('atlas_onboarded')) {
+    if (!localStorage.getItem('parcel_onboarded')) {
       // Small delay so the map finishes loading before the card appears
       const t = setTimeout(() => setVisible(true), 1800)
       return () => clearTimeout(t)
@@ -61,7 +61,7 @@ export default function CoachMarks() {
   }
 
   const complete = () => {
-    localStorage.setItem('atlas_onboarded', '1')
+    localStorage.setItem('parcel_onboarded', '1')
     dismiss()
   }
 

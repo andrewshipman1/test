@@ -7,21 +7,39 @@
 }
 
 :root {
-  --bg-base:     #07090f;
-  --bg-panel:    #0b0f1c;
-  --bg-surface:  #0f1628;
-  --bg-elevated: #141e35;
-  --border:      #1a2540;
-  --border-subtle: rgba(255,255,255,0.06);
-  --text-primary:   #dce4f0;
-  --text-secondary: #5b7296;
-  --text-muted:     #2e4060;
-  --accent:         #f59e0b;
-  --accent-bg:      rgba(245,158,11,0.10);
-  --accent-border:  rgba(245,158,11,0.30);
-  --radius:    8px;
-  --radius-sm: 6px;
-  --radius-lg: 12px;
+  /* ── Parcel: Surface ── */
+  --bg-base:     #252220;
+  --bg-panel:    #252220;
+  --bg-surface:  #3A3632;
+  --bg-elevated: rgba(255,255,255,0.025);
+  /* ── Parcel: Border ── */
+  --border:        rgba(255,255,255,0.06);
+  --border-subtle: rgba(255,255,255,0.04);
+  /* ── Parcel: Text ── */
+  --text-primary:   #EDE5D8;
+  --text-secondary: #8A8278;
+  --text-muted:     #5C5650;
+  /* ── Parcel: Accent (Bronze) ── */
+  --accent:         #C4A06A;
+  --accent-bg:      rgba(168,130,78,0.07);
+  --accent-border:  rgba(168,130,78,0.4);
+  /* ── Parcel: Semantic ── */
+  --parcel-patina:    #8E9E8A;
+  --parcel-bronze:    #A8824E;
+  --parcel-bronze-lt: #C4A06A;
+  --parcel-draft:     #D4CCC1;
+  --parcel-formwork:  #3A3632;
+  --parcel-concrete:  #252220;
+  --parcel-ivory:     #EDE5D8;
+  --parcel-ash:       #8A8278;
+  --parcel-smoke:     #5C5650;
+  /* ── Parcel: No rounded corners ── */
+  --radius:    0;
+  --radius-sm: 0;
+  --radius-lg: 0;
+  /* ── Typography ── */
+  --font-body: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-data: 'IBM Plex Mono', 'Courier New', monospace;
 }
 
 .app-container {
@@ -31,7 +49,8 @@
   width: 100vw;
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
+  font-weight: 300;
   overflow: hidden;
 }
 

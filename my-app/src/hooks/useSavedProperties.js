@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-const STORAGE_KEY = 'atlas_saved_properties'
+const STORAGE_KEY = 'parcel_saved_properties'
 
 function load() {
   try {

@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "ATLAS",
+      "name": "parcel-app",
       "runtimeExecutable": "/bin/zsh",
       "runtimeArgs": ["-c", "source ~/.nvm/nvm.sh && cd my-app && npm run dev"],
       "port": 5173

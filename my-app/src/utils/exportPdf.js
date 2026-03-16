@@ -62,7 +62,7 @@ export function exportSavedToPdf(savedProperties, assumptions = {}) {
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(18)
     doc.setTextColor(...AMBER)
-    doc.text('ATLAS', 36, 31)
+    doc.text('PARCEL', 36, 31)
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
@@ -96,7 +96,7 @@ export function exportSavedToPdf(savedProperties, assumptions = {}) {
     doc.setFontSize(7)
     doc.setTextColor(...DIM_GREY)
     doc.text(
-      'ATLAS NYC · Data sourced from NYC PLUTO, ACRIS & Department of Finance · For informational purposes only',
+      'PARCEL · Data sourced from NYC PLUTO, ACRIS & Department of Finance · For informational purposes only',
       PW / 2, PH - 9, { align: 'center' }
     )
   }
@@ -236,5 +236,5 @@ export function exportSavedToPdf(savedProperties, assumptions = {}) {
   }
 
   const date = new Date().toISOString().slice(0, 10)
-  doc.save(`ATLAS_pipeline_${date}.pdf`)
+  doc.save(`PARCEL_pipeline_${date}.pdf`)
 }

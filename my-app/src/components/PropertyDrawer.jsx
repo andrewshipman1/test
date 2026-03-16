@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { X, Plus, Check, AlertTriangle, Building2, TrendingUp, User, DollarSign, Layers, Bookmark, BookmarkCheck, TrendingDown, Calculator, RotateCcw, MapPin, ChevronDown, ChevronRight, FileText, Wind, Info } from 'lucide-react'
 import { NEIGHBORHOOD_PSF, getEffectivePsf } from '../hooks/usePlutoData'
 import { useAcrisComps } from '../hooks/useAcrisData'
+import { useAcrisDeeds }    from '../hooks/useAcrisDeeds'
+import { useDobActivity }   from '../hooks/useDobActivity'
+import { useHpdViolations } from '../hooks/useHpdViolations'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { getBlockNeighbors, isUnderbuilt } from '../utils/assemblageUtils'
 import { useOwnerPortfolio } from '../hooks/useOwnerPortfolio'
@@ -13,13 +16,13 @@ import './PropertyDrawer.css'
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const DEAL_TYPE_CONFIG = {
-  VACANT:     { label: 'Vacant Land',      color: '#22c55e', bg: '#22c55e18' },
-  TEARDOWN:   { label: 'Teardown',         color: '#f97316', bg: '#f9731618' },
-  GARAGE:     { label: 'Garage / Parking', color: '#f59e0b', bg: '#f59e0b18' },
-  CONVERSION: { label: 'Conversion Play',  color: '#8b5cf6', bg: '#8b5cf618' },
-  COMMERCIAL: { label: 'Commercial',       color: '#06b6d4', bg: '#06b6d418' },
-  COOP:       { label: '⚠️ Co-op',         color: '#ef4444', bg: '#ef444418' },
-  CONDO:      { label: '⚠️ Condo',         color: '#ef4444', bg: '#ef444418' },
+  VACANT:     { label: 'Vacant Land',      color: '#8E9E8A', bg: '#8E9E8A18' },
+  TEARDOWN:   { label: 'Teardown',         color: '#D4CCC1', bg: '#D4CCC118' },
+  GARAGE:     { label: 'Garage / Parking', color: '#C4A06A', bg: '#C4A06A18' },
+  CONVERSION: { label: 'Conversion Play',  color: '#8A8278', bg: '#8A827818' },
+  COMMERCIAL: { label: 'Commercial',       color: '#8A8278', bg: '#8A827818' },
+  COOP:       { label: 'Co-op',            color: '#D4CCC1', bg: '#D4CCC118' },
+  CONDO:      { label: 'Condo',            color: '#D4CCC1', bg: '#D4CCC118' },
 }
 
 const LAND_USE_LABELS = {
@@ -39,7 +42,7 @@ function formatBBL(bbl) {
 }
 
 function scoreColor(s) {
-  return s >= 80 ? '#ef4444' : s >= 60 ? '#f97316' : s >= 40 ? '#f59e0b' : '#eab308'
+  return s >= 85 ? '#C4A06A' : s >= 60 ? '#8A8278' : s >= 40 ? '#5C5650' : '#3A3632'
 }
 
 function fmtDate(iso) {
@@ -103,7 +106,7 @@ function RiskFlag({ icon, label, color, desc }) {
 function MetricBox({ label, value, sub, accent }) {
   return (
     <div className={`metric-box ${accent ? 'accent' : ''}`}>
-      <div className="metric-value" style={accent ? { color: '#f59e0b' } : {}}>{value || '—'}</div>
+      <div className="metric-value" style={accent ? { color: '#C4A06A' } : {}}>{value || '—'}</div>
       <div className="metric-label">{label}</div>
       {sub && <div className="metric-sub">{sub}</div>}
     </div>
@@ -114,14 +117,14 @@ function InfoRow({ label, value, highlight }) {
   return (
     <div className="info-row">
       <span className="info-row-label">{label}</span>
-      <span className="info-row-value" style={highlight ? { color: '#f59e0b', fontWeight: 600 } : {}}>{value || '—'}</span>
+      <span className="info-row-value" style={highlight ? { color: '#C4A06A', fontWeight: 400 } : {}}>{value || '—'}</span>
     </div>
   )
 }
 
 function ScoreBar({ label, points, max, value }) {
   const pct = max > 0 ? points / max : 0
-  const color = pct >= 0.8 ? '#ef4444' : pct >= 0.5 ? '#f97316' : pct > 0 ? '#f59e0b' : '#2a2a3a'
+  const color = pct >= 0.8 ? '#C4A06A' : pct >= 0.5 ? '#8A8278' : pct > 0 ? '#5C5650' : '#3A3632'
   return (
     <div className="score-bar-row">
       <div className="score-bar-header">
@@ -176,6 +179,9 @@ export default function PropertyDrawer({
     property?.owner_name,
     property?.bbl
   )
+  const { lastMortgage, lastDeed, loading: deedsLoading } = useAcrisDeeds(property?.bbl)
+  const { permits: dobPermits, loading: dobLoading }       = useDobActivity(property?.bbl)
+  const { openCount: hpdCount, byClass: hpdByClass, recent: hpdRecent, loading: hpdLoading } = useHpdViolations(property?.bbl)
 
   // Local editable values for per-property PSF / hard cost overrides
   const [localPsf,      setLocalPsf]      = useState(null)
@@ -338,7 +344,7 @@ export default function PropertyDrawer({
       'OWNERSHIP',
       `  Owner: ${property.owner_name || '—'} | Units: ${property.units_res || 0}`,
       '',
-      'Source: NYC PLUTO + ATLAS',
+      'Source: NYC PLUTO + Parcel',
     )
 
   }
@@ -391,12 +397,12 @@ export default function PropertyDrawer({
         {/* ── Risk Flags ── */}
         {(isCoop || isCondo || property.rent_stab_risk || property.has_landmark) && (
           <div className="drawer-section">
-            <div className="section-header"><AlertTriangle size={13} color="#ef4444" /> Deal Considerations</div>
+            <div className="section-header"><AlertTriangle size={13} color="#D4CCC1" /> Deal Considerations</div>
             <div className="risk-flags">
-              {isCoop  && <RiskFlag icon="🚫" color="#ef4444" label="Co-op Building"      desc="Shares owned, not land — extremely difficult to redevelop" />}
-              {isCondo && <RiskFlag icon="⚠️" color="#ef4444" label="Condominium"         desc="Must buy out all individual unit owners to redevelop" />}
-              {property.rent_stab_risk && <RiskFlag icon="🏘️" color="#f97316" label={<Tooltip content={GLOSSARY.rentStabilized}><span>Likely Rent Stabilized <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} /></span></Tooltip>} desc="Pre-1974 rental building — significant tenant buyout costs" />}
-              {property.has_landmark   && <RiskFlag icon="🏛️" color="#3b82f6" label="Landmark Designation"   desc="LPC approval required — may have transferable air rights (TDR)" />}
+              {isCoop  && <RiskFlag icon="—" color="#D4CCC1" label="Co-op Building"      desc="Shares owned, not land — extremely difficult to redevelop" />}
+              {isCondo && <RiskFlag icon="—" color="#D4CCC1" label="Condominium"         desc="Must buy out all individual unit owners to redevelop" />}
+              {property.rent_stab_risk && <RiskFlag icon="RS" color="#8A8278" label={<Tooltip content={GLOSSARY.rentStabilized}><span>Likely Rent Stabilized <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} /></span></Tooltip>} desc="Pre-1974 rental building — significant tenant buyout costs" />}
+              {property.has_landmark   && <RiskFlag icon="LPC" color="#8A8278" label="Landmark Designation"   desc="LPC approval required — may have transferable air rights (TDR)" />}
             </div>
           </div>
         )}
@@ -407,17 +413,17 @@ export default function PropertyDrawer({
           const signals = (marketSignals?.[bblKey] || property.market_signals || [])
           if (!signals.length) return null
           const SIGNAL_CONFIG = {
-            recent_sale:   { icon: '🔄', label: 'Recent Deed Transfer', color: '#f97316' },
-            demo_permit:   { icon: '🔨', label: 'Demo Permit Filed',    color: '#ef4444' },
-            new_building:  { icon: '🏗',  label: 'New Building Permit',  color: '#22d3ee' },
-            city_owned:    { icon: '🏛',  label: 'City-Owned Property',  color: '#8b5cf6' },
+            recent_sale:   { icon: 'D',  label: 'Recent Deed Transfer', color: '#C4A06A' },
+            demo_permit:   { icon: 'X',  label: 'Demo Permit Filed',    color: '#D4CCC1' },
+            new_building:  { icon: 'NB', label: 'New Building Permit',  color: '#8A8278' },
+            city_owned:    { icon: 'C',  label: 'City-Owned Property',  color: '#8A8278' },
           }
           return (
             <div className="drawer-section activity-section">
-              <div className="section-header"><TrendingUp size={13} color="#f59e0b" /> Market Activity</div>
+              <div className="section-header"><TrendingUp size={13} color="#C4A06A" /> Market Activity</div>
               <div className="activity-signals">
                 {signals.map((s, i) => {
-                  const cfg = SIGNAL_CONFIG[s.type] || { icon: '•', label: s.label, color: '#555' }
+                  const cfg = SIGNAL_CONFIG[s.type] || { icon: '•', label: s.label, color: '#5C5650' }
                   return (
                     <div key={i} className="activity-chip" style={{ borderColor: `${cfg.color}33`, background: `${cfg.color}0d` }}>
                       <span className="activity-icon">{cfg.icon}</span>
@@ -443,7 +449,7 @@ export default function PropertyDrawer({
           <div className="section-header">
             <Building2 size={13} /> The Build
             <Tooltip content={GLOSSARY.far}>
-              <Info size={11} style={{ marginLeft: 5, color: '#2e4060', cursor: 'help' }} />
+              <Info size={11} style={{ marginLeft: 5, color: '#5C5650', cursor: 'help' }} />
             </Tooltip>
           </div>
           <div className="metrics-grid-4">
@@ -481,11 +487,11 @@ export default function PropertyDrawer({
             )}
             {usingScenario && (
               <span className="pf-scenario-badge" style={{
-                color:      scenarioAdj > 0 ? '#22c55e' : '#ef4444',
-                background: scenarioAdj > 0 ? '#22c55e12' : '#ef444412',
-                borderColor: scenarioAdj > 0 ? '#22c55e33' : '#ef444433',
+                color:      scenarioAdj > 0 ? '#8E9E8A' : '#D4CCC1',
+                background: scenarioAdj > 0 ? '#8E9E8A12' : '#D4CCC112',
+                borderColor: scenarioAdj > 0 ? '#8E9E8A33' : '#D4CCC133',
               }}>
-                {scenarioAdj > 0 ? '📈' : '📉'} {scenarioAdj > 0 ? '+' : ''}{scenarioAdj}%
+                {scenarioAdj > 0 ? '+' : ''}{scenarioAdj}%
               </span>
             )}
             {isOverridden && (
@@ -617,6 +623,86 @@ export default function PropertyDrawer({
           )}
         </div>
 
+        {/* ── Deal Intelligence ── */}
+        <div className="drawer-section">
+            <div className="section-header"><TrendingUp size={13} color="#8A8278" /> Deal Intelligence</div>
+
+            {/* Current Debt */}
+            <div className="di-subsection">
+              <div className="di-label">Current Debt</div>
+              {deedsLoading ? (
+                <div className="di-skeleton" />
+              ) : lastMortgage ? (
+                <div className="di-row">
+                  <span className="di-value">
+                    {lastMortgage.amount > 0
+                      ? `$${(lastMortgage.amount / 1e6).toFixed(2)}M`
+                      : 'Amount not recorded'}
+                  </span>
+                  <span className="di-sub">
+                    {lastMortgage.lender && `${lastMortgage.lender} · `}
+                    {lastMortgage.date && `Originated ${new Date(lastMortgage.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
+                  </span>
+                </div>
+              ) : (
+                <div className="di-empty">No recorded mortgage found</div>
+              )}
+            </div>
+
+            {/* Active Permits */}
+            <div className="di-subsection">
+              <div className="di-label">Active Permits</div>
+              {dobLoading ? (
+                <div className="di-skeleton" />
+              ) : dobPermits.length > 0 ? (
+                <div className="di-permit-list">
+                  {dobPermits.map((p, i) => (
+                    <div key={i} className="di-permit-row">
+                      <span className={`di-permit-badge di-permit-${p.jobType}`}>{p.jobType || '—'}</span>
+                      <span className="di-permit-status">{p.status || '—'}</span>
+                      <span className="di-sub">
+                        {p.issuanceDate
+                          ? `Issued ${new Date(p.issuanceDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
+                          : p.filingDate
+                            ? `Filed ${new Date(p.filingDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
+                            : null}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="di-empty">No active permits on file</div>
+              )}
+            </div>
+
+            {/* HPD Violations */}
+            <div className="di-subsection">
+              <div className="di-label">HPD Violations</div>
+              {hpdLoading ? (
+                <div className="di-skeleton" />
+              ) : hpdCount > 0 ? (
+                <>
+                  <div className="di-row">
+                    <span className="di-value di-violations-count">{hpdCount} open</span>
+                    <span className="di-sub">
+                      {hpdByClass.C > 0 && <span className="di-class-badge di-class-C">C ×{hpdByClass.C}</span>}
+                      {hpdByClass.B > 0 && <span className="di-class-badge di-class-B">B ×{hpdByClass.B}</span>}
+                      {hpdByClass.A > 0 && <span className="di-class-badge di-class-A">A ×{hpdByClass.A}</span>}
+                    </span>
+                  </div>
+                  {hpdRecent.map((v, i) => (
+                    <div key={i} className="di-violation-row">
+                      <span className={`di-class-badge di-class-${v.class}`}>{v.class}</span>
+                      <span className="di-violation-desc">{v.description || '—'}</span>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className="di-empty">No open violations</div>
+              )}
+            </div>
+          </div>
+
         {/* ── Ownership ── */}
         <div className="drawer-section">
           <div className="section-header"><User size={13} /> Ownership</div>
@@ -633,7 +719,7 @@ export default function PropertyDrawer({
                   {ownerType && (
                     <div className="owner-type-row">
                       <span className={`owner-type-badge ${ownerType === 'Entity' ? 'entity' : 'individual'}`}>
-                        {ownerType === 'Entity' ? '🏢 Entity / LLC' : '👤 Individual'}
+                        {ownerType === 'Entity' ? 'Entity / LLC' : 'Individual'}
                       </span>
                       {ownerType === 'Entity' && (
                         <span className="owner-type-hint">May be harder to reach directly</span>
@@ -652,7 +738,7 @@ export default function PropertyDrawer({
                   ) : !salesLoading && (
                     <div className="held-since-row">
                       <span className="held-since-label">Ownership History</span>
-                      <span className="held-since-value" style={{ color: '#555' }}>No arm's-length transfer on record</span>
+                      <span className="held-since-value" style={{ color: '#5C5650' }}>No arm's-length transfer on record</span>
                     </div>
                   )}
                 </>
@@ -696,7 +782,7 @@ export default function PropertyDrawer({
                             {isUnderbuilt && <span className="portfolio-underbuilt">Underbuilt</span>}
                           </span>
                         </div>
-                        {onFlyToLot && lot.lat && <MapPin size={11} color="#444" />}
+                        {onFlyToLot && lot.lat && <MapPin size={11} color="#5C5650" />}
                       </div>
                     )
                   })}
@@ -822,8 +908,8 @@ export default function PropertyDrawer({
                         <span className="block-neighbor-stats">
                           {p.num_floors > 0 ? `${p.num_floors} fl` : '—'}
                           {avail > 0 ? ` · ${avail.toLocaleString()} SF avail` : ' · Built out'}
-                          {p.has_landmark ? ' · 🏛' : ''}
-                          {p.rent_stab_risk ? ' · 🏘' : ''}
+                          {p.has_landmark ? ' · LPC' : ''}
+                          {p.rent_stab_risk ? ' · RS' : ''}
                         </span>
                       </div>
                       <div className="block-neighbor-flags">

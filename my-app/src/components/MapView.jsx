@@ -2,7 +2,7 @@ import { useRef, useCallback, useState, useEffect } from 'react'
 import Map, { Source, Layer, NavigationControl, ScaleControl, Marker } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
-import { MapPin } from 'lucide-react'
+// Parcel brand — no MapPin icon, use bronze crosshair
 import CoachMarks from './CoachMarks'
 import './MapView.css'
 
@@ -17,12 +17,12 @@ const lotCircleLayer = {
     'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 3, 14, 6, 16, 10],
     'circle-color': [
       'case',
-      ['==', ['get', 'land_use'], '11'], '#22c55e',
-      ['>=', ['get', 'score'], 80], '#ef4444',
-      ['>=', ['get', 'score'], 60], '#f97316',
-      ['>=', ['get', 'score'], 40], '#f59e0b',
-      ['>=', ['get', 'score'], 20], '#eab308',
-      '#3a3a5a'
+      ['==', ['get', 'land_use'], '11'], '#8E9E8A',
+      ['>=', ['get', 'score'], 85], '#C4A06A',
+      ['>=', ['get', 'score'], 60], '#A8824E',
+      ['>=', ['get', 'score'], 40], '#8A8278',
+      ['>=', ['get', 'score'], 20], '#5C5650',
+      '#3A3632'
     ],
     'circle-opacity': [
       'case',
@@ -38,8 +38,8 @@ const lotCircleLayer = {
     ],
     'circle-stroke-color': [
       'case',
-      ['boolean', ['feature-state', 'selected'], false], '#f59e0b',
-      '#ffffff44'
+      ['boolean', ['feature-state', 'selected'], false], '#C4A06A',
+      '#ffffff22'
     ]
   }
 }
@@ -53,11 +53,11 @@ const coyCircleLayer = {
     'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 4, 14, 7, 16, 12],
     'circle-color': [
       'case',
-      ['==', ['get', 'coy_primary'], 'UAP'], '#8b5cf6',
-      ['==', ['get', 'coy_primary'], 'TOD'], '#06b6d4',
-      ['==', ['get', 'coy_primary'], 'OTR'], '#f97316',
-      ['==', ['get', 'coy_primary'], 'R11R12'], '#ec4899',
-      '#f59e0b'
+      ['==', ['get', 'coy_primary'], 'UAP'], '#D4CCC1',
+      ['==', ['get', 'coy_primary'], 'TOD'], '#8A8278',
+      ['==', ['get', 'coy_primary'], 'OTR'], '#A8824E',
+      ['==', ['get', 'coy_primary'], 'R11R12'], '#5C5650',
+      '#C4A06A'
     ],
     'circle-opacity': [
       'case',
@@ -190,7 +190,12 @@ export default function MapView({
         {searchTarget && (
           <Marker longitude={searchTarget.lng} latitude={searchTarget.lat} anchor="bottom">
             <div className="search-pin">
-              <MapPin size={28} color="#f59e0b" fill="#f59e0b" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect x="0.5" y="0.5" width="23" height="23" stroke="#C4A06A" strokeWidth="1.25" fill="none"/>
+                <rect x="3" y="3" width="18" height="18" stroke="#C4A06A" strokeWidth="0.4" fill="none"/>
+                <circle cx="12" cy="10" r="1.75" fill="none" stroke="#C4A06A" strokeWidth="1"/>
+                <circle cx="12" cy="10" r="0.7" fill="#C4A06A"/>
+              </svg>
               <div className="search-pin-label">{searchTarget.label}</div>
             </div>
           </Marker>
@@ -199,14 +204,14 @@ export default function MapView({
 
       {/* Legend */}
       <div className="map-legend">
-        <div className="legend-title">Opportunity Score</div>
+        <div className="legend-title">Acquisition Score</div>
         {[
-          { color: '#ef4444', label: 'Very High (80+)' },
-          { color: '#f97316', label: 'High (60–80)' },
-          { color: '#f59e0b', label: 'Medium (40–60)' },
-          { color: '#eab308', label: 'Low (20–40)' },
-          { color: '#22c55e', label: 'Vacant Land' },
-          { color: '#3a3a5a', label: 'Fully Built' },
+          { color: '#C4A06A', label: 'Signal (85+)' },
+          { color: '#A8824E', label: 'High (60–85)' },
+          { color: '#8A8278', label: 'Medium (40–60)' },
+          { color: '#5C5650', label: 'Low (20–40)' },
+          { color: '#8E9E8A', label: 'Vacant' },
+          { color: '#3A3632', label: 'Fully Built' },
         ].map(item => (
           <div key={item.label} className="legend-item">
             <div className="legend-dot" style={{ background: item.color }} />
@@ -229,13 +234,13 @@ export default function MapView({
           </div>
           <div className="map-stat-divider" />
           <div className="map-stat">
-            <span className="map-stat-val" style={{ color: '#f97316' }}>{stats.highOpportunity.toLocaleString()}</span>
-            <span className="map-stat-label">High Opportunity</span>
+            <span className="map-stat-val" style={{ color: '#C4A06A' }}>{stats.highOpportunity.toLocaleString()}</span>
+            <span className="map-stat-label">Score 85+</span>
           </div>
           <div className="map-stat-divider" />
           <div className="map-stat">
-            <span className="map-stat-val" style={{ color: '#22c55e' }}>{stats.vacant?.toLocaleString()}</span>
-            <span className="map-stat-label">Vacant Lots</span>
+            <span className="map-stat-val" style={{ color: '#8E9E8A' }}>{stats.vacant?.toLocaleString()}</span>
+            <span className="map-stat-label">Vacant</span>
           </div>
           <div className="map-stat-divider" />
           <div className="map-stat">

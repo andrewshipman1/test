@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 
-const STORAGE_KEY   = 'atlas_uw_assumptions'
-const OVERRIDES_KEY = 'atlas_uw_overrides'
+const STORAGE_KEY   = 'parcel_uw_assumptions'
+const OVERRIDES_KEY = 'parcel_uw_overrides'
 
 export const DEFAULT_ASSUMPTIONS = {
   hardCostPerSF:    425,  // $/SF construction hard cost

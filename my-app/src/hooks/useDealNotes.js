@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-const STORAGE_KEY = 'atlas_deal_notes_v1'
+const STORAGE_KEY = 'parcel_deal_notes_v1'
 
 function loadNotes() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }

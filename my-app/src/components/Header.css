@@ -5,7 +5,7 @@
   padding: 0 24px;
   height: 52px;
   background: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   z-index: 100;
   flex-shrink: 0;
 }
@@ -23,26 +23,21 @@
 }
 
 .logo-text {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 5px;
-  color: var(--accent);
-}
-
-.logo-sub {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-  margin-top: 2px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  color: #EDE5D8;
+  text-transform: uppercase;
 }
 
 .header-tagline {
-  font-size: 11px;
-  color: var(--text-muted);
-  letter-spacing: 0.8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #8A8278;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid rgba(255,255,255,0.06);
   padding-left: 20px;
 }
 
@@ -57,16 +52,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0;
   padding: 8px 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s;
 }
 
 .search-bar:focus-within {
-  border-color: var(--accent-border);
-  box-shadow: 0 0 0 3px rgba(245,158,11,0.06);
+  border-color: rgba(168,130,78,0.4);
 }
 
 .search-bar input {
@@ -74,9 +68,11 @@
   border: none;
   outline: none;
   color: var(--text-primary);
-  font-size: 13px;
-  width: 100%;
   font-family: inherit;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  width: 100%;
 }
 
 .search-bar input::placeholder {
@@ -94,37 +90,36 @@
   align-items: center;
   gap: 7px;
   padding: 5px 12px;
-  background: rgba(34,197,94,0.07);
-  border: 1px solid rgba(34,197,94,0.18);
-  border-radius: 20px;
+  background: rgba(142,158,138,0.07);
+  border: 1px solid rgba(142,158,138,0.25);
+  border-radius: 0;
 }
 
 .pulse-dot {
   width: 6px;
   height: 6px;
-  background: #22c55e;
+  background: #8E9E8A;
   border-radius: 50%;
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-  50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .pulse-text {
-  font-size: 11px;
-  font-weight: 600;
-  color: #22c55e;
-  letter-spacing: 0.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  color: #8E9E8A;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 /* Search dropdown */
 .search-bar--open {
-  border-color: var(--accent-border);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  box-shadow: none;
+  border-color: rgba(168,130,78,0.4);
 }
 
 .search-clear {
@@ -145,14 +140,12 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--bg-surface);
-  border: 1px solid var(--accent-border);
+  background: #3A3632;
+  border: 1px solid rgba(168,130,78,0.4);
   border-top: none;
-  border-bottom-left-radius: var(--radius);
-  border-bottom-right-radius: var(--radius);
+  border-radius: 0;
   z-index: 1000;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
 }
 
 .search-result-item {
@@ -166,7 +159,7 @@
   cursor: pointer;
   text-align: left;
   transition: background 0.15s;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .search-result-item:last-child { border-bottom: none; }
@@ -214,12 +207,9 @@
   .header-tagline {
     display: none;
   }
-  .logo-sub {
-    display: none;
-  }
   .logo-text {
-    font-size: 14px;
-    letter-spacing: 3px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
   }
   .header-left {
     gap: 10px;
@@ -249,11 +239,7 @@
     right: 14px;
     max-height: 55vh;
     overflow-y: auto;
-    border-radius: var(--radius);
-    border-top: 1px solid var(--accent-border);
-  }
-  .search-bar--open {
-    border-radius: var(--radius);
+    border-top: 1px solid rgba(168,130,78,0.4);
   }
 }
 
