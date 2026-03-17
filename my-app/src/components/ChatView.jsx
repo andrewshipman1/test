@@ -8,15 +8,15 @@ import './ChatView.css'
 const SUGGESTED_PROMPTS = [
   {
     label: 'Source a deal',
-    text: 'Find me vacant lots in Harlem with 30,000+ buildable SF and no rent stabilization risk',
+    text: 'What vacant lots on Adam Clayton Powell Jr. Blvd in Harlem have the most development upside right now?',
   },
   {
     label: 'Run the numbers',
-    text: 'Run a condo pro forma on a 45,000 SF site in Tribeca at $3,200 sellout',
+    text: 'Run a condo pro forma on 383 Lafayette Street assuming $3,400 sellout PSF. What\'s the land residual?',
   },
   {
     label: 'Due diligence',
-    text: 'What\'s the rent stabilization exposure on the big walk-ups in the East Village?',
+    text: 'Pull the full risk profile on 237 East 13th Street — rent stabilization, violations, historic district, everything.',
   },
 ]
 
