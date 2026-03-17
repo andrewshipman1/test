@@ -20,7 +20,7 @@ const SUGGESTED_PROMPTS = [
   },
 ]
 
-let messageIdCounter = 0
+let messageIdCounter = Date.now()
 function nextId() { return `msg_${++messageIdCounter}` }
 
 export default function ChatView() {

@@ -7,39 +7,44 @@
 }
 
 :root {
-  /* ── Parcel: Surface ── */
-  --bg-base:     #252220;
-  --bg-panel:    #252220;
-  --bg-surface:  #3A3632;
+  /* ── Frank: Surface ── */
+  --bg-base:     #1A1410;
+  --bg-panel:    #1A1410;
+  --bg-surface:  #2C2218;
   --bg-elevated: rgba(255,255,255,0.025);
-  /* ── Parcel: Border ── */
-  --border:        rgba(255,255,255,0.06);
+  /* ── Frank: Border ── */
+  --border:        rgba(255,255,255,0.07);
   --border-subtle: rgba(255,255,255,0.04);
-  /* ── Parcel: Text ── */
-  --text-primary:   #EDE5D8;
-  --text-secondary: #8A8278;
-  --text-muted:     #5C5650;
-  /* ── Parcel: Accent (Bronze) ── */
-  --accent:         #C4A06A;
-  --accent-bg:      rgba(168,130,78,0.07);
-  --accent-border:  rgba(168,130,78,0.4);
-  /* ── Parcel: Semantic ── */
-  --parcel-patina:    #8E9E8A;
-  --parcel-bronze:    #A8824E;
-  --parcel-bronze-lt: #C4A06A;
-  --parcel-draft:     #D4CCC1;
-  --parcel-formwork:  #3A3632;
-  --parcel-concrete:  #252220;
-  --parcel-ivory:     #EDE5D8;
-  --parcel-ash:       #8A8278;
-  --parcel-smoke:     #5C5650;
-  /* ── Parcel: No rounded corners ── */
+  /* ── Frank: Text ── */
+  --text-primary:   #EDE0CC;
+  --text-secondary: #9C8878;
+  --text-muted:     #6B5240;
+  /* ── Frank: Accent ── */
+  --accent:         #D9962E;
+  --accent-bg:      rgba(196,131,42,0.07);
+  --accent-border:  rgba(196,131,42,0.4);
+  /* ── Frank: Semantic ── */
+  --frank-tobacco:    #1A1410;
+  --frank-espresso:   #2C2218;
+  --frank-leather:    #4A3828;
+  --frank-walnut:     #6B5240;
+  --frank-dust:       #9C8878;
+  --frank-press:      #C8B8A8;
+  --frank-linen:      #EDE0CC;
+  --frank-paper:      #F5EAD8;
+  --frank-paper-lt:   #FAF3E8;
+  --frank-oxblood:    #8B2E22;
+  --frank-oxblood-lt: #A83828;
+  --frank-amber:      #C4832A;
+  --frank-amber-lt:   #D9962E;
+  --frank-verdigris:  #4A7C6F;
+  /* ── Frank: No rounded corners ── */
   --radius:    0;
   --radius-sm: 0;
   --radius-lg: 0;
   /* ── Typography ── */
-  --font-body: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --font-data: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-body: 'Barlow', sans-serif;
+  --font-data: 'IBM Plex Mono', monospace;
 }
 
 .app-container {
@@ -47,9 +52,9 @@
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: var(--bg-base);
-  color: var(--text-primary);
-  font-family: var(--font-body);
+  background: #1A1410;
+  color: #EDE0CC;
+  font-family: 'Barlow', sans-serif;
   font-weight: 300;
   overflow: hidden;
 }

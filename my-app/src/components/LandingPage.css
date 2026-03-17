@@ -68,17 +68,17 @@
 /* ── Stamp watermark — ghost background ── */
 .landing-stamp-watermark {
   position: absolute;
-  right: 8%;
-  top: 50%;
-  transform: translateY(-50%) rotate(-12deg);
+  right: 10%;
+  top: 18%;
+  transform: rotate(-12deg);
   opacity: 0.06;
   pointer-events: none;
   z-index: 0;
 }
 
 .landing-stamp-watermark svg {
-  width: 320px;
-  height: 240px;
+  width: 280px;
+  height: 210px;
 }
 
 .landing-hero-inner {
