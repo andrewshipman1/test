@@ -236,28 +236,76 @@ export async function loadAllLots() {
 export async function searchProperties({ dealType, neighborhood, zoningType, minScore, minBuildableSF, address, limit = 20 } = {}) {
   const allFeatures = await loadAllLots()
 
-  // Address search — fast path, case-insensitive substring match
-  // Strips ordinals (13th→13, 1st→1, 2nd→2, 3rd→3) and common abbreviations
+  // Address search — multi-strategy matching
+  // Handles: "120 E 13th St" → "120 EAST 13 STREET"
+  //          "Lafayette" → all properties on Lafayette
+  //          "383 Lafayette Street" → exact match
   if (address) {
+    // Normalize for PLUTO format matching
     const normalize = (s) => s.toUpperCase()
       .replace(/\./g, '')
+      .replace(/,/g, '')
       .replace(/(\d+)(ST|ND|RD|TH)\b/gi, '$1')  // 13th → 13
       .replace(/\bSTREET\b/g, 'ST')
       .replace(/\bAVENUE\b/g, 'AVE')
       .replace(/\bBOULEVARD\b/g, 'BLVD')
+      .replace(/\bDRIVE\b/g, 'DR')
+      .replace(/\bPLACE\b/g, 'PL')
+      .replace(/\bLANE\b/g, 'LN')
+      .replace(/\bROAD\b/g, 'RD')
+      .replace(/\bTERRACE\b/g, 'TERR')
       .replace(/\s+/g, ' ')
       .trim()
+
+    // Expand directional abbreviations (user types "E" → PLUTO has "EAST")
+    const expandDirections = (s) => s
+      .replace(/\bE\b/g, 'EAST')
+      .replace(/\bW\b/g, 'WEST')
+      .replace(/\bN\b/g, 'NORTH')
+      .replace(/\bS\b/g, 'SOUTH')
+
+    // Abbreviate directions (PLUTO might use either form)
+    const abbrDirections = (s) => s
+      .replace(/\bEAST\b/g, 'E')
+      .replace(/\bWEST\b/g, 'W')
+      .replace(/\bNORTH\b/g, 'N')
+      .replace(/\bSOUTH\b/g, 'S')
+
     const needle = normalize(address)
-    const matches = allFeatures.filter(f => {
-      const addr = normalize(f.properties.address || '')
-      return addr.includes(needle)
+    const needleExpanded = expandDirections(needle)
+    const needleAbbr = abbrDirections(needle)
+
+    // Score each match: exact > starts-with > contains
+    const scored = []
+    for (const f of allFeatures) {
+      const raw = f.properties.address || ''
+      const addr = normalize(raw)
+      let score = 0
+
+      if (addr === needleExpanded || addr === needle || addr === needleAbbr) {
+        score = 100  // exact match
+      } else if (addr.startsWith(needleExpanded) || addr.startsWith(needle) || addr.startsWith(needleAbbr)) {
+        score = 80   // starts with
+      } else if (addr.includes(needleExpanded) || addr.includes(needle) || addr.includes(needleAbbr)) {
+        score = 60   // contains
+      }
+
+      if (score > 0) {
+        scored.push({ feature: f, matchScore: score })
+      }
+    }
+
+    // Sort by match quality first, then opportunity score
+    scored.sort((a, b) => {
+      if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore
+      return b.feature.properties.score - a.feature.properties.score
     })
-    matches.sort((a, b) => b.properties.score - a.properties.score)
-    const results = matches.slice(0, limit)
+
+    const results = scored.slice(0, limit)
     return {
-      count: matches.length,
+      count: scored.length,
       showing: results.length,
-      properties: results.map(f => ({
+      properties: results.map(({ feature: f }) => ({
         bbl: f.properties.bbl,
         address: f.properties.address,
         score: f.properties.score,
