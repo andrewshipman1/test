@@ -314,6 +314,8 @@ export async function searchProperties({ dealType, neighborhood, zoningType, min
         lot_area: f.properties.lot_area,
         available_far_sqft: f.properties.available_far_sqft,
         num_floors: f.properties.num_floors,
+        longitude: f.properties.longitude,
+        latitude: f.properties.latitude,
         neighborhood: f.properties.neighborhood,
       })),
     }
@@ -356,7 +358,16 @@ export async function searchProperties({ dealType, neighborhood, zoningType, min
     count: filtered.length,
     showing: results.length,
     properties: results.map(f => ({
-      ...f.properties,
+      bbl: f.properties.bbl,
+      address: f.properties.address,
+      score: f.properties.score,
+      deal_type: f.properties.deal_type,
+      zone_dist: f.properties.zone_dist,
+      lot_area: f.properties.lot_area,
+      available_far_sqft: f.properties.available_far_sqft,
+      num_floors: f.properties.num_floors,
+      longitude: f.properties.longitude,
+      latitude: f.properties.latitude,
       neighborhood: NEIGHBORHOOD_PSF[f.properties.zipcode]?.name || 'Manhattan',
     })),
   }
@@ -369,11 +380,17 @@ export async function getPropertyDetail(bbl) {
 
   if (!feature) return { error: `Property ${bbl} not found` }
 
-  return {
+  const full = {
     ...feature.properties,
     neighborhood: NEIGHBORHOOD_PSF[feature.properties.zipcode]?.name || 'Manhattan',
     coordinates: feature.geometry.coordinates,
   }
+  // Strip null/zero/empty values to reduce token usage
+  const trimmed = {}
+  for (const [k, v] of Object.entries(full)) {
+    if (v != null && v !== '' && v !== 0 && v !== false) trimmed[k] = v
+  }
+  return trimmed
 }
 
 // ── Get features by BBL array (for inline maps) ────────────────────────────

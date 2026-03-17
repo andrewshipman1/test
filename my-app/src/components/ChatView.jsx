@@ -8,7 +8,7 @@ import './ChatView.css'
 const SUGGESTED_PROMPTS = [
   {
     label: 'Source a deal',
-    text: 'What vacant lots on Adam Clayton Powell Jr. Blvd in Harlem have the most development upside right now?',
+    text: 'Show me the best conversion plays on the Upper East Side right now.',
   },
   {
     label: 'Run the numbers',

@@ -196,31 +196,24 @@ export default function MessageBubble({ message }) {
           }
         })}
         {isStreaming && <span className="msg-cursor" />}
-        {/* Auto stamp — appears at the end of every completed response */}
+        {/* Auto stamp — subtle sign-off at end of every completed response */}
         {!isStreaming && !isError && (
           <div className="msg-stamp">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="80" height="80">
-              <circle cx="115" cy="115" r="106" stroke="#8B2E22" strokeWidth="4" fill="none" opacity="0.4"/>
-              <circle cx="115" cy="115" r="99"  stroke="#8B2E22" strokeWidth="1" fill="none" opacity="0.25"/>
-              <circle cx="115" cy="115" r="74"  stroke="#8B2E22" strokeWidth="1" fill="none" opacity="0.25"/>
-              <circle cx="115" cy="115" r="68"  stroke="#8B2E22" strokeWidth="0.5" fill="none" opacity="0.2"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="44" height="44">
+              <circle cx="115" cy="115" r="106" stroke="#8B2E22" strokeWidth="5" fill="none"/>
+              <circle cx="115" cy="115" r="99"  stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
+              <circle cx="115" cy="115" r="74"  stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
               <defs>
                 <path id="arc-top-auto" d="M 18,115 A 97,97 0 0,1 212,115"/>
-                <path id="arc-bot-auto" d="M 36,138 A 87,87 0 0,0 194,138"/>
               </defs>
-              <text fontFamily="'Playfair Display',Georgia,serif" fontSize="30" fontWeight="700" fill="#8B2E22" letterSpacing="18" opacity="0.45">
+              <text fontFamily="'Playfair Display',Georgia,serif" fontSize="34" fontWeight="700" fill="#8B2E22" letterSpacing="18">
                 <textPath href="#arc-top-auto" startOffset="50%" textAnchor="middle">FRANK</textPath>
               </text>
-              <text fontFamily="'IBM Plex Mono',monospace" fontSize="9.5" fill="#8B2E22" letterSpacing="3" opacity="0.3">
-                <textPath href="#arc-bot-auto" startOffset="50%" textAnchor="middle">DEAL INTELLIGENCE</textPath>
-              </text>
-              <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" strokeWidth="0.75" opacity="0.25"/>
-              <text x="115" y="111" fontFamily="'IBM Plex Mono',monospace" fontSize="11" fill="#8B2E22" textAnchor="middle" letterSpacing="2" opacity="0.35">FRANK.AI</text>
-              <text x="115" y="126" fontFamily="'IBM Plex Mono',monospace" fontSize="9" fill="#8B2E22" textAnchor="middle" letterSpacing="1.5" opacity="0.3">NEW YORK</text>
-              <circle cx="9"   cy="115" r="3.5" fill="#8B2E22" opacity="0.3"/>
-              <circle cx="221" cy="115" r="3.5" fill="#8B2E22" opacity="0.3"/>
-              <circle cx="115" cy="9"   r="3.5" fill="#8B2E22" opacity="0.3"/>
-              <circle cx="115" cy="221" r="3.5" fill="#8B2E22" opacity="0.3"/>
+              <text x="115" y="120" fontFamily="'IBM Plex Mono',monospace" fontSize="14" fill="#8B2E22" textAnchor="middle" letterSpacing="4">N.Y.</text>
+              <circle cx="9"   cy="115" r="4" fill="#8B2E22"/>
+              <circle cx="221" cy="115" r="4" fill="#8B2E22"/>
+              <circle cx="115" cy="9"   r="4" fill="#8B2E22"/>
+              <circle cx="115" cy="221" r="4" fill="#8B2E22"/>
             </svg>
           </div>
         )}

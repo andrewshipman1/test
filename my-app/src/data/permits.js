@@ -48,16 +48,13 @@ export async function fetchPermits(bbl) {
     }
   }
 
-  const permits = deduped.slice(0, 8).map(r => {
-    const h = (r.house__     || '').trim()
-    const s = (r.street_name || '').trim()
+  const permits = deduped.slice(0, 5).map(r => {
+    const desc = (r.job_description || '').trim()
     return {
       jobType:      (r.job_type || '').trim(),
-      address:      h && s ? `${h} ${s}` : s || h || '',
       filingDate:   parseDobDate(r.filing_date),
-      issuanceDate: parseDobDate(r.issuance_date),
       status:       (r.permit_status || '').trim(),
-      description:  (r.job_description || '').trim(),
+      description:  desc.length > 80 ? desc.slice(0, 80) + '...' : desc,
       cost:         parseFloat(r.estimated_job_costs) || 0,
     }
   })

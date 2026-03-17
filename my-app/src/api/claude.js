@@ -10,7 +10,7 @@ import { logConversation } from './conversationLog.js'
 // which keeps the API key server-side. In dev, Vite proxies /api to the same.
 const API_URL = '/api/chat'
 const MODEL = 'claude-sonnet-4-20250514'
-const MAX_TOOL_ROUNDS = 4
+const MAX_TOOL_ROUNDS = 5
 const MAX_RETRIES = 2
 const RETRY_DELAY_MS = 3000
 
