@@ -1,5 +1,5 @@
 // ─── Claude Messages API Client ─────────────────────────────────────────────
-// Streaming client with tool-use loop for Parcel AI.
+// Streaming client with tool-use loop for Frank AI.
 
 import { TOOLS } from './tools.js'
 import { SYSTEM_PROMPT } from './systemPrompt.js'
@@ -10,7 +10,9 @@ import { logConversation } from './conversationLog.js'
 // which keeps the API key server-side. In dev, Vite proxies /api to the same.
 const API_URL = '/api/chat'
 const MODEL = 'claude-sonnet-4-20250514'
-const MAX_TOOL_ROUNDS = 6
+const MAX_TOOL_ROUNDS = 4
+const MAX_RETRIES = 2
+const RETRY_DELAY_MS = 3000
 
 /**
  * Send a message and stream the response.
@@ -29,6 +31,26 @@ export function sendMessage(messages, callbacks) {
   let aborted = false
   const controller = new AbortController()
 
+  // Fetch with retry on 429
+  async function fetchWithRetry(body, attempt = 0) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+    if (res.status === 429 && attempt < MAX_RETRIES) {
+      const delay = RETRY_DELAY_MS * (attempt + 1)
+      onToolStart?.(`Rate limited, retrying in ${delay / 1000}s...`)
+      await new Promise(r => setTimeout(r, delay))
+      onToolEnd?.()
+      return fetchWithRetry(body, attempt + 1)
+    }
+
+    return res
+  }
+
   async function run(msgs, round = 0) {
     if (aborted || round >= MAX_TOOL_ROUNDS) {
       onDone?.('')
@@ -36,20 +58,13 @@ export function sendMessage(messages, callbacks) {
     }
 
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 4096,
-          system: SYSTEM_PROMPT,
-          tools: TOOLS,
-          messages: msgs,
-          stream: true,
-        }),
+      const res = await fetchWithRetry({
+        model: MODEL,
+        max_tokens: 2048,
+        system: SYSTEM_PROMPT,
+        tools: TOOLS,
+        messages: msgs,
+        stream: true,
       })
 
       if (!res.ok) {
