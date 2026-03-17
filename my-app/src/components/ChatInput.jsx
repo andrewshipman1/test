@@ -49,13 +49,11 @@ export default function ChatInput({ onSend, disabled, placeholder }) {
           onClick={handleSubmit}
           disabled={disabled || !value.trim()}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
+          SEND
         </button>
       </div>
       <div className="chat-input-footer">
-        <span>PARCEL AI</span>
+        <span>FRANK.AI</span>
         <span>·</span>
         <span>LIVE NYC DATA</span>
         <span>·</span>

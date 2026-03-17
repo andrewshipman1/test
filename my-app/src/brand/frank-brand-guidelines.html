@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frank. — Brand Guidelines v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Barlow:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+:root{
+  --tobacco:#1A1410;--espresso:#2C2218;--leather:#4A3828;--walnut:#6B5240;
+  --dust:#9C8878;--press:#C8B8A8;--press-dark:rgba(255,255,255,0.07);
+  --linen:#EDE0CC;--paper:#F5EAD8;--paper-lt:#FAF3E8;
+  --oxblood:#8B2E22;--oxblood-lt:#A83828;--oxblood-dim:rgba(139,46,34,0.12);
+  --amber:#C4832A;--amber-lt:#D9962E;--verdigris:#4A7C6F;
+  --div:rgba(200,184,168,0.25);--div-dark:rgba(255,255,255,0.07);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Barlow','Helvetica Neue',sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);font-weight:300;background:var(--paper-lt);color:var(--tobacco);-webkit-font-smoothing:antialiased;font-size:15px}
+.page{max-width:960px;margin:0 auto;padding:0 48px 100px}
+.sec{padding:64px 0;border-bottom:1px solid var(--div)}
+.sec:last-child{border-bottom:none}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:0.20em;text-transform:uppercase;color:var(--dust);margin-bottom:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.six{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+p.body{font-size:15px;font-weight:300;line-height:1.8;color:var(--leather);max-width:560px}
+.grain{position:relative;overflow:hidden}
+.grain::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;opacity:0.5;mix-blend-mode:multiply;z-index:0}
+.grain>*{position:relative;z-index:1}
+#toc{position:fixed;top:80px;right:28px;width:130px}
+#toc a{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);text-decoration:none;padding:4px 0 4px 10px;border-left:1px solid var(--div);transition:color 120ms,border-color 120ms}
+#toc a:hover{color:var(--tobacco);border-left-color:var(--oxblood)}
+.spec{padding:24px;background:var(--paper-lt);border:1px solid var(--div);margin-bottom:12px}
+.spec.dark{background:var(--tobacco)}
+.vbad{padding:14px 16px;border:1px solid rgba(180,80,60,0.2);background:rgba(180,80,60,0.04);font-size:13px;color:#7A3830;line-height:1.7}
+.vgood{padding:14px 16px;border:1px solid rgba(60,120,80,0.2);background:rgba(60,120,80,0.04);font-size:13px;color:#2A5038;line-height:1.7}
+.vlbl{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;opacity:.55;margin-bottom:6px}
+.vp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.dd{width:100%;border-collapse:collapse;font-size:13px}
+.dd th{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--dust);padding:6px 12px;text-align:left;border-bottom:1px solid var(--div)}
+.dd td{padding:8px 12px;border-bottom:1px solid var(--div);vertical-align:top;line-height:1.6}
+.dd tr:last-child td{border-bottom:none}
+.dd td:first-child{color:#7A3830;text-decoration:line-through}
+.check{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--div);font-size:13px;color:var(--leather);line-height:1.5}
+.checkbox{width:14px;height:14px;border:1px solid var(--dust);flex-shrink:0;margin-top:1px}
+@media(max-width:900px){#toc{display:none}.page{padding:0 24px 60px}.two,.three,.six,.vp{grid-template-columns:1fr}}
+@media print{#toc{display:none}.sec{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<nav id="toc">
+  <a href="#cover">Cover</a>
+  <a href="#s01">01 · The Name</a>
+  <a href="#s02">02 · The Stamp</a>
+  <a href="#s03">03 · Color</a>
+  <a href="#s04">04 · Typography</a>
+  <a href="#s05">05 · Voice</a>
+  <a href="#s06">06 · Surfaces</a>
+  <a href="#s07">07 · Chat UI</a>
+  <a href="#s08">08 · Deal Memo</a>
+  <a href="#s09">09 · Marketing</a>
+  <a href="#s10">10 · Don'ts</a>
+  <a href="#s11">11 · Signoff</a>
+</nav>
+
+<div class="page">
+
+<!-- COVER -->
+<div id="cover" class="grain sec" style="background:var(--paper-lt);padding-top:80px;padding-bottom:64px">
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--serif);font-size:96px;font-weight:700;line-height:0.88;color:var(--tobacco);letter-spacing:-0.02em">Frank<span style="color:var(--oxblood)">.</span></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:20px">
+      <div style="width:36px;height:2px;background:var(--oxblood);flex-shrink:0"></div>
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--dust)">AI Deal Partner · frank.ai · New York</span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid var(--div)">
+    <div style="padding:10px 14px;border-right:1px solid var(--div)"><div class="lbl" style="margin-bottom:4px">Document</div><div style="font-size:13px;color:var(--leather)">Brand Guidelines</div></div>
+    <div style="padding:10px 14px;border-right:1px solid var(--div)"><div class="lbl" style="margin-bottom:4px">Version</div><div style="font-size:13px;color:var(--leather)">1.0 · 2025</div></div>
+    <div style="padding:10px 14px;border-right:1px solid var(--div)"><div class="lbl" style="margin-bottom:4px">Domain</div><div style="font-size:13px;color:var(--leather)">frank.ai</div></div>
+    <div style="padding:10px 14px"><div class="lbl" style="margin-bottom:4px">Status</div><div style="font-size:13px;color:var(--leather)">Confidential</div></div>
+  </div>
+</div>
+
+<!-- 01 THE NAME -->
+<div id="s01" class="sec">
+  <p class="lbl">01 · The name</p>
+  <div class="two" style="align-items:start;gap:2.5rem">
+    <div>
+      <div style="font-family:var(--serif);font-size:64px;font-weight:700;line-height:0.9;letter-spacing:-0.02em;color:var(--tobacco);margin-bottom:24px">Frank<span style="color:var(--oxblood)">.</span></div>
+      <p class="body" style="margin-bottom:16px">The period is intentional. Frank. is a sentence — a statement of how this product operates. Direct, complete, unhedged.</p>
+      <p class="body" style="margin-bottom:16px">The name does three things simultaneously: references the most consequential architect in American history, describes exactly how the AI speaks, and sounds like the colleague you actually trust in a deal.</p>
+      <p class="body">Soul reference: Roman and Williams. The Ace Hotel lobby. The Standard. Everything earned, not new. A brand that feels like it was founded in 1987 and just got an AI.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="padding:18px;border:1px solid var(--div);background:var(--paper-lt)" class="grain">
+        <div class="lbl" style="margin-bottom:10px">The sentence test</div>
+        <div style="font-family:var(--serif);font-size:16px;font-style:italic;color:var(--tobacco);line-height:1.8">"I ran it by Frank."<br>"Frank flagged a problem."<br>"Frank thinks the basis is off."</div>
+      </div>
+      <div style="padding:18px;border:1px solid var(--div);background:var(--paper-lt)" class="grain">
+        <div class="lbl" style="margin-bottom:10px">The double meaning</div>
+        <p style="font-size:13px;font-weight:300;color:var(--leather);line-height:1.7"><em>frank</em> /fraŋk/ — open, honest, and direct in speech. The adjective is the company's entire value proposition. You can't engineer that kind of alignment.</p>
+      </div>
+      <div style="padding:18px;border:1px solid var(--div);background:var(--paper-lt)" class="grain">
+        <div class="lbl" style="margin-bottom:10px">The reference</div>
+        <p style="font-size:13px;font-weight:300;color:var(--leather);line-height:1.7">Frank Lloyd Wright believed buildings should emerge from their site — that the land itself dictates what gets built on it. That's exactly what Frank the AI does.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 THE STAMP -->
+<div id="s02" class="sec">
+  <p class="lbl">02 · The stamp mark</p>
+  <p class="body" style="margin-bottom:32px">When an architect stamps a drawing, they're not decorating it. They're certifying it. Their license is on the line. The stamp means: <em>I reviewed this. I stand behind it. It meets the standard.</em> That's what Frank does to a deal analysis.</p>
+
+  <div class="two" style="align-items:start;gap:2rem;margin-bottom:24px">
+    <div>
+      <div class="lbl" style="margin-bottom:12px">On paper · Primary</div>
+      <div class="grain spec" style="display:flex;align-items:center;justify-content:center;padding:40px;margin-bottom:16px">
+        <svg width="180" height="180" viewBox="0 0 230 230" fill="none">
+          <circle cx="115" cy="115" r="109" stroke="#8B2E22" stroke-width="4.5" fill="none"/>
+          <circle cx="115" cy="115" r="101" stroke="#8B2E22" stroke-width="1" fill="none"/>
+          <circle cx="115" cy="115" r="75"  stroke="#8B2E22" stroke-width="1" fill="none"/>
+          <circle cx="115" cy="115" r="68"  stroke="#8B2E22" stroke-width="0.5" fill="none"/>
+          <defs>
+            <path id="ta" d="M 19,115 A 96,96 0 0,1 211,115"/>
+            <path id="tb" d="M 36,140 A 86,86 0 0,0 194,140"/>
+          </defs>
+          <text font-family="'Playfair Display',Georgia,serif" font-size="30" font-weight="700" fill="#8B2E22" letter-spacing="18">
+            <textPath href="#ta" startOffset="50%" text-anchor="middle">FRANK</textPath>
+          </text>
+          <text font-family="'IBM Plex Mono',monospace" font-size="9.5" fill="#8B2E22" letter-spacing="3">
+            <textPath href="#tb" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTELLIGENCE</textPath>
+          </text>
+          <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" stroke-width="0.75"/>
+          <text x="115" y="111" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#8B2E22" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+          <text x="115" y="126" font-family="'IBM Plex Mono',monospace" font-size="9"  fill="#8B2E22" text-anchor="middle" letter-spacing="1.5">EST. 2025 · NEW YORK</text>
+          <circle cx="10"  cy="115" r="3.5" fill="#8B2E22"/>
+          <circle cx="220" cy="115" r="3.5" fill="#8B2E22"/>
+          <circle cx="115" cy="10"  r="3.5" fill="#8B2E22"/>
+          <circle cx="115" cy="220" r="3.5" fill="#8B2E22"/>
+        </svg>
+      </div>
+      <div class="lbl" style="margin-bottom:12px">On tobacco · Reversed</div>
+      <div style="padding:40px;background:var(--tobacco);display:flex;align-items:center;justify-content:center">
+        <svg width="180" height="180" viewBox="0 0 230 230" fill="none">
+          <circle cx="115" cy="115" r="109" stroke="#EDE0CC" stroke-width="4.5" fill="none"/>
+          <circle cx="115" cy="115" r="101" stroke="#EDE0CC" stroke-width="1" fill="none"/>
+          <circle cx="115" cy="115" r="75"  stroke="#EDE0CC" stroke-width="1" fill="none"/>
+          <circle cx="115" cy="115" r="68"  stroke="#EDE0CC" stroke-width="0.5" fill="none"/>
+          <defs>
+            <path id="tc" d="M 19,115 A 96,96 0 0,1 211,115"/>
+            <path id="td" d="M 36,140 A 86,86 0 0,0 194,140"/>
+          </defs>
+          <text font-family="'Playfair Display',Georgia,serif" font-size="30" font-weight="700" fill="#EDE0CC" letter-spacing="18">
+            <textPath href="#tc" startOffset="50%" text-anchor="middle">FRANK</textPath>
+          </text>
+          <text font-family="'IBM Plex Mono',monospace" font-size="9.5" fill="#EDE0CC" letter-spacing="3">
+            <textPath href="#td" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTELLIGENCE</textPath>
+          </text>
+          <line x1="72" y1="115" x2="158" y2="115" stroke="#EDE0CC" stroke-width="0.75"/>
+          <text x="115" y="111" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#A83828" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+          <text x="115" y="126" font-family="'IBM Plex Mono',monospace" font-size="9"  fill="#EDE0CC" text-anchor="middle" letter-spacing="1.5">EST. 2025 · NEW YORK</text>
+          <circle cx="10"  cy="115" r="3.5" fill="#EDE0CC"/>
+          <circle cx="220" cy="115" r="3.5" fill="#EDE0CC"/>
+          <circle cx="115" cy="10"  r="3.5" fill="#EDE0CC"/>
+          <circle cx="115" cy="220" r="3.5" fill="#EDE0CC"/>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="lbl" style="margin-bottom:12px">Scale behavior</div>
+      <div class="grain spec" style="display:flex;align-items:center;justify-content:space-around;padding:32px;margin-bottom:16px">
+        <div style="text-align:center">
+          <svg width="80" height="80" viewBox="0 0 230 230" fill="none">
+            <circle cx="115" cy="115" r="109" stroke="#8B2E22" stroke-width="5" fill="none"/>
+            <circle cx="115" cy="115" r="98" stroke="#8B2E22" stroke-width="1" fill="none"/>
+            <circle cx="115" cy="115" r="72" stroke="#8B2E22" stroke-width="1" fill="none"/>
+            <defs><path id="ts" d="M 19,115 A 96,96 0 0,1 211,115"/><path id="tsb" d="M 36,140 A 86,86 0 0,0 194,140"/></defs>
+            <text font-family="'Playfair Display',Georgia,serif" font-size="30" font-weight="700" fill="#8B2E22" letter-spacing="18"><textPath href="#ts" startOffset="50%" text-anchor="middle">FRANK</textPath></text>
+            <text font-family="'IBM Plex Mono',monospace" font-size="9.5" fill="#8B2E22" letter-spacing="3"><textPath href="#tsb" startOffset="50%" text-anchor="middle">DEAL INTELLIGENCE</textPath></text>
+            <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" stroke-width="0.75"/>
+            <text x="115" y="111" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#8B2E22" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+            <text x="115" y="126" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B2E22" text-anchor="middle">NEW YORK</text>
+            <circle cx="10" cy="115" r="3" fill="#8B2E22"/>
+            <circle cx="220" cy="115" r="3" fill="#8B2E22"/>
+          </svg>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--dust);margin-top:8px">80px · Full</div>
+        </div>
+        <div style="text-align:center">
+          <svg width="40" height="40" viewBox="0 0 230 230" fill="none">
+            <circle cx="115" cy="115" r="109" stroke="#8B2E22" stroke-width="7" fill="none"/>
+            <circle cx="115" cy="115" r="94" stroke="#8B2E22" stroke-width="2" fill="none"/>
+            <defs><path id="t40" d="M 19,115 A 96,96 0 0,1 211,115"/></defs>
+            <text font-family="'Playfair Display',Georgia,serif" font-size="36" font-weight="700" fill="#8B2E22" letter-spacing="14"><textPath href="#t40" startOffset="50%" text-anchor="middle">FRANK</textPath></text>
+            <line x1="80" y1="115" x2="150" y2="115" stroke="#8B2E22" stroke-width="1.5"/>
+            <text x="115" y="142" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#8B2E22" text-anchor="middle">.AI</text>
+          </svg>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--dust);margin-top:8px">40px · No arcs</div>
+        </div>
+        <div style="text-align:center">
+          <svg width="24" height="24" viewBox="0 0 230 230" fill="none">
+            <circle cx="115" cy="115" r="109" stroke="#8B2E22" stroke-width="14" fill="none"/>
+            <circle cx="115" cy="115" r="80"  stroke="#8B2E22" stroke-width="4" fill="none"/>
+            <circle cx="115" cy="115" r="30" fill="#8B2E22"/>
+          </svg>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--dust);margin-top:8px">24px · Favicon</div>
+        </div>
+      </div>
+      <p style="font-size:12px;font-weight:300;color:var(--dust);line-height:1.6;margin-bottom:24px">At 40px: drop arc text, keep FRANK + .AI. At 24px favicon: two rings + solid oxblood center.</p>
+
+      <div class="lbl" style="margin-bottom:10px">What the stamp means</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="padding:12px 14px;border:1px solid var(--div);background:var(--paper-lt)" class="grain">
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--oxblood);margin-bottom:6px">Frank reviewed it</div>
+          <p style="font-size:12px;font-weight:300;color:var(--leather);line-height:1.65">All available ACRIS, DOB, HPD, and zoning data has been read. Completeness — not just a surface pull.</p>
+        </div>
+        <div style="padding:12px 14px;border:1px solid var(--div);background:var(--paper-lt)" class="grain">
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--oxblood);margin-bottom:6px">Frank has a view</div>
+          <p style="font-size:12px;font-weight:300;color:var(--leather);line-height:1.65">The stamp only appears when Frank has formed a judgment worth standing behind. Not every message — only completed analyses.</p>
+        </div>
+        <div style="padding:12px 14px;border:1px solid var(--div);background:var(--paper-lt)" class="grain">
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--oxblood);margin-bottom:6px">Frank is on record</div>
+          <p style="font-size:12px;font-weight:300;color:var(--leather);line-height:1.65">Stamped analyses are versioned and exportable. Accountability is the product.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 03 COLOR -->
+<div id="s03" class="sec">
+  <p class="lbl">03 · Material palette</p>
+  <p class="body" style="margin-bottom:28px">Not a digital palette — a material one. Named for things you can touch. Warm tobacco, worn leather, aged paper, oxblood hardware, amber candlelight, verdigris patina. The palette reads like a room you trust.</p>
+  <div class="six" style="margin-bottom:24px">
+    <div><div class="grain" style="height:80px;background:var(--tobacco);margin-bottom:8px"></div><div style="font-size:12px;font-weight:500">Tobacco</div><div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">#1A1410</div><div style="font-size:11px;color:var(--dust)">Primary dark</div></div>
+    <div><div class="grain" style="height:80px;background:var(--espresso);margin-bottom:8px"></div><div style="font-size:12px;font-weight:500">Espresso</div><div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">#2C2218</div><div style="font-size:11px;color:var(--dust)">Dark card</div></div>
+    <div><div style="height:80px;background:var(--linen);border:1px solid var(--div);margin-bottom:8px"></div><div style="font-size:12px;font-weight:500">Linen</div><div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">#EDE0CC</div><div style="font-size:11px;color:var(--dust)">Text on dark</div></div>
+    <div><div style="height:80px;background:var(--oxblood);margin-bottom:8px"></div><div style="font-size:12px;font-weight:500">Oxblood</div><div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">#8B2E22</div><div style="font-size:11px;color:var(--dust)">Stamp · Period</div></div>
+    <div><div style="height:80px;background:var(--amber);margin-bottom:8px"></div><div style="font-size:12px;font-weight:500">Amber</div><div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">#C4832A</div><div style="font-size:11px;color:var(--dust)">Signal data</div></div>
+    <div><div style="height:80px;background:var(--verdigris);margin-bottom:8px"></div><div style="font-size:12px;font-weight:500">Verdigris</div><div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">#4A7C6F</div><div style="font-size:11px;color:var(--dust)">Confirmed</div></div>
+  </div>
+  <div class="three">
+    <div style="padding:14px;border:1px solid var(--div)"><div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Oxblood rule</div><p style="font-size:12px;font-weight:300;color:var(--leather);line-height:1.65">Stamp mark, wordmark period, pushback border, Send button. Never decoratively. It marks accountability, not attention.</p></div>
+    <div style="padding:14px;border:1px solid var(--div)"><div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Amber rule</div><p style="font-size:12px;font-weight:300;color:var(--leather);line-height:1.65">High-value data signals only — the highest acquisition scores, deal values worth flagging. Candlelight, not decoration.</p></div>
+    <div style="padding:14px;border:1px solid var(--div)"><div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Verdigris rule</div><p style="font-size:12px;font-weight:300;color:var(--leather);line-height:1.65">Confirmed and saved states only. Aged brass gone green. It reads as permanence and age, not celebration.</p></div>
+  </div>
+</div>
+
+<!-- 04 TYPOGRAPHY -->
+<div id="s04" class="sec">
+  <p class="lbl">04 · Typography</p>
+  <p class="body" style="margin-bottom:28px">Three typefaces. Three registers. Each with a function, a surface, and a context. Never mixed arbitrarily.</p>
+
+  <div class="grain spec" style="margin-bottom:12px">
+    <p class="lbl" style="margin-bottom:16px">Display · Playfair Display 700 · Marketing only</p>
+    <div style="font-family:var(--serif);font-size:52px;font-weight:700;line-height:1.0;letter-spacing:-0.01em;color:var(--tobacco)">The deal partner<br>who pushes back.</div>
+  </div>
+  <div class="grain spec" style="margin-bottom:12px">
+    <p class="lbl" style="margin-bottom:16px">Frank's voice · Playfair 400 italic · Pull-quotes · Marketing</p>
+    <div style="font-family:var(--serif);font-size:20px;font-weight:400;font-style:italic;line-height:1.6;color:var(--tobacco);max-width:520px">"Seller's been sitting on this since 2019. That's not patience, that's a problem. What's your basis?"</div>
+  </div>
+  <div class="grain spec" style="margin-bottom:12px">
+    <p class="lbl" style="margin-bottom:16px">UI Body · Barlow 300 · All product copy</p>
+    <div style="font-size:15px;font-weight:300;line-height:1.8;color:var(--leather);max-width:520px">Frank analyzes Manhattan deal opportunities using ACRIS, DOB, HPD, and zoning data. Ask it anything about a specific address. It will tell you what it knows — and what it doesn't.</div>
+  </div>
+  <div class="spec dark">
+    <p class="lbl" style="margin-bottom:16px;color:rgba(156,136,120,0.7)">Data · IBM Plex Mono 300 · All numeric values</p>
+    <div style="display:flex;gap:40px;align-items:baseline;flex-wrap:wrap">
+      <div><span style="font-family:var(--mono);font-size:32px;font-weight:300;color:var(--amber-lt)">$47.2M</span><span style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-left:10px;letter-spacing:0.1em">ASK</span></div>
+      <div><span style="font-family:var(--mono);font-size:18px;color:var(--linen)">FAR 6.02</span><span style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-left:10px">UNUSED</span></div>
+      <div><span style="font-family:var(--mono);font-size:14px;color:var(--dust)">ACRIS · 14 MAR 2019</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 VOICE -->
+<div id="s05" class="sec">
+  <p class="lbl">05 · Frank's voice</p>
+  <p class="body" style="margin-bottom:28px">The Real Deal editorial voice, elevated to premium. Smart and direct. Not clever, not warm, not cautious. Frank reads the data, forms a view, states it. It asks questions a junior analyst wouldn't dare ask.</p>
+  <div class="vp"><div class="vbad"><div class="vlbl">Generic AI</div>"That's a great question! Based on the available data, there are several factors to consider when evaluating this property..."</div><div class="vgood"><div class="vlbl">Frank</div>"R8A allows 8.0 FAR. They're running 2.1. The gap is real. The problem is your comp set doesn't support the upside you're modeling. Walk me through your exit."</div></div>
+  <div class="vp"><div class="vbad"><div class="vlbl">Generic AI</div>"I'd be happy to help you find properties that match your investment criteria! Here are some options that may interest you..."</div><div class="vgood"><div class="vlbl">Frank</div>"Seller's been on since 2019. Six years, no deal. Either the basis is wrong or there's something in due diligence. Which is it?"</div></div>
+  <div class="vp"><div class="vbad"><div class="vlbl">Generic AI</div>"The zoning analysis suggests there may be potential development opportunities worth exploring further..."</div><div class="vgood"><div class="vlbl">Frank</div>"DOB pulled the permit twice. That's not a contractor problem. Find out what's in the walls before you go to contract."</div></div>
+  <div class="three" style="margin-top:20px">
+    <div style="padding:14px;border:1px solid var(--div)"><p class="lbl" style="margin-bottom:10px">Frank says</p><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:var(--mono);font-size:11px;color:var(--tobacco)">Walk me through your exit.</span><span style="font-family:var(--mono);font-size:11px;color:var(--tobacco)">What's your basis?</span><span style="font-family:var(--mono);font-size:11px;color:var(--tobacco)">I'd stop you there.</span><span style="font-family:var(--mono);font-size:11px;color:var(--tobacco)">That's not what the data shows.</span><span style="font-family:var(--mono);font-size:11px;color:var(--tobacco)">Six years, no deal.</span></div></div>
+    <div style="padding:14px;border:1px solid var(--div)"><p class="lbl" style="margin-bottom:10px">Frank never says</p><div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:var(--mono);font-size:11px;color:var(--dust);text-decoration:line-through">Great question!</span><span style="font-family:var(--mono);font-size:11px;color:var(--dust);text-decoration:line-through">It's worth considering</span><span style="font-family:var(--mono);font-size:11px;color:var(--dust);text-decoration:line-through">I'd be happy to help</span><span style="font-family:var(--mono);font-size:11px;color:var(--dust);text-decoration:line-through">Several factors suggest</span><span style="font-family:var(--mono);font-size:11px;color:var(--dust);text-decoration:line-through">Exciting opportunity</span></div></div>
+    <div style="padding:14px;border:1px solid var(--div)"><p class="lbl" style="margin-bottom:10px">Tone</p><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:300;color:var(--leather)">Unhedged — takes a view</span><span style="font-size:13px;font-weight:300;color:var(--leather)">Interrogative — asks back</span><span style="font-size:13px;font-weight:300;color:var(--leather)">Terse — one point per turn</span><span style="font-size:13px;font-weight:300;color:var(--leather)">Expert — earns authority</span><span style="font-size:13px;font-weight:300;color:var(--leather)">Unsentimental — no filler</span></div></div>
+  </div>
+</div>
+
+<!-- 06 SURFACES -->
+<div id="s06" class="sec">
+  <p class="lbl">06 · The two surfaces</p>
+  <p class="body" style="margin-bottom:24px">The brand has exactly two modes. The grain marks the threshold between brochure and tool. Never grain on the product. Never Playfair in the product.</p>
+  <div class="two">
+    <div>
+      <p class="lbl" style="margin-bottom:10px">Marketing surface</p>
+      <div class="grain" style="padding:32px;background:var(--paper-lt);border:1px solid var(--div);height:200px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dust)">Grain · Paper Lt · Playfair · Warm</div>
+        <div style="font-family:var(--serif);font-size:40px;font-weight:700;color:var(--tobacco);letter-spacing:-0.01em;line-height:1">Frank<span style="color:var(--oxblood)">.</span></div>
+      </div>
+      <p style="font-size:12px;font-weight:300;color:var(--dust);line-height:1.6;margin-top:10px">frank.ai marketing site, email digest, invite letters, printed collateral. Grain texture. Playfair for headlines and pull-quotes.</p>
+    </div>
+    <div>
+      <p class="lbl" style="margin-bottom:10px">Product UI surface</p>
+      <div style="padding:32px;background:var(--tobacco);height:200px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dust)">No grain · Tobacco · Barlow · Mono for data</div>
+        <div style="font-family:var(--mono);font-size:36px;font-weight:300;color:var(--amber-lt);line-height:1">$47.2M</div>
+      </div>
+      <p style="font-size:12px;font-weight:300;color:var(--dust);line-height:1.6;margin-top:10px">Authenticated app. No grain, no Playfair, pure data. This is the working document, not the brochure.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 07 CHAT UI -->
+<div id="s07" class="sec">
+  <p class="lbl">07 · Chat interface</p>
+  <p class="body" style="margin-bottom:20px">The interface reads like a deal memo terminal. Frank's responses are structured — data inline, judgment stated, question at the end. The oxblood border appears only when Frank pushes back.</p>
+  <div style="background:var(--tobacco)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--div-dark)">
+      <span style="font-family:var(--serif);font-size:18px;font-weight:700;color:var(--linen);letter-spacing:-0.01em">Frank<span style="color:var(--oxblood-lt)">.</span></span>
+      <div style="display:flex;align-items:center;gap:16px">
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust)">manhattan</span>
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--oxblood-lt)"></div>
+      </div>
+    </div>
+    <div style="padding:24px 20px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:flex-end"><div style="max-width:72%;padding:12px 16px;background:rgba(255,255,255,0.06);border:1px solid var(--div-dark);font-size:14px;font-weight:300;color:var(--linen);line-height:1.7">What do you think about 215 W 98th? Owner's been there since 2003, it's R8A, asking $47M.</div></div>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-family:var(--serif);font-size:13px;font-weight:700;color:var(--linen);flex-shrink:0">Frank<span style="color:var(--oxblood-lt)">.</span></span>
+          <div style="height:1px;flex:1;background:var(--div-dark)"></div>
+        </div>
+        <div style="padding:16px 20px;background:rgba(255,255,255,0.025);border:1px solid var(--div-dark);border-left:2px solid rgba(255,255,255,0.1)">
+          <p style="font-size:14px;font-weight:300;color:var(--linen);line-height:1.75;margin-bottom:14px">Twenty-two years at the same basis. Current FAR is 2.1 against an R8A allowance of 8.0 — that's 5.9 floors of unused capacity on a midblock UWS lot. HPD shows two open violations, both cosmetic. DOB is clean.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+            <div style="padding:10px 12px;background:rgba(255,255,255,0.035);border:1px solid var(--div-dark)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">Ask</div><div style="font-family:var(--mono);font-size:18px;font-weight:300;color:var(--linen)">$47M</div></div>
+            <div style="padding:10px 12px;background:rgba(255,255,255,0.035);border:1px solid var(--div-dark)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">FAR unused</div><div style="font-family:var(--mono);font-size:18px;font-weight:300;color:var(--amber-lt)">5.9</div></div>
+            <div style="padding:10px 12px;background:rgba(255,255,255,0.035);border:1px solid var(--div-dark)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">Held</div><div style="font-family:var(--mono);font-size:18px;font-weight:300;color:var(--linen)">22 yrs</div></div>
+          </div>
+          <p style="font-size:14px;font-weight:400;color:var(--linen);line-height:1.65">What's your exit — condo or rental?</p>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end"><div style="max-width:72%;padding:12px 16px;background:rgba(255,255,255,0.06);border:1px solid var(--div-dark);font-size:14px;font-weight:300;color:var(--linen);line-height:1.7">Condo. I'm thinking $2,200/SF on the sellout.</div></div>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-family:var(--serif);font-size:13px;font-weight:700;color:var(--linen);flex-shrink:0">Frank<span style="color:var(--oxblood-lt)">.</span></span>
+          <div style="height:1px;flex:1;background:var(--div-dark)"></div>
+        </div>
+        <div style="padding:16px 20px;background:var(--oxblood-dim);border:1px solid rgba(139,46,34,0.2);border-left:2px solid var(--oxblood)">
+          <p style="font-size:14px;font-weight:400;color:var(--linen);line-height:1.75;margin-bottom:10px">I'd stop you there. The last three condo sellouts above 96th Street came in at $1,840, $1,910, and $1,780. The $2,200 assumption needs a reason — right now it's just optimism.</p>
+          <p style="font-size:14px;font-weight:300;color:var(--press);line-height:1.65">At $1,900/SF your margin compresses to 14%. Have you modeled the downside?</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:stretch;gap:0;margin-top:4px">
+        <div style="flex:1;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--div-dark);border-right:none;font-size:14px;font-weight:300;color:var(--walnut);font-style:italic">Ask Frank anything about this deal...</div>
+        <div style="padding:12px 20px;background:var(--oxblood);font-family:var(--mono);font-size:10px;letter-spacing:0.20em;text-transform:uppercase;color:var(--linen);cursor:pointer">Send</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 08 DEAL MEMO -->
+<div id="s08" class="sec">
+  <p class="lbl">08 · Deal memo — stamped analysis</p>
+  <p class="body" style="margin-bottom:20px">When Frank completes an analysis, the output is stamped. The stamp appears at the bottom — the final act of the document, like an architect signing off a drawing.</p>
+  <div style="background:var(--paper-lt);border:1px solid var(--press);position:relative;max-width:640px">
+    <div style="position:absolute;top:16px;right:16px;opacity:0.07;pointer-events:none">
+      <svg width="80" height="80" viewBox="0 0 230 230" fill="none">
+        <circle cx="115" cy="115" r="109" stroke="#8B2E22" stroke-width="6" fill="none"/>
+        <circle cx="115" cy="115" r="94"  stroke="#8B2E22" stroke-width="2" fill="none"/>
+        <circle cx="115" cy="115" r="68"  stroke="#8B2E22" stroke-width="2" fill="none"/>
+        <defs><path id="wm" d="M 19,115 A 96,96 0 0,1 211,115"/><path id="wmb" d="M 36,140 A 86,86 0 0,0 194,140"/></defs>
+        <text font-family="'Playfair Display',Georgia,serif" font-size="32" font-weight="700" fill="#8B2E22" letter-spacing="16"><textPath href="#wm" startOffset="50%" text-anchor="middle">FRANK</textPath></text>
+        <text font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B2E22" letter-spacing="2"><textPath href="#wmb" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTEL</textPath></text>
+        <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" stroke-width="1"/>
+        <text x="115" y="111" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#8B2E22" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+        <text x="115" y="126" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#8B2E22" text-anchor="middle">NEW YORK</text>
+      </svg>
+    </div>
+    <div style="padding:20px 24px;border-bottom:1px solid var(--press)">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dust);margin-bottom:8px">Deal analysis memo</div>
+      <div style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--tobacco);letter-spacing:-0.01em">215 W 98th Street<span style="color:var(--oxblood)">.</span></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--dust);margin-top:4px">Upper West Side · R8A · ACRIS verified 14 MAR 2025</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--press)">
+      <div style="padding:12px 14px;border-right:1px solid var(--press)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">Ask</div><div style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--tobacco)">$47.2M</div></div>
+      <div style="padding:12px 14px;border-right:1px solid var(--press)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">FAR unused</div><div style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--tobacco)">5.9</div></div>
+      <div style="padding:12px 14px;border-right:1px solid var(--press)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">$/bldble SF</div><div style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--tobacco)">$485</div></div>
+      <div style="padding:12px 14px"><div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px">Held</div><div style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--tobacco)">22 yrs</div></div>
+    </div>
+    <div style="padding:20px 24px;border-bottom:1px solid var(--press)">
+      <p style="font-family:var(--serif);font-size:14px;font-style:italic;color:var(--leather);line-height:1.75;margin-bottom:14px">"The zoning gap is real — 5.9 floors of unused FAR on a midblock UWS lot held since 2003 is a genuine opportunity. The basis at $485/buildable SF is aggressive but not untenable for a condo exit."</p>
+      <p style="font-size:13px;font-weight:300;color:var(--leather);line-height:1.75;border-left:2px solid var(--oxblood);padding-left:12px">The $2,200/SF condo assumption needs justification. Last three comparable sellouts north of 96th averaged $1,843. At $1,900/SF your margin compresses to 14%. Model the downside before going to LOI.</p>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(139,46,34,0.04);border-top:1px solid rgba(139,46,34,0.15);flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg width="32" height="32" viewBox="0 0 230 230" fill="none">
+          <circle cx="115" cy="115" r="109" stroke="#8B2E22" stroke-width="6" fill="none"/>
+          <circle cx="115" cy="115" r="96" stroke="#8B2E22" stroke-width="1.5" fill="none"/>
+          <circle cx="115" cy="115" r="70" stroke="#8B2E22" stroke-width="1.5" fill="none"/>
+          <defs><path id="sr1" d="M 19,115 A 96,96 0 0,1 211,115"/><path id="sr2" d="M 36,140 A 86,86 0 0,0 194,140"/></defs>
+          <text font-family="'Playfair Display',Georgia,serif" font-size="30" font-weight="700" fill="#8B2E22" letter-spacing="18"><textPath href="#sr1" startOffset="50%" text-anchor="middle">FRANK</textPath></text>
+          <text font-family="'IBM Plex Mono',monospace" font-size="9.5" fill="#8B2E22" letter-spacing="3"><textPath href="#sr2" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTELLIGENCE</textPath></text>
+          <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" stroke-width="0.75"/>
+          <text x="115" y="111" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#8B2E22" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+          <text x="115" y="126" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8B2E22" text-anchor="middle" letter-spacing="1.5">NEW YORK</text>
+        </svg>
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--oxblood)">Stamped by Frank.</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--dust);margin-top:2px">17 MAR 2025 · 09:42 EST</div>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--walnut)">frank.ai · 215-w-98th · v1</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 MARKETING -->
+<div id="s09" class="sec">
+  <p class="lbl">09 · Marketing site</p>
+  <div class="grain" style="background:var(--paper-lt);border:1px solid var(--div);padding:56px 48px 40px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:64px">
+      <span style="font-family:var(--serif);font-size:18px;font-weight:700;color:var(--tobacco);letter-spacing:-0.01em">Frank<span style="color:var(--oxblood)">.</span></span>
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dust)">Invite only</span>
+    </div>
+    <div style="font-family:var(--serif);font-size:60px;font-weight:700;letter-spacing:-0.02em;line-height:0.92;color:var(--tobacco);margin-bottom:40px">The partner<br>who pushes<br>back<span style="color:var(--oxblood)">.</span></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:48px">
+      <div style="width:36px;height:2px;background:var(--oxblood);flex-shrink:0"></div>
+      <p style="font-size:15px;font-weight:300;color:var(--leather);max-width:400px;line-height:1.7">AI deal intelligence for Manhattan developers. Powered by ACRIS, DOB, and HPD. Ask Frank anything about any address.</p>
+    </div>
+    <div style="border:1px solid var(--tobacco);display:inline-flex;align-items:stretch">
+      <div style="padding:11px 16px;border-right:1px solid var(--tobacco);display:flex;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:0.20em;text-transform:uppercase;color:var(--dust)">Access request</div>
+      <div style="padding:11px 24px;background:var(--tobacco);display:flex;align-items:center;font-family:var(--sans);font-size:13px;font-weight:400;color:var(--linen);cursor:pointer">Apply</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:48px;padding-top:16px;border-top:1px solid var(--div);flex-wrap:wrap;gap:10px">
+      <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust)">FRANK.AI</span>
+      <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust)">NEW YORK · EST. 2025</span>
+      <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust)">DATA: ACRIS · DOB · HPD</span>
+    </div>
+  </div>
+</div>
+
+<!-- 10 DON'TS -->
+<div id="s10" class="sec">
+  <p class="lbl">10 · Do not</p>
+  <table class="dd">
+    <thead><tr><th>Wrong</th><th>Right</th></tr></thead>
+    <tbody>
+      <tr><td>border-radius on any element</td><td>0 always. No exceptions outside .f-status-dot</td></tr>
+      <tr><td>box-shadow anywhere</td><td>Borders and surface contrast only</td></tr>
+      <tr><td>Blue, purple, green, teal</td><td>Tobacco, oxblood, amber, verdigris only</td></tr>
+      <tr><td>font-family: Inter, system-ui</td><td>Barlow or IBM Plex Mono always</td></tr>
+      <tr><td>Animation on data values</td><td>Static values — data is a document, not a show</td></tr>
+      <tr><td>Emoji in any UI element</td><td>Never</td></tr>
+      <tr><td>Grain on product UI</td><td>Grain is marketing only</td></tr>
+      <tr><td>Playfair in product UI</td><td>Marketing and pull-quotes only</td></tr>
+      <tr><td>Oxblood used decoratively</td><td>Stamp + pushback border + period only</td></tr>
+      <tr><td>Amber used decoratively</td><td>High-value data signals only</td></tr>
+      <tr><td>Stamp in marketing or nav</td><td>Product UI, completed analyses only</td></tr>
+      <tr><td>"Great question!" / "I'd be happy to help"</td><td>Terse, direct, interrogative copy always</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 11 SIGNOFF -->
+<div id="s11" class="sec" style="border-bottom:none">
+  <p class="lbl">11 · Component signoff checklist</p>
+  <div style="max-width:560px;margin-bottom:40px">
+    <div class="check"><div class="checkbox"></div><div>Font is Barlow or IBM Plex Mono (Playfair = marketing only)</div></div>
+    <div class="check"><div class="checkbox"></div><div>Background is Tobacco (#1A1410) for product, Paper Lt (#FAF3E8) for marketing</div></div>
+    <div class="check"><div class="checkbox"></div><div>No border-radius anywhere (exception: .f-status-dot only)</div></div>
+    <div class="check"><div class="checkbox"></div><div>No box-shadow anywhere</div></div>
+    <div class="check"><div class="checkbox"></div><div>Oxblood only on: stamp, wordmark period, pushback border, Send button</div></div>
+    <div class="check"><div class="checkbox"></div><div>All numeric values are IBM Plex Mono weight 300</div></div>
+    <div class="check"><div class="checkbox"></div><div>Labels: uppercase, 10px, tracking 0.20em, IBM Plex Mono</div></div>
+    <div class="check"><div class="checkbox"></div><div>Grain absent from product UI</div></div>
+    <div class="check"><div class="checkbox"></div><div>Playfair absent from product UI</div></div>
+    <div class="check"><div class="checkbox"></div><div>Stamp appears only on completed analyses — nowhere else</div></div>
+    <div class="check"><div class="checkbox"></div><div>Frank's voice is terse, direct, interrogative — no filler or hedging</div></div>
+    <div class="check"><div class="checkbox"></div><div>Wordmark period is always oxblood</div></div>
+    <div class="check"><div class="checkbox"></div><div>Stamp SVG copied from frank-assets.svg — never redrawn</div></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="grain" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid var(--div)">
+    <div style="padding:10px 14px;border-right:1px solid var(--div)"><div class="lbl" style="margin-bottom:4px">Document</div><div style="font-size:12px;font-weight:300;color:var(--leather)">Brand Guidelines</div></div>
+    <div style="padding:10px 14px;border-right:1px solid var(--div)"><div class="lbl" style="margin-bottom:4px">Version</div><div style="font-size:12px;font-weight:300;color:var(--leather)">1.0 · 2025</div></div>
+    <div style="padding:10px 14px;border-right:1px solid var(--div)"><div class="lbl" style="margin-bottom:4px">Company</div><div style="font-size:12px;font-weight:300;color:var(--leather)">Frank. · frank.ai</div></div>
+    <div style="padding:10px 14px;display:flex;align-items:center;justify-content:flex-end">
+      <span style="font-family:var(--serif);font-size:16px;font-weight:700;color:var(--tobacco)">Frank<span style="color:var(--oxblood)">.</span></span>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

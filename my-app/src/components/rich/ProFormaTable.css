@@ -1,25 +1,28 @@
 /* ============================================================
-   PARCEL — Pro Forma Table (rich chat component)
+   FRANK — Pro Forma Table (rich chat component)
    ============================================================ */
 
 .proforma-table {
   margin: 12px 0;
-  border: 1px solid #2A2724;
-  background-color: #201E1B;
+  border: 1px solid rgba(255,255,255,0.07);
+  background-color: rgba(255,255,255,0.025);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .proforma-header {
   padding: 10px 16px;
-  border-bottom: 1px solid #2A2724;
+  background-color: #2C2218;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
 .proforma-title {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
-  font-weight: 300;
-  letter-spacing: 0.20em;
+  font-weight: 400;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8A8278;
+  color: #9C8878;
 }
 
 .proforma-grid {
@@ -34,22 +37,22 @@
 }
 
 .proforma-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'IBM Plex Mono', monospace;
   font-weight: 300;
-  font-size: 13px;
-  color: #8A8278;
+  font-size: 12px;
+  color: #9C8878;
 }
 
 .proforma-value {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
-  font-weight: 400;
-  color: #D4CFC7;
+  font-weight: 300;
+  color: #EDE0CC;
 }
 
 .proforma-divider {
   height: 1px;
-  background-color: #2A2724;
+  background-color: rgba(255,255,255,0.07);
   margin: 4px 0;
 }
 
@@ -58,7 +61,7 @@
 }
 
 .proforma-value-highlight {
-  color: #C4A06A;
+  color: #D9962E;
   font-size: 14px;
   font-weight: 500;
 }

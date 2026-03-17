@@ -7,16 +7,16 @@ import './ChatView.css'
 
 const SUGGESTED_PROMPTS = [
   {
-    label: 'Find opportunities',
-    text: 'Find the highest-scoring vacant lots in Harlem with at least 30,000 buildable SF',
+    label: 'Source a deal',
+    text: 'Find me vacant lots in Harlem with 30,000+ buildable SF and no rent stabilization risk',
   },
   {
-    label: 'Underwrite a deal',
-    text: 'Run a condo pro forma for a 45,000 SF site in Tribeca at $3,200/SF sellout',
+    label: 'Run the numbers',
+    text: 'Run a condo pro forma on a 45,000 SF site in Tribeca at $3,200 sellout',
   },
   {
     label: 'Due diligence',
-    text: 'What are the biggest rent-stabilized buildings in the East Village with open violations?',
+    text: 'What\'s the rent stabilization exposure on the big walk-ups in the East Village?',
   },
 ]
 
@@ -135,14 +135,7 @@ export default function ChatView() {
       {/* Minimal header */}
       <header className="chat-header">
         <div className="chat-header-brand">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <rect x="0.5" y="0.5" width="23" height="23" stroke="#8A8278" strokeWidth="1.25" fill="none"/>
-            <rect x="3" y="3" width="18" height="18" stroke="#8A8278" strokeWidth="0.4" fill="none"/>
-            <line x1="3" y1="16" x2="21" y2="16" stroke="#8A8278" strokeWidth="0.4"/>
-            <circle cx="12" cy="10" r="1.75" fill="none" stroke="#C4A06A" strokeWidth="1"/>
-            <circle cx="12" cy="10" r="0.7" fill="#C4A06A"/>
-          </svg>
-          <span className="chat-wordmark">PARCEL</span>
+          <span className="chat-wordmark">Frank<span className="chat-period">.</span></span>
         </div>
         <div className="chat-header-meta">
           {messages.length > 0 && (
@@ -150,7 +143,7 @@ export default function ChatView() {
               CLEAR
             </button>
           )}
-          <span className="chat-header-label">AI ACQUISITION ANALYST</span>
+          <span className="chat-header-label">MANHATTAN · DEAL SOURCING</span>
         </div>
       </header>
 
@@ -160,11 +153,11 @@ export default function ChatView() {
           <div className="chat-welcome-inner">
             <div className="chat-welcome-rule" />
             <h1 className="chat-welcome-title">
-              ASK PARCEL
+              WHAT'S THE DEAL.
             </h1>
             <p className="chat-welcome-subtitle">
-              Acquisition intelligence for every lot in Manhattan.
-              Ask about properties, run pro formas, or surface hidden opportunities.
+              Frank searches and analyzes every tax lot in Manhattan.
+              Ask about a deal, run a pro forma, or tell me what you're looking for.
             </p>
 
             <div className="chat-suggestions">
@@ -194,7 +187,7 @@ export default function ChatView() {
       <ChatInput
         onSend={handleSend}
         disabled={isLoading}
-        placeholder={showWelcome ? 'Ask Parcel anything about Manhattan real estate...' : 'Follow up...'}
+        placeholder={showWelcome ? 'Ask Frank anything about this deal...' : 'Follow up...'}
       />
     </div>
   )

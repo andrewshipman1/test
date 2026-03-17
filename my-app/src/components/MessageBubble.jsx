@@ -152,25 +152,31 @@ export default function MessageBubble({ message }) {
 
   return (
     <div className={`msg msg-assistant ${isError ? 'msg-error' : ''}`}>
-      {segments.map((seg, i) => {
-        switch (seg.type) {
-          case 'text':
-            return (
-              <div key={i} className="msg-text">
-                {formatText(seg.content)}
-              </div>
-            )
-          case 'map':
-            return <InlineMap key={i} bbls={seg.bbls} />
-          case 'property':
-            return <PropertyCard key={i} bbl={seg.bbl} />
-          case 'proforma':
-            return <ProFormaTable key={i} data={seg} />
-          default:
-            return null
-        }
-      })}
-      {isStreaming && <span className="msg-cursor" />}
+      <div className="msg-frank-header">
+        <span className="msg-frank-wordmark">Frank<span className="msg-frank-period">.</span></span>
+        <span className="msg-frank-rule" />
+      </div>
+      <div className="msg-frank-body">
+        {segments.map((seg, i) => {
+          switch (seg.type) {
+            case 'text':
+              return (
+                <div key={i} className="msg-text">
+                  {formatText(seg.content)}
+                </div>
+              )
+            case 'map':
+              return <InlineMap key={i} bbls={seg.bbls} />
+            case 'property':
+              return <PropertyCard key={i} bbl={seg.bbl} />
+            case 'proforma':
+              return <ProFormaTable key={i} data={seg} />
+            default:
+              return null
+          }
+        })}
+        {isStreaming && <span className="msg-cursor" />}
+      </div>
     </div>
   )
 }

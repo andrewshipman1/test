@@ -1,5 +1,5 @@
 /* ============================================================
-   PARCEL — Message List
+   FRANK — Message List
    ============================================================ */
 
 .message-list {
@@ -24,13 +24,13 @@
   font-size: 11px;
   font-weight: 300;
   letter-spacing: 0.04em;
-  color: #8A8278;
+  color: #9C8878;
 }
 
 .tool-status-dot {
   width: 6px;
   height: 6px;
-  background-color: #C4A06A;
+  background-color: #A83828;
   animation: pulse 1.4s ease-in-out infinite;
 }
 

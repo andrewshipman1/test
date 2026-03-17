@@ -1,5 +1,5 @@
 /* ============================================================
-   PARCEL — Message Bubble
+   FRANK — Message Bubble
    ============================================================ */
 
 /* ── Base ── */
@@ -16,13 +16,13 @@
 .msg-user-content {
   max-width: 80%;
   padding: 10px 16px;
-  background-color: #252220;
-  color: #D4CFC7;
-  font-family: 'Barlow Condensed', sans-serif;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #EDE0CC;
+  font-family: 'Barlow', sans-serif;
   font-weight: 300;
   font-size: 15px;
   line-height: 1.5;
-  border: 1px solid #3A3632;
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 /* ── Assistant message ── */
@@ -30,17 +30,53 @@
   max-width: 100%;
 }
 
+/* ── Frank header: wordmark + rule ── */
+.msg-frank-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.msg-frank-wordmark {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #EDE0CC;
+  white-space: nowrap;
+}
+
+.msg-frank-period {
+  color: #A83828;
+}
+
+.msg-frank-rule {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Frank body card ── */
+.msg-frank-body {
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.025);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 14px 16px;
+}
+
 .msg-error .msg-text {
-  color: #C4A06A;
+  color: #A83828;
 }
 
 /* ── Text formatting ── */
 .msg-text {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 300;
   font-size: 15px;
   line-height: 1.7;
-  color: #D4CFC7;
+  color: #EDE0CC;
 }
 
 .msg-paragraph {
@@ -49,14 +85,14 @@
 
 .msg-heading {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 400;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: #C4A06A;
+  color: #D9962E;
   margin: 16px 0 8px 0;
   padding-bottom: 4px;
-  border-bottom: 1px solid rgba(138, 130, 120, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .msg-list {
@@ -78,7 +114,7 @@
   top: 9px;
   width: 4px;
   height: 4px;
-  background-color: #5C5650;
+  background-color: #6B5240;
 }
 
 .msg-spacer {
@@ -88,14 +124,14 @@
 .msg-code {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
-  background-color: rgba(138, 130, 120, 0.12);
+  background-color: rgba(255, 255, 255, 0.06);
   padding: 1px 5px;
-  color: #C4A06A;
+  color: #D9962E;
 }
 
 .msg-text strong {
   font-weight: 400;
-  color: #EDE5D8;
+  color: #EDE0CC;
 }
 
 /* ── Streaming cursor ── */
@@ -103,7 +139,7 @@
   display: inline-block;
   width: 2px;
   height: 14px;
-  background-color: #C4A06A;
+  background-color: #A83828;
   margin-left: 2px;
   vertical-align: text-bottom;
   animation: blink 0.8s step-end infinite;

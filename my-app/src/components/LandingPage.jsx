@@ -21,22 +21,15 @@ export default function LandingPage({ onAuthenticated }) {
   }
 
   return (
-    <div className="landing-page p-grain">
+    <div className="landing-page f-grain">
 
       {/* Nav */}
       <nav className="landing-nav">
         <div className="landing-nav-brand">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <rect x="0.5" y="0.5" width="23" height="23" stroke="#252220" strokeWidth="1.25" fill="none"/>
-            <rect x="3" y="3" width="18" height="18" stroke="#252220" strokeWidth="0.4" fill="none"/>
-            <line x1="3" y1="16" x2="21" y2="16" stroke="#252220" strokeWidth="0.4"/>
-            <circle cx="12" cy="10" r="1.75" fill="none" stroke="#A8824E" strokeWidth="1"/>
-            <circle cx="12" cy="10" r="0.7" fill="#A8824E"/>
-          </svg>
-          <span className="landing-wordmark">PARCEL</span>
+          <span className="frank-wordmark">Frank<span className="frank-period">.</span></span>
         </div>
         <div className="landing-nav-meta">
-          <span>MANHATTAN</span>
+          <span>AI DEAL PARTNER</span>
         </div>
       </nav>
 
@@ -47,28 +40,29 @@ export default function LandingPage({ onAuthenticated }) {
           <div className="landing-bronze-rule" />
 
           <h1 className="landing-display">
-            THE PARCEL<br />
-            BEFORE THE<br />
-            LISTING
+            YOUR NEXT DEAL<br />
+            ALREADY HAS<br />
+            AN OPINION.
           </h1>
 
           <p className="landing-editorial">
-            Every week. For Manhattan.
+            The deal partner who's already run the numbers before you ask.
           </p>
 
           <div className="landing-body">
             <p>
-              Parcel surfaces acquisition-grade intelligence on every tax lot
-              in Manhattan — scored, enriched, and delivered before the listing
-              hits market. Rent stabilization exposure. Historic district
-              constraints. Retail lease risk. Buildable FAR. All in one view.
+              Frank is an AI deal partner for Manhattan real estate.
+              It searches and analyzes every tax lot in the borough —
+              zoning, FAR, rent stabilization, violations, comps,
+              ownership — and pushes back when the numbers don't work.
+              Invite-only.
             </p>
           </div>
 
           <div className="landing-divider" />
 
           <p className="landing-access-label">
-            Parcel is invite-only. Enter your access code.
+            Frank is invite-only. Enter your access code.
           </p>
 
           <form className="landing-gate" onSubmit={handleSubmit}>
@@ -100,7 +94,7 @@ export default function LandingPage({ onAuthenticated }) {
       <footer className="landing-footer">
         <div className="landing-footer-cell">
           <div className="landing-footer-label">PRODUCT</div>
-          <div className="landing-footer-value">Acquisition Intelligence</div>
+          <div className="landing-footer-value">AI Deal Partner</div>
         </div>
         <div className="landing-footer-cell">
           <div className="landing-footer-label">COVERAGE</div>
@@ -111,12 +105,7 @@ export default function LandingPage({ onAuthenticated }) {
           <div className="landing-footer-value">PLUTO · ACRIS · HPD · DOB · LPC</div>
         </div>
         <div className="landing-footer-cell landing-footer-mark">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <rect x="0.5" y="0.5" width="23" height="23" stroke="#8A8278" strokeWidth="1.25" fill="none"/>
-            <rect x="3" y="3" width="18" height="18" stroke="#8A8278" strokeWidth="0.4" fill="none"/>
-            <circle cx="12" cy="10" r="1.75" fill="none" stroke="#A8824E" strokeWidth="1"/>
-            <circle cx="12" cy="10" r="0.7" fill="#A8824E"/>
-          </svg>
+          <span className="frank-wordmark frank-wordmark-footer">Frank<span className="frank-period">.</span></span>
         </div>
       </footer>
 

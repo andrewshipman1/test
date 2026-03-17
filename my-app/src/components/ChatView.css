@@ -1,6 +1,6 @@
 /* ============================================================
-   PARCEL — Chat View
-   Product surface: dark, monospace, zero border-radius
+   FRANK — Chat View
+   Product surface: dark, zero border-radius, no box-shadows
    ============================================================ */
 
 .chat-view {
@@ -8,8 +8,8 @@
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
-  background-color: #1A1816;
-  color: #D4CFC7;
+  background-color: #1A1410;
+  color: #EDE0CC;
   overflow: hidden;
 }
 
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-bottom: 1px solid rgba(138, 130, 120, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
 }
 
@@ -30,12 +30,15 @@
 }
 
 .chat-wordmark {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 200;
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #8A8278;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+  color: #EDE0CC;
+}
+
+.chat-period {
+  color: #A83828;
 }
 
 .chat-header-meta {
@@ -50,13 +53,13 @@
   font-weight: 300;
   letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: #5C5650;
+  color: #6B5240;
 }
 
 .chat-clear-btn {
   background: none;
-  border: 1px solid #3A3632;
-  color: #8A8278;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #9C8878;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
   font-weight: 300;
@@ -69,8 +72,8 @@
 }
 
 .chat-clear-btn:hover {
-  border-color: #5C5650;
-  color: #D4CFC7;
+  border-color: #6B5240;
+  color: #EDE0CC;
 }
 
 /* ── Welcome state ── */
@@ -91,27 +94,27 @@
 .chat-welcome-rule {
   width: 32px;
   height: 1px;
-  background-color: #C4A06A;
+  background-color: #A83828;
   margin-bottom: 28px;
 }
 
 .chat-welcome-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 200;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 500;
   font-size: 42px;
   line-height: 0.95;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #D4CFC7;
+  color: #EDE0CC;
   margin: 0 0 20px 0;
 }
 
 .chat-welcome-subtitle {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 300;
   font-size: 15px;
   line-height: 1.7;
-  color: #8A8278;
+  color: #9C8878;
   margin: 0 0 40px 0;
 }
 
@@ -128,7 +131,7 @@
   font-weight: 300;
   letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: #5C5650;
+  color: #6B5240;
   margin-bottom: 12px;
 }
 
@@ -136,7 +139,7 @@
   display: flex;
   align-items: stretch;
   background: none;
-  border: 1px solid #2A2724;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-bottom: none;
   cursor: pointer;
   padding: 0;
@@ -146,28 +149,28 @@
 }
 
 .chat-suggestion:last-child {
-  border-bottom: 1px solid #2A2724;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .chat-suggestion:hover {
-  border-color: #5C5650;
+  border-color: #6B5240;
 }
 
 .chat-suggestion:hover + .chat-suggestion {
-  border-top-color: #5C5650;
+  border-top-color: #6B5240;
 }
 
 .chat-suggestion-label {
   display: flex;
   align-items: center;
   padding: 12px 14px;
-  border-right: 1px solid #2A2724;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
   font-weight: 300;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #C4A06A;
+  color: #D9962E;
   white-space: nowrap;
   min-width: 130px;
 }
@@ -176,15 +179,15 @@
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 300;
   font-size: 14px;
   line-height: 1.5;
-  color: #8A8278;
+  color: #9C8878;
 }
 
 .chat-suggestion:hover .chat-suggestion-text {
-  color: #D4CFC7;
+  color: #EDE0CC;
 }
 
 /* ── Responsive ── */
@@ -213,7 +216,7 @@
 
   .chat-suggestion-label {
     border-right: none;
-    border-bottom: 1px solid #2A2724;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     padding: 8px 14px;
     min-width: 0;
   }
