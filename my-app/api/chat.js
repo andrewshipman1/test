@@ -3,11 +3,10 @@
 // Retries on 429 (rate limit) with exponential backoff.
 
 const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages'
-const MAX_RETRIES = 2
-const BASE_DELAY_MS = 2000
+const MAX_RETRIES = 3
+const BASE_DELAY_MS = 3000
 
 export default async function handler(req, res) {
-  // Only allow POST
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
@@ -25,7 +24,6 @@ export default async function handler(req, res) {
     return
   }
 
-  // Attempt with retries on 429
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const response = await fetch(ANTHROPIC_API, {
@@ -45,14 +43,14 @@ export default async function handler(req, res) {
         continue
       }
 
-      // Non-streaming response (error case)
-      if (!response.ok && !body.stream) {
+      // Error response — return it as-is so client can handle it
+      if (!response.ok) {
         const errText = await response.text()
         res.status(response.status).end(errText)
         return
       }
 
-      // Stream the response back
+      // Stream the successful response back
       if (body.stream) {
         res.setHeader('Content-Type', 'text/event-stream')
         res.setHeader('Cache-Control', 'no-cache')
@@ -66,7 +64,7 @@ export default async function handler(req, res) {
             res.write(value)
           }
         } catch (streamErr) {
-          // Client disconnected or stream error — just close
+          // Client disconnected or stream error
         }
         res.end()
         return
@@ -74,7 +72,7 @@ export default async function handler(req, res) {
 
       // Non-streaming success
       const data = await response.json()
-      res.status(response.status).json(data)
+      res.status(200).json(data)
       return
 
     } catch (err) {
@@ -82,10 +80,13 @@ export default async function handler(req, res) {
         res.status(502).json({ error: 'Failed to reach Claude API', detail: err.message })
         return
       }
+      // Retry on network errors too
+      const delay = BASE_DELAY_MS * Math.pow(2, attempt)
+      await new Promise(r => setTimeout(r, delay))
     }
   }
 }
 
 export const config = {
-  maxDuration: 60,
+  maxDuration: 120,
 }

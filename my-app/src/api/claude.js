@@ -199,6 +199,13 @@ export function sendMessage(messages, callbacks) {
                 toolUseBlocks = []
                 contentBlocks = []
 
+                // Delay between tool rounds to avoid rate limits
+                if (round > 0) {
+                  onToolStart?.('Processing...')
+                  await new Promise(r => setTimeout(r, 2000))
+                  onToolEnd?.()
+                }
+
                 return run(nextMsgs, round + 1)
               }
               break
