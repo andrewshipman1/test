@@ -6,7 +6,9 @@ import { SYSTEM_PROMPT } from './systemPrompt.js'
 import { executeTool, TOOL_LABELS } from './toolHandlers.js'
 import { logConversation } from './conversationLog.js'
 
-const API_URL = 'https://api.anthropic.com/v1/messages'
+// In production, requests go through our Vercel serverless proxy (/api/chat)
+// which keeps the API key server-side. In dev, Vite proxies /api to the same.
+const API_URL = '/api/chat'
 const MODEL = 'claude-sonnet-4-20250514'
 const MAX_TOOL_ROUNDS = 6
 
@@ -27,12 +29,6 @@ export function sendMessage(messages, callbacks) {
   let aborted = false
   const controller = new AbortController()
 
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) {
-    onError?.(new Error('Missing VITE_ANTHROPIC_API_KEY in .env'))
-    return () => {}
-  }
-
   async function run(msgs, round = 0) {
     if (aborted || round >= MAX_TOOL_ROUNDS) {
       onDone?.('')
@@ -45,9 +41,6 @@ export function sendMessage(messages, callbacks) {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
           model: MODEL,
