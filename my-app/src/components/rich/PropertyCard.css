@@ -1,0 +1,159 @@
+/* ============================================================
+   PARCEL — Property Card (rich chat component)
+   ============================================================ */
+
+.prop-card {
+  margin: 12px 0;
+  border: 1px solid #2A2724;
+  background-color: #201E1B;
+  padding: 14px 16px;
+}
+
+.prop-card-loading {
+  padding: 20px;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #5C5650;
+}
+
+/* ── Header ── */
+.prop-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.prop-card-address {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #EDE5D8;
+}
+
+.prop-card-score {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 400;
+  min-width: 28px;
+  text-align: center;
+  padding: 2px 6px;
+  border: 1px solid;
+}
+
+.prop-card-score.score-signal {
+  color: #C4A06A;
+  border-color: #C4A06A;
+}
+
+.prop-card-score.score-high {
+  color: #A8824E;
+  border-color: #A8824E;
+}
+
+.prop-card-score.score-medium {
+  color: #8A8278;
+  border-color: #8A8278;
+}
+
+.prop-card-score.score-low {
+  color: #5C5650;
+  border-color: #5C5650;
+}
+
+/* ── Meta row ── */
+.prop-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.prop-card-bbl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  color: #5C5650;
+  letter-spacing: 0.04em;
+}
+
+.prop-card-deal {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #8A8278;
+  padding: 2px 6px;
+  border: 1px solid #3A3632;
+}
+
+.prop-card-nbhd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  color: #5C5650;
+}
+
+/* ── Data grid ── */
+.prop-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background-color: #2A2724;
+  border: 1px solid #2A2724;
+  margin-bottom: 10px;
+}
+
+.prop-card-cell {
+  background-color: #1A1816;
+  padding: 8px 10px;
+}
+
+.prop-card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 300;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #5C5650;
+  margin-bottom: 3px;
+}
+
+.prop-card-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: #D4CFC7;
+}
+
+/* ── Risk flags ── */
+.prop-card-flags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prop-card-flag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid;
+}
+
+.flag-warn {
+  color: #C4A06A;
+  border-color: rgba(196, 160, 106, 0.4);
+}
+
+.flag-info {
+  color: #8A8278;
+  border-color: #3A3632;
+}

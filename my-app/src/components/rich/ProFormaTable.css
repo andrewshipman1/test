@@ -1,0 +1,64 @@
+/* ============================================================
+   PARCEL — Pro Forma Table (rich chat component)
+   ============================================================ */
+
+.proforma-table {
+  margin: 12px 0;
+  border: 1px solid #2A2724;
+  background-color: #201E1B;
+}
+
+.proforma-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #2A2724;
+}
+
+.proforma-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #8A8278;
+}
+
+.proforma-grid {
+  padding: 8px 16px 12px;
+}
+
+.proforma-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.proforma-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  color: #8A8278;
+}
+
+.proforma-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: #D4CFC7;
+}
+
+.proforma-divider {
+  height: 1px;
+  background-color: #2A2724;
+  margin: 4px 0;
+}
+
+.proforma-row-result {
+  padding-top: 8px;
+}
+
+.proforma-value-highlight {
+  color: #C4A06A;
+  font-size: 14px;
+  font-weight: 500;
+}

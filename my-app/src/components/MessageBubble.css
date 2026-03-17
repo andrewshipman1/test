@@ -1,0 +1,115 @@
+/* ============================================================
+   PARCEL — Message Bubble
+   ============================================================ */
+
+/* ── Base ── */
+.msg {
+  margin-bottom: 20px;
+}
+
+/* ── User message ── */
+.msg-user {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.msg-user-content {
+  max-width: 80%;
+  padding: 10px 16px;
+  background-color: #252220;
+  color: #D4CFC7;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.5;
+  border: 1px solid #3A3632;
+}
+
+/* ── Assistant message ── */
+.msg-assistant {
+  max-width: 100%;
+}
+
+.msg-error .msg-text {
+  color: #C4A06A;
+}
+
+/* ── Text formatting ── */
+.msg-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #D4CFC7;
+}
+
+.msg-paragraph {
+  margin: 0 0 8px 0;
+}
+
+.msg-heading {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #C4A06A;
+  margin: 16px 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(138, 130, 120, 0.12);
+}
+
+.msg-list {
+  margin: 4px 0 12px 0;
+  padding-left: 16px;
+  list-style: none;
+}
+
+.msg-list li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 6px;
+}
+
+.msg-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 4px;
+  height: 4px;
+  background-color: #5C5650;
+}
+
+.msg-spacer {
+  height: 8px;
+}
+
+.msg-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  background-color: rgba(138, 130, 120, 0.12);
+  padding: 1px 5px;
+  color: #C4A06A;
+}
+
+.msg-text strong {
+  font-weight: 400;
+  color: #EDE5D8;
+}
+
+/* ── Streaming cursor ── */
+.msg-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background-color: #C4A06A;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

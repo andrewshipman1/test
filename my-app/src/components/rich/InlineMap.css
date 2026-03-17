@@ -1,0 +1,45 @@
+/* ============================================================
+   PARCEL — Inline Map (rich chat component)
+   ============================================================ */
+
+.inline-map {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  margin: 12px 0;
+  border: 1px solid #2A2724;
+  overflow: hidden;
+}
+
+.inline-map-loading {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #2A2724;
+  margin: 12px 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 300;
+  color: #5C5650;
+}
+
+.inline-map-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #8A8278;
+  background-color: rgba(26, 24, 22, 0.85);
+  padding: 3px 8px;
+  border: 1px solid #2A2724;
+}
+
+.inline-map .maplibregl-canvas {
+  outline: none;
+}

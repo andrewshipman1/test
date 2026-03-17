@@ -1,0 +1,47 @@
+/* ============================================================
+   PARCEL — Message List
+   ============================================================ */
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 24px;
+}
+
+.message-list-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── Tool status ── */
+.tool-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: #8A8278;
+}
+
+.tool-status-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #C4A06A;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .message-list {
+    padding: 12px 16px;
+  }
+}
