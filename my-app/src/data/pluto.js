@@ -233,8 +233,34 @@ export async function loadAllLots() {
 
 // ── Searchable interface for Claude tools ───────────────────────────────────
 
-export async function searchProperties({ dealType, neighborhood, zoningType, minScore, minBuildableSF, limit = 20 } = {}) {
+export async function searchProperties({ dealType, neighborhood, zoningType, minScore, minBuildableSF, address, limit = 20 } = {}) {
   const allFeatures = await loadAllLots()
+
+  // Address search — fast path, case-insensitive substring match
+  if (address) {
+    const needle = address.toUpperCase().replace(/\./g, '').replace(/\s+/g, ' ').trim()
+    const matches = allFeatures.filter(f => {
+      const addr = (f.properties.address || '').toUpperCase().replace(/\./g, '').replace(/\s+/g, ' ')
+      return addr.includes(needle)
+    })
+    matches.sort((a, b) => b.properties.score - a.properties.score)
+    const results = matches.slice(0, limit)
+    return {
+      count: matches.length,
+      showing: results.length,
+      properties: results.map(f => ({
+        bbl: f.properties.bbl,
+        address: f.properties.address,
+        score: f.properties.score,
+        deal_type: f.properties.deal_type,
+        zone_dist: f.properties.zone_dist,
+        lot_area: f.properties.lot_area,
+        available_far_sqft: f.properties.available_far_sqft,
+        num_floors: f.properties.num_floors,
+        neighborhood: f.properties.neighborhood,
+      })),
+    }
+  }
 
   let filtered = allFeatures.filter(f => {
     const p = f.properties

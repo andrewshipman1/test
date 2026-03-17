@@ -3,10 +3,11 @@
 export const TOOLS = [
   {
     name: 'searchProperties',
-    description: 'Search Manhattan tax lots. Returns properties with scores, addresses, zoning, buildable SF.',
+    description: 'Search Manhattan tax lots. Use "address" param for address lookup (fastest). Returns properties with scores, addresses, zoning, buildable SF.',
     input_schema: {
       type: 'object',
       properties: {
+        address: { type: 'string', description: 'Street address to search (e.g. "383 Lafayette"). Fastest lookup method.' },
         dealType: { type: 'string', enum: ['all', 'vacant', 'parking', 'teardown', 'commercial'], description: 'Deal type filter' },
         neighborhood: { type: 'string', description: 'CD number 1-12 or "all"' },
         zoningType: { type: 'string', enum: ['all', 'residential', 'commercial', 'manufacturing'], description: 'Zoning filter' },

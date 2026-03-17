@@ -28,6 +28,7 @@ export const TOOL_LABELS = {
 const handlers = {
   searchProperties: async (input) => {
     return await searchProperties({
+      address:       input.address,
       dealType:      input.dealType,
       neighborhood:  input.neighborhood,
       zoningType:    input.zoningType,
