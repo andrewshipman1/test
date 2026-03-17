@@ -9,29 +9,32 @@ function parseRichContent(text) {
   if (!text) return [{ type: 'text', content: '' }]
 
   const segments = []
-  // Match [MAP:bbl1,bbl2,...] or [PROPERTY:bbl] or [PROFORMA:sf,psf,residual]
-  const markerRegex = /\[(MAP|PROPERTY|PROFORMA):([^\]]+)\]/g
+  // Match [MAP:...], [PROPERTY:...], [PROFORMA:...], [STAMP], [PUSHBACK]
+  const markerRegex = /\[(MAP|PROPERTY|PROFORMA):([^\]]+)\]|\[(STAMP)\]|\[(PUSHBACK)\]\s*/g
 
   let lastIndex = 0
   let match
+  let isPushback = false
 
   while ((match = markerRegex.exec(text)) !== null) {
     // Text before the marker
     if (match.index > lastIndex) {
       const textBefore = text.slice(lastIndex, match.index).trim()
-      if (textBefore) segments.push({ type: 'text', content: textBefore })
+      if (textBefore) {
+        segments.push({ type: isPushback ? 'pushback-text' : 'text', content: textBefore })
+        isPushback = false
+      }
     }
 
-    const markerType = match[1]
-    const markerData = match[2]
+    const markerType = match[1] || match[3] || match[4]
 
     if (markerType === 'MAP') {
-      const bbls = markerData.split(',').map(b => b.trim()).filter(Boolean)
+      const bbls = match[2].split(',').map(b => b.trim()).filter(Boolean)
       segments.push({ type: 'map', bbls })
     } else if (markerType === 'PROPERTY') {
-      segments.push({ type: 'property', bbl: markerData.trim() })
+      segments.push({ type: 'property', bbl: match[2].trim() })
     } else if (markerType === 'PROFORMA') {
-      const parts = markerData.split(',').map(p => parseFloat(p.trim()))
+      const parts = match[2].split(',').map(p => parseFloat(p.trim()))
       if (parts.length >= 3) {
         segments.push({
           type: 'proforma',
@@ -40,6 +43,11 @@ function parseRichContent(text) {
           landResidual: parts[2],
         })
       }
+    } else if (markerType === 'STAMP') {
+      segments.push({ type: 'stamp' })
+    } else if (markerType === 'PUSHBACK') {
+      // Next text segment becomes pushback-styled
+      isPushback = true
     }
 
     lastIndex = match.index + match[0].length
@@ -48,7 +56,7 @@ function parseRichContent(text) {
   // Remaining text
   if (lastIndex < text.length) {
     const remaining = text.slice(lastIndex).trim()
-    if (remaining) segments.push({ type: 'text', content: remaining })
+    if (remaining) segments.push({ type: isPushback ? 'pushback-text' : 'text', content: remaining })
   }
 
   if (segments.length === 0) {
@@ -165,6 +173,18 @@ export default function MessageBubble({ message }) {
                   {formatText(seg.content)}
                 </div>
               )
+            case 'pushback-text':
+              return (
+                <div key={i} className="msg-pushback">
+                  <div className="msg-pushback-label">PUSHBACK</div>
+                  <div className="msg-text">
+                    {formatText(seg.content)}
+                  </div>
+                </div>
+              )
+            case 'stamp':
+              // Stripped — stamp now renders automatically at end of every response
+              return null
             case 'map':
               return <InlineMap key={i} bbls={seg.bbls} />
             case 'property':
@@ -176,6 +196,34 @@ export default function MessageBubble({ message }) {
           }
         })}
         {isStreaming && <span className="msg-cursor" />}
+        {/* Auto stamp — appears at the end of every completed response */}
+        {!isStreaming && !isError && (
+          <div className="msg-stamp">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="80" height="80">
+              <circle cx="115" cy="115" r="106" stroke="#8B2E22" strokeWidth="4" fill="none" opacity="0.4"/>
+              <circle cx="115" cy="115" r="99"  stroke="#8B2E22" strokeWidth="1" fill="none" opacity="0.25"/>
+              <circle cx="115" cy="115" r="74"  stroke="#8B2E22" strokeWidth="1" fill="none" opacity="0.25"/>
+              <circle cx="115" cy="115" r="68"  stroke="#8B2E22" strokeWidth="0.5" fill="none" opacity="0.2"/>
+              <defs>
+                <path id="arc-top-auto" d="M 18,115 A 97,97 0 0,1 212,115"/>
+                <path id="arc-bot-auto" d="M 36,138 A 87,87 0 0,0 194,138"/>
+              </defs>
+              <text fontFamily="'Playfair Display',Georgia,serif" fontSize="30" fontWeight="700" fill="#8B2E22" letterSpacing="18" opacity="0.45">
+                <textPath href="#arc-top-auto" startOffset="50%" textAnchor="middle">FRANK</textPath>
+              </text>
+              <text fontFamily="'IBM Plex Mono',monospace" fontSize="9.5" fill="#8B2E22" letterSpacing="3" opacity="0.3">
+                <textPath href="#arc-bot-auto" startOffset="50%" textAnchor="middle">DEAL INTELLIGENCE</textPath>
+              </text>
+              <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" strokeWidth="0.75" opacity="0.25"/>
+              <text x="115" y="111" fontFamily="'IBM Plex Mono',monospace" fontSize="11" fill="#8B2E22" textAnchor="middle" letterSpacing="2" opacity="0.35">FRANK.AI</text>
+              <text x="115" y="126" fontFamily="'IBM Plex Mono',monospace" fontSize="9" fill="#8B2E22" textAnchor="middle" letterSpacing="1.5" opacity="0.3">NEW YORK</text>
+              <circle cx="9"   cy="115" r="3.5" fill="#8B2E22" opacity="0.3"/>
+              <circle cx="221" cy="115" r="3.5" fill="#8B2E22" opacity="0.3"/>
+              <circle cx="115" cy="9"   r="3.5" fill="#8B2E22" opacity="0.3"/>
+              <circle cx="115" cy="221" r="3.5" fill="#8B2E22" opacity="0.3"/>
+            </svg>
+          </div>
+        )}
       </div>
     </div>
   )

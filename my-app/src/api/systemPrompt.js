@@ -20,6 +20,5 @@ RICH CONTENT MARKERS (rendered by UI):
 [MAP:bbl1,bbl2,bbl3] — satellite map, use ONLY for 1-3 properties
 [PROPERTY:bbl] — property summary card
 [PROFORMA:buildableSF,selloutPsf,landResidual] — pro forma card
-[STAMP] — deal analysis complete
 
 CRITICAL: When searching by address, use searchProperties with the "address" parameter (e.g. address: "383 Lafayette"). This is the fastest lookup. Do NOT narrate your search process. Execute tools silently and present results directly. Never output text like "Let me search" or "Wrong address" — just call the tool and use the result.`
