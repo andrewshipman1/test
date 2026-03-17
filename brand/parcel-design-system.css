@@ -1,0 +1,977 @@
+/* ============================================================
+   PARCEL — Design System
+   Acquisition Intelligence · Manhattan
+   Version 1.0 · Confidential
+   ============================================================
+   
+   HOW TO USE
+   ----------
+   1. Import this file at the root of your app
+   2. Apply .parcel-theme to <body> or your root element
+   3. Use CSS custom properties (--parcel-*) throughout
+   4. Component classes are prefixed .p-* for isolation
+   
+   SURFACE LOGIC
+   -------------
+   - Marketing surfaces: use --parcel-ivory, add .p-grain class
+   - Product UI surfaces: use --parcel-concrete, no grain
+   - The grain marks the threshold between brochure and tool
+   ============================================================ */
+
+
+/* ──────────────────────────────────────────────────────────── 
+   DESIGN TOKENS
+   ──────────────────────────────────────────────────────────── */
+
+:root,
+.parcel-theme {
+
+  /* ── Color: Base ── */
+  --parcel-concrete:        #252220;   /* Primary dark. All dark surfaces. */
+  --parcel-formwork:        #3A3632;   /* Dark surface variant. Cards on dark. */
+  --parcel-smoke:           #5C5650;   /* Body text, descriptions. */
+  --parcel-ash:             #8A8278;   /* Labels, metadata, tertiary text. */
+  --parcel-draft:           #D4CCC1;   /* Dividers, inactive values. */
+  --parcel-ivory:           #EDE5D8;   /* Light surface. Text on dark bg. */
+  --parcel-ivory-lt:        #F4EEE5;   /* Lightest surface. Marketing bg. */
+
+  /* ── Color: Accent ── */
+  --parcel-bronze:          #A8824E;   /* Signal accent. Scores ≥85, flags. */
+  --parcel-bronze-lt:       #C4A06A;   /* Bronze on dark backgrounds. */
+  --parcel-patina:          #8E9E8A;   /* Confirmed/saved state only. */
+
+  /* ── Color: Semantic (map to base) ── */
+  --parcel-signal:          var(--parcel-bronze);
+  --parcel-confirmed:       var(--parcel-patina);
+  --parcel-text-primary:    var(--parcel-concrete);
+  --parcel-text-secondary:  var(--parcel-smoke);
+  --parcel-text-tertiary:   var(--parcel-ash);
+  --parcel-text-inverse:    var(--parcel-ivory);
+  --parcel-surface-light:   var(--parcel-ivory-lt);
+  --parcel-surface-dark:    var(--parcel-concrete);
+  --parcel-surface-mid:     var(--parcel-formwork);
+  --parcel-divider:         rgba(140, 128, 110, 0.20);
+  --parcel-divider-dark:    rgba(255, 255, 255, 0.06);
+
+  /* ── Typography: Families ── */
+  --parcel-font-display:    'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --parcel-font-body:       'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --parcel-font-editorial:  'Playfair Display', Georgia, serif;
+  --parcel-font-data:       'IBM Plex Mono', 'Courier New', monospace;
+
+  /* ── Typography: Scale ── */
+  --parcel-text-xs:         10px;   /* Labels, metadata. Letter-spacing: 0.20em. UPPERCASE. */
+  --parcel-text-sm:         12px;   /* Secondary body. */
+  --parcel-text-base:       15px;   /* Primary body copy. */
+  --parcel-text-md:         18px;   /* Subheads. */
+  --parcel-text-lg:         24px;   /* Section headers. */
+  --parcel-text-xl:         32px;   /* Page headers. */
+  --parcel-text-2xl:        48px;   /* Display. Letter-spacing: 0.12em. UPPERCASE. */
+  --parcel-text-3xl:        64px;   /* Hero display. Letter-spacing: 0.16em. UPPERCASE. */
+
+  /* ── Typography: Weights ── */
+  --parcel-weight-thin:     200;   /* Display headlines. */
+  --parcel-weight-light:    300;   /* Body, UI copy. */
+  --parcel-weight-regular:  400;   /* Emphasis, address lines. */
+
+  /* ── Typography: Letter Spacing ── */
+  --parcel-tracking-label:  0.20em;   /* All caps metadata labels. */
+  --parcel-tracking-display:0.14em;   /* Display headlines. */
+  --parcel-tracking-ui:     0.08em;   /* Uppercase UI text (nav, buttons). */
+  --parcel-tracking-data:   0.06em;   /* Uppercase address/zoning strings. */
+  --parcel-tracking-body:   0;        /* Regular body copy. */
+
+  /* ── Spacing ── */
+  --parcel-space-1:   4px;
+  --parcel-space-2:   8px;
+  --parcel-space-3:   12px;
+  --parcel-space-4:   16px;
+  --parcel-space-5:   20px;
+  --parcel-space-6:   24px;
+  --parcel-space-8:   32px;
+  --parcel-space-10:  40px;
+  --parcel-space-12:  48px;
+  --parcel-space-16:  64px;
+
+  /* ── Borders ── */
+  --parcel-border:            1px solid var(--parcel-divider);
+  --parcel-border-strong:     1px solid var(--parcel-concrete);
+  --parcel-border-dark:       1px solid var(--parcel-divider-dark);
+  --parcel-border-signal:     2px solid var(--parcel-bronze);
+  --parcel-radius-none:       0;
+  --parcel-radius-sm:         2px;   /* Subtle. Tags, badges. */
+  /* NOTE: No large border radius. All containers are square or near-square.
+     This is intentional — architectural drawings do not have rounded corners. */
+
+  /* ── Shadows ── */
+  /* None. The brand uses borders, not shadows. */
+
+  /* ── Transition ── */
+  --parcel-transition:  150ms ease;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   RESET & BASE
+   ──────────────────────────────────────────────────────────── */
+
+.parcel-theme {
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-light);
+  font-size: var(--parcel-text-base);
+  line-height: 1.7;
+  color: var(--parcel-text-primary);
+  background-color: var(--parcel-surface-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.parcel-theme *,
+.parcel-theme *::before,
+.parcel-theme *::after {
+  box-sizing: border-box;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   GOOGLE FONTS IMPORT
+   Include this <link> in your HTML <head>:
+   
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@200;300;400&family=IBM+Plex+Mono:wght@300;400&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+   ──────────────────────────────────────────────────────────── */
+
+
+/* ──────────────────────────────────────────────────────────── 
+   TYPOGRAPHY
+   ──────────────────────────────────────────────────────────── */
+
+/* Display — hero and marketing headlines only */
+.p-display {
+  font-family: var(--parcel-font-display);
+  font-weight: var(--parcel-weight-thin);
+  font-size: var(--parcel-text-2xl);
+  letter-spacing: var(--parcel-tracking-display);
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--parcel-text-primary);
+}
+
+.p-display-lg {
+  font-size: var(--parcel-text-3xl);
+  font-family: var(--parcel-font-display);
+  font-weight: var(--parcel-weight-thin);
+  letter-spacing: var(--parcel-tracking-display);
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--parcel-text-primary);
+}
+
+/* Heading — section titles, page headers */
+.p-heading {
+  font-family: var(--parcel-font-display);
+  font-weight: var(--parcel-weight-light);
+  font-size: var(--parcel-text-xl);
+  letter-spacing: var(--parcel-tracking-ui);
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--parcel-text-primary);
+}
+
+/* Subheading — within sections */
+.p-subheading {
+  font-family: var(--parcel-font-display);
+  font-weight: var(--parcel-weight-light);
+  font-size: var(--parcel-text-lg);
+  letter-spacing: var(--parcel-tracking-ui);
+  text-transform: uppercase;
+  color: var(--parcel-text-primary);
+}
+
+/* Body — marketing body copy, product descriptions */
+.p-body {
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-light);
+  font-size: var(--parcel-text-base);
+  line-height: 1.75;
+  color: var(--parcel-text-secondary);
+  letter-spacing: 0;
+}
+
+/* Label — all caps metadata, table headers, tags */
+.p-label {
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-light);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  color: var(--parcel-text-tertiary);
+  line-height: 1.4;
+}
+
+/* Address — parcel address lines in the product */
+.p-address {
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-regular);
+  font-size: 14px;
+  letter-spacing: var(--parcel-tracking-data);
+  text-transform: uppercase;
+  color: var(--parcel-text-inverse); /* Used on dark backgrounds */
+  line-height: 1.4;
+}
+
+/* Metadata — zoning, data source strings below address */
+.p-meta {
+  font-family: var(--parcel-font-data);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--parcel-text-tertiary);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* Editorial — Playfair. Report pull-quotes, weekly digest, invite letters only */
+.p-editorial {
+  font-family: var(--parcel-font-editorial);
+  font-weight: 400;
+  font-size: var(--parcel-text-md);
+  line-height: 1.55;
+  color: var(--parcel-text-primary);
+  font-style: italic;
+}
+
+/* Data values — acquisition scores, FAR, dates */
+.p-data {
+  font-family: var(--parcel-font-data);
+  font-weight: 300;
+  font-size: var(--parcel-text-xl);
+  color: var(--parcel-text-inverse);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.p-data-sm {
+  font-family: var(--parcel-font-data);
+  font-weight: 300;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+/* Signal data — score ≥ 85. Bronze color. */
+.p-data-signal {
+  color: var(--parcel-bronze-lt);
+}
+
+/* Wordmark — inline logotype next to mark */
+.p-wordmark {
+  font-family: var(--parcel-font-display);
+  font-weight: var(--parcel-weight-thin);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   GRAIN TEXTURE
+   Apply .p-grain to any marketing surface element.
+   DO NOT apply to product UI elements.
+   ──────────────────────────────────────────────────────────── */
+
+.p-grain {
+  position: relative;
+  overflow: hidden;
+}
+
+.p-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  pointer-events: none;
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  z-index: 1;
+}
+
+/* Ensure content stays above grain overlay */
+.p-grain > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   SURFACES
+   ──────────────────────────────────────────────────────────── */
+
+/* Marketing surface — ivory, grain applied separately */
+.p-surface-marketing {
+  background-color: var(--parcel-ivory-lt);
+  color: var(--parcel-text-primary);
+}
+
+/* Product surface — concrete, no grain */
+.p-surface-product {
+  background-color: var(--parcel-concrete);
+  color: var(--parcel-ivory);
+}
+
+/* Card on dark */
+.p-surface-card-dark {
+  background-color: rgba(255, 255, 255, 0.025);
+  border: var(--parcel-border-dark);
+}
+
+/* Card on light */
+.p-surface-card-light {
+  background-color: var(--parcel-ivory-lt);
+  border: var(--parcel-border);
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   TITLE BLOCK — the core motif
+   The bordered grid used as a structural element throughout.
+   Evokes the title block on an architectural drawing.
+   ──────────────────────────────────────────────────────────── */
+
+.p-title-block {
+  border: var(--parcel-border-strong);
+}
+
+.p-title-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--parcel-space-2) var(--parcel-space-4);
+  border-bottom: var(--parcel-border-strong);
+  background-color: var(--parcel-ivory-lt);
+}
+
+.p-title-block-body {
+  padding: var(--parcel-space-8) var(--parcel-space-6);
+  background-color: var(--parcel-ivory-lt);
+}
+
+/* Dark variant */
+.p-title-block-dark {
+  border: var(--parcel-border-dark);
+  background-color: var(--parcel-concrete);
+}
+
+.p-title-block-footer {
+  display: grid;
+  border-top: var(--parcel-border-dark);
+}
+
+.p-title-block-footer-cell {
+  padding: var(--parcel-space-2) var(--parcel-space-4);
+  border-right: var(--parcel-border-dark);
+}
+
+.p-title-block-footer-cell:last-child {
+  border-right: none;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   NAVIGATION
+   ──────────────────────────────────────────────────────────── */
+
+.p-nav {
+  display: flex;
+  align-items: stretch;
+  border-bottom: var(--parcel-border-dark);
+  background-color: var(--parcel-concrete);
+}
+
+.p-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--parcel-space-3);
+  padding: var(--parcel-space-3) var(--parcel-space-5);
+  border-right: var(--parcel-border-dark);
+}
+
+.p-nav-section {
+  display: flex;
+  align-items: center;
+  padding: var(--parcel-space-3) var(--parcel-space-5);
+  border-right: var(--parcel-border-dark);
+  flex: 1;
+}
+
+.p-nav-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--parcel-space-6);
+  padding: var(--parcel-space-3) var(--parcel-space-5);
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   STAT CARDS
+   ──────────────────────────────────────────────────────────── */
+
+.p-stats-row {
+  display: grid;
+  border-bottom: var(--parcel-border-dark);
+}
+
+.p-stat-cell {
+  padding: var(--parcel-space-4) var(--parcel-space-5);
+  border-right: var(--parcel-border-dark);
+}
+
+.p-stat-cell:last-child {
+  border-right: none;
+}
+
+.p-stat-label {
+  font-family: var(--parcel-font-data);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+  margin-bottom: var(--parcel-space-2);
+}
+
+.p-stat-value {
+  font-family: var(--parcel-font-data);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--parcel-ivory);
+  line-height: 1;
+}
+
+.p-stat-value-signal {
+  color: var(--parcel-bronze-lt);
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   TABLE / LIST ROWS — parcel list view
+   ──────────────────────────────────────────────────────────── */
+
+.p-table-header {
+  display: grid;
+  padding: var(--parcel-space-2) var(--parcel-space-5);
+  border-bottom: var(--parcel-border-dark);
+}
+
+.p-table-header-cell {
+  font-family: var(--parcel-font-data);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+}
+
+.p-row {
+  display: grid;
+  padding: var(--parcel-space-3) var(--parcel-space-5);
+  border-bottom: var(--parcel-border-dark);
+  border-left: 2px solid transparent;
+  transition: background-color var(--parcel-transition);
+  cursor: pointer;
+}
+
+.p-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Signal row — score ≥ 85 */
+.p-row-signal {
+  border-left: 2px solid var(--parcel-bronze);
+  background-color: rgba(168, 130, 78, 0.05);
+}
+
+.p-row-signal:hover {
+  background-color: rgba(168, 130, 78, 0.08);
+}
+
+.p-row-address {
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-regular);
+  font-size: 14px;
+  letter-spacing: var(--parcel-tracking-data);
+  text-transform: uppercase;
+  color: var(--parcel-ivory);
+}
+
+.p-row-meta {
+  font-family: var(--parcel-font-data);
+  font-size: 11px;
+  color: var(--parcel-ash);
+  margin-top: 3px;
+}
+
+.p-row-score {
+  font-family: var(--parcel-font-data);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--parcel-draft);
+  text-align: right;
+}
+
+.p-row-score-signal {
+  color: var(--parcel-bronze-lt);
+}
+
+.p-row-score-label {
+  font-family: var(--parcel-font-data);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+  text-align: right;
+  margin-top: 2px;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   PARCEL DETAIL PANEL
+   ──────────────────────────────────────────────────────────── */
+
+.p-detail-header {
+  padding: var(--parcel-space-5) var(--parcel-space-6);
+  border-bottom: var(--parcel-border-dark);
+}
+
+.p-detail-section {
+  padding: var(--parcel-space-5) var(--parcel-space-6);
+  border-bottom: var(--parcel-border-dark);
+}
+
+.p-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--parcel-space-1);
+  padding: var(--parcel-space-2) 0;
+  border-bottom: var(--parcel-border-dark);
+}
+
+.p-detail-field:last-child {
+  border-bottom: none;
+}
+
+.p-detail-field-label {
+  font-family: var(--parcel-font-data);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+}
+
+.p-detail-field-value {
+  font-family: var(--parcel-font-data);
+  font-size: 13px;
+  color: var(--parcel-ivory);
+  font-weight: 300;
+}
+
+/* Signal badge — ownership change, HPD cluster, etc. */
+.p-signal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--parcel-space-2);
+  padding: var(--parcel-space-1) var(--parcel-space-3);
+  border: 1px solid rgba(168, 130, 78, 0.4);
+  background-color: rgba(168, 130, 78, 0.07);
+  font-family: var(--parcel-font-data);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--parcel-bronze-lt);
+}
+
+.p-signal-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background-color: var(--parcel-bronze);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   BUTTONS & CTAs
+   ──────────────────────────────────────────────────────────── */
+
+/* Primary — concrete fill. Main CTA. */
+.p-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--parcel-space-3);
+  padding: var(--parcel-space-3) var(--parcel-space-6);
+  background-color: var(--parcel-concrete);
+  color: var(--parcel-ivory);
+  border: 1px solid var(--parcel-concrete);
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-regular);
+  font-size: 13px;
+  letter-spacing: var(--parcel-tracking-ui);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity var(--parcel-transition);
+  text-decoration: none;
+  border-radius: 0; /* Always square */
+}
+
+.p-btn-primary:hover {
+  opacity: 0.85;
+}
+
+/* Ghost — outlined. Secondary actions. */
+.p-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--parcel-space-3);
+  padding: var(--parcel-space-3) var(--parcel-space-6);
+  background-color: transparent;
+  color: var(--parcel-text-primary);
+  border: var(--parcel-border-strong);
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-regular);
+  font-size: 13px;
+  letter-spacing: var(--parcel-tracking-ui);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--parcel-transition);
+  text-decoration: none;
+  border-radius: 0;
+}
+
+.p-btn-ghost:hover {
+  background-color: rgba(37, 34, 32, 0.05);
+}
+
+/* Ghost on dark — for product UI */
+.p-btn-ghost-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--parcel-space-3);
+  padding: var(--parcel-space-2) var(--parcel-space-4);
+  background-color: transparent;
+  color: var(--parcel-ivory);
+  border: var(--parcel-border-dark);
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-light);
+  font-size: 12px;
+  letter-spacing: var(--parcel-tracking-ui);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--parcel-transition);
+  text-decoration: none;
+  border-radius: 0;
+}
+
+.p-btn-ghost-dark:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Title block CTA — the marketing "Apply" button compound */
+.p-cta-block {
+  display: inline-flex;
+  align-items: stretch;
+  border: var(--parcel-border-strong);
+}
+
+.p-cta-block-label {
+  padding: var(--parcel-space-3) var(--parcel-space-5);
+  border-right: var(--parcel-border-strong);
+  display: flex;
+  align-items: center;
+  font-family: var(--parcel-font-data);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+}
+
+.p-cta-block-action {
+  padding: var(--parcel-space-3) var(--parcel-space-6);
+  background-color: var(--parcel-concrete);
+  display: flex;
+  align-items: center;
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-regular);
+  font-size: 13px;
+  letter-spacing: var(--parcel-tracking-ui);
+  text-transform: uppercase;
+  color: var(--parcel-ivory);
+  cursor: pointer;
+  transition: opacity var(--parcel-transition);
+}
+
+.p-cta-block-action:hover {
+  opacity: 0.85;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   FORM ELEMENTS
+   ──────────────────────────────────────────────────────────── */
+
+.p-input {
+  display: block;
+  width: 100%;
+  padding: var(--parcel-space-3) var(--parcel-space-4);
+  background-color: transparent;
+  border: var(--parcel-border-strong);
+  color: var(--parcel-text-primary);
+  font-family: var(--parcel-font-body);
+  font-weight: var(--parcel-weight-light);
+  font-size: var(--parcel-text-base);
+  letter-spacing: 0.02em;
+  border-radius: 0;
+  outline: none;
+  transition: border-color var(--parcel-transition);
+}
+
+.p-input::placeholder {
+  color: var(--parcel-ash);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  font-size: var(--parcel-text-xs);
+}
+
+.p-input:focus {
+  border-color: var(--parcel-bronze);
+}
+
+.p-input-dark {
+  border: var(--parcel-border-dark);
+  color: var(--parcel-ivory);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.p-input-dark:focus {
+  border-color: var(--parcel-bronze-lt);
+}
+
+.p-field-label {
+  display: block;
+  font-family: var(--parcel-font-data);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+  margin-bottom: var(--parcel-space-2);
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   DIVIDERS
+   ──────────────────────────────────────────────────────────── */
+
+.p-divider {
+  height: 1px;
+  background-color: var(--parcel-divider);
+  border: none;
+}
+
+.p-divider-dark {
+  height: 1px;
+  background-color: var(--parcel-divider-dark);
+  border: none;
+}
+
+/* Rule with center label (section divider) */
+.p-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--parcel-space-4);
+  color: var(--parcel-ash);
+}
+
+.p-rule::before,
+.p-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--parcel-divider);
+}
+
+.p-rule-label {
+  font-family: var(--parcel-font-data);
+  font-size: var(--parcel-text-xs);
+  letter-spacing: var(--parcel-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Bronze rule accent (section separator in marketing) */
+.p-bronze-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--parcel-space-4);
+}
+
+.p-bronze-rule::before {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background-color: var(--parcel-bronze);
+  flex-shrink: 0;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   SCORE DISPLAY
+   ──────────────────────────────────────────────────────────── */
+
+.p-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.p-score-value {
+  font-family: var(--parcel-font-data);
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--parcel-draft);
+}
+
+.p-score-value[data-signal="true"],
+.p-score-value.signal {
+  color: var(--parcel-bronze-lt);
+}
+
+.p-score-label {
+  font-family: var(--parcel-font-data);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+  margin-top: 2px;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   MARKETING PAGE LAYOUT
+   ──────────────────────────────────────────────────────────── */
+
+.p-marketing-page {
+  min-height: 100vh;
+  background-color: var(--parcel-ivory-lt);
+  color: var(--parcel-text-primary);
+}
+
+.p-marketing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--parcel-space-6) var(--parcel-space-10);
+}
+
+.p-marketing-hero {
+  padding: var(--parcel-space-16) var(--parcel-space-10) var(--parcel-space-12);
+}
+
+.p-marketing-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--parcel-space-6) var(--parcel-space-10);
+  border-top: var(--parcel-border);
+  flex-wrap: wrap;
+  gap: var(--parcel-space-3);
+}
+
+.p-marketing-footer-cell {
+  font-family: var(--parcel-font-data);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parcel-ash);
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   PRODUCT APP LAYOUT
+   ──────────────────────────────────────────────────────────── */
+
+.p-app {
+  min-height: 100vh;
+  background-color: var(--parcel-concrete);
+  color: var(--parcel-ivory);
+  display: flex;
+  flex-direction: column;
+}
+
+.p-app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.p-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: var(--parcel-border-dark);
+  overflow-y: auto;
+}
+
+.p-main {
+  flex: 1;
+  overflow-y: auto;
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   RESPONSIVE
+   ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .p-display    { font-size: 36px; }
+  .p-display-lg { font-size: 48px; }
+  .p-stats-row  { grid-template-columns: 1fr 1fr; }
+  .p-sidebar    { display: none; }
+  
+  .p-marketing-nav,
+  .p-marketing-hero,
+  .p-marketing-footer {
+    padding-left: var(--parcel-space-6);
+    padding-right: var(--parcel-space-6);
+  }
+}
+
+
+/* ──────────────────────────────────────────────────────────── 
+   UTILITIES
+   ──────────────────────────────────────────────────────────── */
+
+.p-text-signal   { color: var(--parcel-bronze-lt); }
+.p-text-primary  { color: var(--parcel-ivory); }
+.p-text-muted    { color: var(--parcel-ash); }
+.p-text-body     { color: var(--parcel-smoke); }
+
+.p-bg-dark       { background-color: var(--parcel-concrete); }
+.p-bg-mid        { background-color: var(--parcel-formwork); }
+.p-bg-light      { background-color: var(--parcel-ivory-lt); }
+
+.p-uppercase     { text-transform: uppercase; }
+.p-mono          { font-family: var(--parcel-font-data); }
+.p-condensed     { font-family: var(--parcel-font-display); }
+
+.p-border        { border: var(--parcel-border); }
+.p-border-dark   { border: var(--parcel-border-dark); }
+.p-border-strong { border: var(--parcel-border-strong); }
+
+.p-square        { border-radius: 0 !important; }
+
+/* Grid helpers */
+.p-grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: var(--parcel-space-5); }
+.p-grid-3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--parcel-space-4); }
+.p-grid-4  { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--parcel-space-4); }
+
+@media (max-width: 640px) {
+  .p-grid-2, .p-grid-3, .p-grid-4 { grid-template-columns: 1fr; }
+}

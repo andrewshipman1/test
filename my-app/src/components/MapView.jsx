@@ -2,6 +2,7 @@ import { useRef, useCallback, useState, useEffect } from 'react'
 import Map, { Source, Layer, NavigationControl, ScaleControl, Marker } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
+import useHistoricDistricts, { isInHistoricDistrict } from '../hooks/useHistoricDistricts'
 // Parcel brand — no MapPin icon, use bronze crosshair
 import CoachMarks from './CoachMarks'
 import './MapView.css'
@@ -14,7 +15,7 @@ const lotCircleLayer = {
   type: 'circle',
   filter: ['!=', ['get', 'city_of_yes'], true],
   paint: {
-    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 3, 14, 6, 16, 10],
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 1.5, 13, 3, 14, 5, 16, 8],
     'circle-color': [
       'case',
       ['==', ['get', 'land_use'], '11'], '#8E9E8A',
@@ -108,6 +109,8 @@ export default function MapView({
   }, [searchTarget])
 
   const { data: plutoData, allFeatures, loading: dataLoading, stats, zoningDistricts } = usePlutoData(filters)
+  const { districts: historicGeoJson } = useHistoricDistricts()
+  const historicDistricts = historicGeoJson?.features || []
 
   // Pass zoning districts up to App when loaded
   useEffect(() => {
@@ -157,11 +160,21 @@ export default function MapView({
       layers: ['tax-lots-circle', 'coy-lots-circle'],
     })
     if (features.length > 0) {
-      const props = features[0].properties
+      const props = { ...features[0].properties }
       const signals = marketSignals?.[props.bbl] || []
+
+      // Check if property is in a historic district
+      if (historicDistricts?.length > 0 && props.longitude && props.latitude) {
+        const hd = isInHistoricDistrict(props.longitude, props.latitude, historicDistricts)
+        if (hd.inDistrict) {
+          props.has_landmark = true
+          props.landmark_name = hd.districtName || 'Historic District'
+        }
+      }
+
       setSelectedProperty({ ...props, market_signals: signals })
     }
-  }, [setSelectedProperty, marketSignals])
+  }, [setSelectedProperty, marketSignals, historicDistricts])
 
   const emptyData = { type: 'FeatureCollection', features: [] }
 
@@ -180,6 +193,30 @@ export default function MapView({
       >
         <NavigationControl position="top-right" />
         <ScaleControl position="bottom-right" />
+
+        {/* Historic district overlay — subtle border only */}
+        {historicGeoJson && (
+          <Source id="historic-districts" type="geojson" data={historicGeoJson}>
+            <Layer
+              id="historic-districts-fill"
+              type="fill"
+              paint={{
+                'fill-color': '#8A8278',
+                'fill-opacity': 0.04,
+              }}
+            />
+            <Layer
+              id="historic-districts-line"
+              type="line"
+              paint={{
+                'line-color': '#8A8278',
+                'line-width': 1,
+                'line-dasharray': [3, 2],
+                'line-opacity': 0.5,
+              }}
+            />
+          </Source>
+        )}
 
         <Source id="tax-lots" type="geojson" data={plutoData || emptyData}>
           <Layer {...lotCircleLayer} />
@@ -254,7 +291,7 @@ export default function MapView({
       {(dataLoading || !mapLoaded) && (
         <div className="map-loading">
           <div className="loading-spinner" />
-          <span>{!mapLoaded ? 'Loading map...' : 'Fetching NYC PLUTO + City of Yes data...'}</span>
+          <span>{!mapLoaded ? 'Loading map...' : 'Loading all Manhattan tax lots...'}</span>
         </div>
       )}
 

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PARCEL — Brand Assets
+  Version 1.0 · Acquisition Intelligence · Manhattan
+  
+  CONTENTS
+  ────────────────────────────────────────────────
+  1. Mark — Full (64×64) — Light bg
+  2. Mark — Full (64×64) — Dark bg
+  3. Wordmark horizontal — Light bg
+  4. Wordmark horizontal — Dark bg
+  5. Mark only — Medium (32×32) — Light bg
+  6. Mark only — Medium (32×32) — Dark bg
+  7. Favicon (16×16) — Light bg
+  8. Favicon (16×16) — Dark bg
+  9. Title block stamp (marketing watermark)
+  10. Mark — Inline product nav size (18×18) — Dark bg
+  
+  COLOR TOKENS
+  ────────────────────────────────────────────────
+  Concrete:   #252220  Primary dark
+  Ivory:      #EDE5D8  Primary light / text on dark
+  Ivory Lt:   #F4EEE5  Surface light
+  Bronze:     #A8824E  Signal accent (scores ≥85, flags)
+  Bronze Lt:  #C4A06A  Bronze on dark backgrounds
+  Ash:        #8A8278  Labels, metadata
+  
+  USAGE RULES
+  ────────────────────────────────────────────────
+  - Minimum mark size: 16×16px (favicon only below this)
+  - At ≤32px: drop crosshair, keep double-border + pin
+  - At ≤18px: two concentric squares + solid bronze dot only
+  - Bronze pin crosshair: never omit at 40px+
+  - Clear space: equal to 2× the outer border stroke on all sides
+  - Never stretch, rotate, or recolor the mark
+  - Bronze pin: do not use in grayscale contexts
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+  <defs>
+    <style>
+      text.asset-label {
+        font-family: monospace;
+        font-size: 11px;
+        fill: #8A8278;
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="560" fill="#F4EEE5"/>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION LABELS
+       ══════════════════════════════════════════════ -->
+  <text class="asset-label" x="40" y="24">01 — Mark Full · Light bg</text>
+  <text class="asset-label" x="180" y="24">02 — Mark Full · Dark bg</text>
+  <text class="asset-label" x="340" y="24">03 — Wordmark H · Light</text>
+  <text class="asset-label" x="660" y="24">04 — Wordmark H · Dark</text>
+
+  <text class="asset-label" x="40" y="210">05 — Mark Medium · Light</text>
+  <text class="asset-label" x="180" y="210">06 — Mark Medium · Dark</text>
+  <text class="asset-label" x="340" y="210">07 — Favicon · Light</text>
+  <text class="asset-label" x="450" y="210">08 — Favicon · Dark</text>
+  <text class="asset-label" x="560" y="210">09 — Stamp · Marketing</text>
+
+  <text class="asset-label" x="40" y="360">10 — Nav · Dark (18px)</text>
+  <text class="asset-label" x="180" y="360">11 — Wordmark only · Stacked</text>
+  <text class="asset-label" x="440" y="360">12 — Bronze rule divider component</text>
+
+  <!-- ══════════════════════════════════════════════
+       01 — MARK FULL · LIGHT BACKGROUND
+       ══════════════════════════════════════════════ -->
+  <rect x="40" y="40" width="100" height="100" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <g transform="translate(58, 58)">
+    <!-- Outer heavy border -->
+    <rect x="0" y="0" width="64" height="64" stroke="#252220" stroke-width="2.5" fill="none"/>
+    <!-- Inner thin border — double-line motif -->
+    <rect x="5" y="5" width="54" height="54" stroke="#252220" stroke-width="0.75" fill="none"/>
+    <!-- Horizontal title block divider -->
+    <line x1="5" y1="44" x2="59" y2="44" stroke="#252220" stroke-width="0.75"/>
+    <!-- Vertical subdivision in lower band -->
+    <line x1="32" y1="44" x2="32" y2="59" stroke="#252220" stroke-width="0.5"/>
+    <!-- Bronze crosshair -->
+    <line x1="32" y1="14" x2="32" y2="21" stroke="#A8824E" stroke-width="0.75"/>
+    <line x1="32" y1="32" x2="32" y2="39" stroke="#A8824E" stroke-width="0.75"/>
+    <line x1="21" y1="26" x2="28" y2="26" stroke="#A8824E" stroke-width="0.75"/>
+    <line x1="36" y1="26" x2="43" y2="26" stroke="#A8824E" stroke-width="0.75"/>
+    <!-- Bronze pin -->
+    <circle cx="32" cy="26" r="3.5" fill="none" stroke="#A8824E" stroke-width="1.5"/>
+    <circle cx="32" cy="26" r="1.25" fill="#A8824E"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       02 — MARK FULL · DARK BACKGROUND
+       ══════════════════════════════════════════════ -->
+  <rect x="160" y="40" width="100" height="100" fill="#252220"/>
+  <g transform="translate(178, 58)">
+    <rect x="0" y="0" width="64" height="64" stroke="#EDE5D8" stroke-width="2.5" fill="none"/>
+    <rect x="5" y="5" width="54" height="54" stroke="#EDE5D8" stroke-width="0.75" fill="none"/>
+    <line x1="5" y1="44" x2="59" y2="44" stroke="#EDE5D8" stroke-width="0.75"/>
+    <line x1="32" y1="44" x2="32" y2="59" stroke="#EDE5D8" stroke-width="0.5"/>
+    <line x1="32" y1="14" x2="32" y2="21" stroke="#C4A06A" stroke-width="0.75"/>
+    <line x1="32" y1="32" x2="32" y2="39" stroke="#C4A06A" stroke-width="0.75"/>
+    <line x1="21" y1="26" x2="28" y2="26" stroke="#C4A06A" stroke-width="0.75"/>
+    <line x1="36" y1="26" x2="43" y2="26" stroke="#C4A06A" stroke-width="0.75"/>
+    <circle cx="32" cy="26" r="3.5" fill="none" stroke="#C4A06A" stroke-width="1.5"/>
+    <circle cx="32" cy="26" r="1.25" fill="#C4A06A"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       03 — WORDMARK HORIZONTAL · LIGHT
+       ══════════════════════════════════════════════ -->
+  <rect x="310" y="40" width="310" height="100" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <g transform="translate(330, 70)">
+    <!-- Mark at 40px -->
+    <rect x="0" y="0" width="40" height="40" stroke="#252220" stroke-width="1.75" fill="none"/>
+    <rect x="3.5" y="3.5" width="33" height="33" stroke="#252220" stroke-width="0.5" fill="none"/>
+    <line x1="3.5" y1="27.5" x2="36.5" y2="27.5" stroke="#252220" stroke-width="0.5"/>
+    <line x1="20" y1="27.5" x2="20" y2="36.5" stroke="#252220" stroke-width="0.4"/>
+    <line x1="20" y1="9" x2="20" y2="13.5" stroke="#A8824E" stroke-width="0.6"/>
+    <line x1="20" y1="20.5" x2="20" y2="25" stroke="#A8824E" stroke-width="0.6"/>
+    <line x1="13.5" y1="16.5" x2="18" y2="16.5" stroke="#A8824E" stroke-width="0.6"/>
+    <line x1="22.5" y1="16.5" x2="27" y2="16.5" stroke="#A8824E" stroke-width="0.6"/>
+    <circle cx="20" cy="16.5" r="2.25" fill="none" stroke="#A8824E" stroke-width="1"/>
+    <circle cx="20" cy="16.5" r="0.85" fill="#A8824E"/>
+    <!-- Wordmark text -->
+    <text x="54" y="28"
+      font-family="'Barlow Condensed', 'Arial Narrow', sans-serif"
+      font-size="30"
+      font-weight="200"
+      letter-spacing="8"
+      fill="#252220"
+      text-anchor="start">PARCEL</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       04 — WORDMARK HORIZONTAL · DARK
+       ══════════════════════════════════════════════ -->
+  <rect x="640" y="40" width="230" height="100" fill="#252220"/>
+  <g transform="translate(658, 70)">
+    <rect x="0" y="0" width="40" height="40" stroke="#EDE5D8" stroke-width="1.75" fill="none"/>
+    <rect x="3.5" y="3.5" width="33" height="33" stroke="#EDE5D8" stroke-width="0.5" fill="none"/>
+    <line x1="3.5" y1="27.5" x2="36.5" y2="27.5" stroke="#EDE5D8" stroke-width="0.5"/>
+    <line x1="20" y1="27.5" x2="20" y2="36.5" stroke="#EDE5D8" stroke-width="0.4"/>
+    <line x1="20" y1="9" x2="20" y2="13.5" stroke="#C4A06A" stroke-width="0.6"/>
+    <line x1="20" y1="20.5" x2="20" y2="25" stroke="#C4A06A" stroke-width="0.6"/>
+    <line x1="13.5" y1="16.5" x2="18" y2="16.5" stroke="#C4A06A" stroke-width="0.6"/>
+    <line x1="22.5" y1="16.5" x2="27" y2="16.5" stroke="#C4A06A" stroke-width="0.6"/>
+    <circle cx="20" cy="16.5" r="2.25" fill="none" stroke="#C4A06A" stroke-width="1"/>
+    <circle cx="20" cy="16.5" r="0.85" fill="#C4A06A"/>
+    <text x="54" y="28"
+      font-family="'Barlow Condensed', 'Arial Narrow', sans-serif"
+      font-size="30"
+      font-weight="200"
+      letter-spacing="8"
+      fill="#EDE5D8"
+      text-anchor="start">PARCEL</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       05 — MARK MEDIUM 32px · LIGHT
+       ══════════════════════════════════════════════ -->
+  <rect x="40" y="230" width="90" height="90" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <g transform="translate(56, 246)">
+    <!-- At 32px: drop crosshair lines, keep double border + pin -->
+    <rect x="0" y="0" width="32" height="32" stroke="#252220" stroke-width="1.5" fill="none"/>
+    <rect x="3" y="3" width="26" height="26" stroke="#252220" stroke-width="0.5" fill="none"/>
+    <line x1="3" y1="22" x2="29" y2="22" stroke="#252220" stroke-width="0.5"/>
+    <line x1="16" y1="22" x2="16" y2="29" stroke="#252220" stroke-width="0.4"/>
+    <circle cx="16" cy="13" r="2" fill="none" stroke="#A8824E" stroke-width="1.25"/>
+    <circle cx="16" cy="13" r="0.8" fill="#A8824E"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       06 — MARK MEDIUM 32px · DARK
+       ══════════════════════════════════════════════ -->
+  <rect x="155" y="230" width="90" height="90" fill="#252220"/>
+  <g transform="translate(171, 246)">
+    <rect x="0" y="0" width="32" height="32" stroke="#EDE5D8" stroke-width="1.5" fill="none"/>
+    <rect x="3" y="3" width="26" height="26" stroke="#EDE5D8" stroke-width="0.5" fill="none"/>
+    <line x1="3" y1="22" x2="29" y2="22" stroke="#EDE5D8" stroke-width="0.5"/>
+    <line x1="16" y1="22" x2="16" y2="29" stroke="#EDE5D8" stroke-width="0.4"/>
+    <circle cx="16" cy="13" r="2" fill="none" stroke="#C4A06A" stroke-width="1.25"/>
+    <circle cx="16" cy="13" r="0.8" fill="#C4A06A"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       07 — FAVICON 16px · LIGHT
+       ══════════════════════════════════════════════ -->
+  <rect x="330" y="230" width="80" height="80" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <g transform="translate(362, 262)">
+    <!-- At 16px: two concentric squares + solid bronze dot -->
+    <rect x="0" y="0" width="16" height="16" stroke="#252220" stroke-width="2" fill="none"/>
+    <rect x="3" y="3" width="10" height="10" stroke="#252220" stroke-width="0.75" fill="none"/>
+    <circle cx="8" cy="8" r="2" fill="#A8824E"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       08 — FAVICON 16px · DARK
+       ══════════════════════════════════════════════ -->
+  <rect x="430" y="230" width="80" height="80" fill="#252220"/>
+  <g transform="translate(462, 262)">
+    <rect x="0" y="0" width="16" height="16" stroke="#EDE5D8" stroke-width="2" fill="none"/>
+    <rect x="3" y="3" width="10" height="10" stroke="#EDE5D8" stroke-width="0.75" fill="none"/>
+    <circle cx="8" cy="8" r="2" fill="#C4A06A"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       09 — STAMP · MARKETING WATERMARK
+       The title block stamp used as a report watermark
+       ══════════════════════════════════════════════ -->
+  <rect x="545" y="220" width="315" height="120" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <!-- Stamp outer -->
+  <rect x="565" y="238" width="275" height="84" stroke="#252220" stroke-width="1.25" fill="none"/>
+  <!-- Stamp inner double -->
+  <rect x="569" y="242" width="267" height="76" stroke="#252220" stroke-width="0.5" fill="none"/>
+  <!-- Horizontal divider -->
+  <line x1="569" y1="290" x2="836" y2="290" stroke="#252220" stroke-width="0.5"/>
+  <!-- Vertical subdivisions in footer band -->
+  <line x1="660" y1="290" x2="660" y2="318" stroke="#252220" stroke-width="0.4"/>
+  <line x1="750" y1="290" x2="750" y2="318" stroke="#252220" stroke-width="0.4"/>
+  <!-- Mark pin (small, centered in upper area) -->
+  <circle cx="702" cy="264" r="3.5" fill="none" stroke="#A8824E" stroke-width="1"/>
+  <circle cx="702" cy="264" r="1.25" fill="#A8824E"/>
+  <line x1="702" y1="254" x2="702" y2="258.5" stroke="#A8824E" stroke-width="0.6"/>
+  <line x1="702" y1="269.5" x2="702" y2="274" stroke="#A8824E" stroke-width="0.6"/>
+  <line x1="692" y1="264" x2="696.5" y2="264" stroke="#A8824E" stroke-width="0.6"/>
+  <line x1="707.5" y1="264" x2="712" y2="264" stroke="#A8824E" stroke-width="0.6"/>
+  <!-- Footer labels -->
+  <text x="580" y="308" font-family="monospace" font-size="8" fill="#8A8278" letter-spacing="1.5">PROJECT</text>
+  <text x="670" y="308" font-family="monospace" font-size="8" fill="#8A8278" letter-spacing="1.5">DRAWN BY</text>
+  <text x="760" y="308" font-family="monospace" font-size="8" fill="#8A8278" letter-spacing="1.5">DATE</text>
+
+  <!-- ══════════════════════════════════════════════
+       10 — NAV MARK · DARK 18px
+       ══════════════════════════════════════════════ -->
+  <rect x="40" y="378" width="90" height="60" fill="#252220"/>
+  <g transform="translate(59, 389)">
+    <rect x="0" y="0" width="24" height="24" stroke="#EDE5D8" stroke-width="1.25" fill="none"/>
+    <rect x="3" y="3" width="18" height="18" stroke="#EDE5D8" stroke-width="0.4" fill="none"/>
+    <line x1="3" y1="16" x2="21" y2="16" stroke="#EDE5D8" stroke-width="0.4"/>
+    <circle cx="12" cy="10" r="1.75" fill="none" stroke="#C4A06A" stroke-width="1"/>
+    <circle cx="12" cy="10" r="0.7" fill="#C4A06A"/>
+  </g>
+
+  <!-- ══════════════════════════════════════════════
+       11 — WORDMARK STACKED · LIGHT
+       ══════════════════════════════════════════════ -->
+  <rect x="170" y="370" width="240" height="110" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <g transform="translate(230, 384)">
+    <!-- Mark at 28px centered -->
+    <rect x="0" y="0" width="28" height="28" stroke="#252220" stroke-width="1.5" fill="none"/>
+    <rect x="2.5" y="2.5" width="23" height="23" stroke="#252220" stroke-width="0.4" fill="none"/>
+    <line x1="2.5" y1="19" x2="25.5" y2="19" stroke="#252220" stroke-width="0.4"/>
+    <line x1="14" y1="19" x2="14" y2="25.5" stroke="#252220" stroke-width="0.3"/>
+    <circle cx="14" cy="11.5" r="2" fill="none" stroke="#A8824E" stroke-width="1"/>
+    <circle cx="14" cy="11.5" r="0.75" fill="#A8824E"/>
+  </g>
+  <text x="290" y="433"
+    font-family="'Barlow Condensed', 'Arial Narrow', sans-serif"
+    font-size="22"
+    font-weight="200"
+    letter-spacing="6"
+    fill="#252220"
+    text-anchor="middle">PARCEL</text>
+  <text x="290" y="455"
+    font-family="monospace"
+    font-size="7"
+    letter-spacing="2"
+    fill="#8A8278"
+    text-anchor="middle">ACQUISITION INTELLIGENCE</text>
+
+  <!-- ══════════════════════════════════════════════
+       12 — BRONZE RULE DIVIDER
+       ══════════════════════════════════════════════ -->
+  <rect x="430" y="370" width="440" height="110" fill="#F4EEE5" stroke="#D4CCC1" stroke-width="0.5"/>
+  <line x1="450" y1="410" x2="494" y2="410" stroke="#A8824E" stroke-width="1"/>
+  <text x="500" y="414"
+    font-family="monospace"
+    font-size="9"
+    letter-spacing="2.5"
+    fill="#8A8278">SECTION LABEL OR RULE TEXT HERE</text>
+  
+  <!-- Section divider variant -->
+  <line x1="450" y1="440" x2="860" y2="440" stroke="#D4CCC1" stroke-width="0.5"/>
+  <text x="450" y="460"
+    font-family="monospace"
+    font-size="8"
+    letter-spacing="1.5"
+    fill="#8A8278">STANDARD DIVIDER — 0.5px #D4CCC1</text>
+
+  <!-- ══════════════════════════════════════════════
+       COLOR SWATCHES — reference row
+       ══════════════════════════════════════════════ -->
+  <text x="40" y="510" font-family="monospace" font-size="10" fill="#8A8278" letter-spacing="1.5">COLOR TOKENS</text>
+  
+  <rect x="40"  y="520" width="100" height="28" fill="#252220"/>
+  <rect x="148" y="520" width="100" height="28" fill="#3A3632"/>
+  <rect x="256" y="520" width="100" height="28" fill="#5C5650"/>
+  <rect x="364" y="520" width="100" height="28" fill="#EDE5D8" stroke="#D4CCC1" stroke-width="0.5"/>
+  <rect x="472" y="520" width="100" height="28" fill="#A8824E"/>
+  <rect x="580" y="520" width="100" height="28" fill="#8E9E8A"/>
+  <rect x="688" y="520" width="100" height="28" fill="#D4CCC1"/>
+  
+  <text x="40"  y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#252220 CONCRETE</text>
+  <text x="148" y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#3A3632 FORMWORK</text>
+  <text x="256" y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#5C5650 SMOKE</text>
+  <text x="364" y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#EDE5D8 IVORY</text>
+  <text x="472" y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#A8824E BRONZE</text>
+  <text x="580" y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#8E9E8A PATINA</text>
+  <text x="688" y="555" font-family="monospace" font-size="7.5" fill="#8A8278">#D4CCC1 DRAFT</text>
+
+</svg>

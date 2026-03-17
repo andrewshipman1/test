@@ -135,7 +135,21 @@ function computeScore(lot) {
   // Garage = easy teardown bonus
   if (bc.startsWith('G')) score += 8
 
-  return Math.min(100, Math.round(score))
+  // Rent stabilization penalty (proxy — real data loaded on demand)
+  if (isLikelyRentStabilized(lot.landuse, lot.unitsres, lot.yearbuilt)) {
+    const units = parseInt(lot.unitsres) || 0
+    if (units > 50) score -= 15
+    else if (units > 20) score -= 10
+    else score -= 5
+  }
+
+  // Retail exposure penalty — active retail leases complicate redevelopment
+  const retailArea = parseFloat(lot.retailarea) || 0
+  if (retailArea > 10000) score -= 8
+  else if (retailArea > 5000) score -= 5
+  else if (retailArea > 0) score -= 3
+
+  return Math.max(0, Math.min(100, Math.round(score)))
 }
 
 // Normalize a raw PLUTO lot into a GeoJSON feature
@@ -184,6 +198,7 @@ function toFeature(lot, index) {
       rent_stab_risk:   isLikelyRentStabilized(landUse, lot.unitsres, lot.yearbuilt),
       has_landmark:     false,
       landmark_name:    '',
+      retail_area:      parseFloat(lot.retailarea) || 0,
       fac_far:          parseFloat(lot.facilfar) || 0,
       overlay1:         lot.overlay1 || '',
       overlay2:         '',
@@ -206,26 +221,39 @@ export function usePlutoData(filters) {
     async function fetchData() {
       setLoading(true)
       try {
-        const params = new URLSearchParams({
-          borough: 'MN',
-          $limit: 8000,
-          $select: [
-            'bbl', 'address', 'zipcode', 'ownername', 'landuse', 'bldgclass',
-            'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
-            'residfar', 'commfar', 'facilfar', 'builtfar', 'numfloors', 'yearbuilt',
-            'unitsres', 'assesstot', 'latitude', 'longitude',
-            'overlay1', 'cd'
-          ].join(','),
-          $where: 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0',
-          $order: 'lotarea DESC'
-        })
+        const selectFields = [
+          'bbl', 'address', 'zipcode', 'ownername', 'landuse', 'bldgclass',
+          'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
+          'residfar', 'commfar', 'facilfar', 'builtfar', 'numfloors', 'yearbuilt',
+          'unitsres', 'assesstot', 'latitude', 'longitude',
+          'overlay1', 'cd', 'retailarea'
+        ].join(',')
+        const where = 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0'
 
-        const lotsRes = await fetch(`${NYC_API}?${params}`)
-        if (!lotsRes.ok) throw new Error(`NYC API error: ${lotsRes.status}`)
-        const lots = await lotsRes.json()
+        // Paginate to fetch ALL Manhattan lots (~43k)
+        const PAGE_SIZE = 10000
+        const pages = [0, 1, 2, 3, 4] // up to 50k lots
+        const results = await Promise.all(
+          pages.map(page => {
+            const params = new URLSearchParams({
+              borough: 'MN',
+              $limit: PAGE_SIZE,
+              $offset: page * PAGE_SIZE,
+              $select: selectFields,
+              $where: where,
+              $order: 'bbl',
+            })
+            return fetch(`${NYC_API}?${params}`).then(r => {
+              if (!r.ok) throw new Error(`NYC API error: ${r.status}`)
+              return r.json()
+            })
+          })
+        )
+
+        const allLots = results.flat()
 
         const zones = new Set()
-        const features = lots
+        const features = allLots
           .filter(lot => {
             const lat = parseFloat(lot.latitude)
             const lng = parseFloat(lot.longitude)
@@ -288,7 +316,7 @@ export function usePlutoData(filters) {
 
   const stats = useMemo(() => ({
     total: data?.features?.length || 0,
-    highOpportunity: data?.features?.filter(f => f.properties.score >= 60).length || 0,
+    highOpportunity: data?.features?.filter(f => f.properties.score >= 85).length || 0,
     vacant: data?.features?.filter(f => f.properties.land_use === '11').length || 0,
   }), [data])
 

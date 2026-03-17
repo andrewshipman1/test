@@ -5,6 +5,7 @@ import { useAcrisComps } from '../hooks/useAcrisData'
 import { useAcrisDeeds }    from '../hooks/useAcrisDeeds'
 import { useDobActivity }   from '../hooks/useDobActivity'
 import { useHpdViolations } from '../hooks/useHpdViolations'
+import { useRentStabilization } from '../hooks/useRentStabilization'
 import { DEFAULT_ASSUMPTIONS, computeCondoProForma } from '../hooks/useUnderwritingAssumptions'
 import { getBlockNeighbors, isUnderbuilt } from '../utils/assemblageUtils'
 import { useOwnerPortfolio } from '../hooks/useOwnerPortfolio'
@@ -123,17 +124,20 @@ function InfoRow({ label, value, highlight }) {
 }
 
 function ScoreBar({ label, points, max, value }) {
-  const pct = max > 0 ? points / max : 0
-  const color = pct >= 0.8 ? '#C4A06A' : pct >= 0.5 ? '#8A8278' : pct > 0 ? '#5C5650' : '#3A3632'
+  const isPenalty = points < 0
+  const pct = isPenalty ? 0 : (max > 0 ? points / max : 0)
+  const color = isPenalty ? '#D4CCC1' : pct >= 0.8 ? '#C4A06A' : pct >= 0.5 ? '#8A8278' : pct > 0 ? '#5C5650' : '#3A3632'
   return (
     <div className="score-bar-row">
       <div className="score-bar-header">
         <span className="score-bar-label">{label}</span>
-        <span className="score-bar-pts" style={{ color }}>{points}/{max}</span>
+        <span className="score-bar-pts" style={{ color }}>{isPenalty ? points : `${points}/${max}`}</span>
       </div>
-      <div className="score-bar-track">
-        <div className="score-bar-fill" style={{ width: `${pct * 100}%`, background: color }} />
-      </div>
+      {!isPenalty && (
+        <div className="score-bar-track">
+          <div className="score-bar-fill" style={{ width: `${pct * 100}%`, background: color }} />
+        </div>
+      )}
       <div className="score-bar-value">{value}</div>
     </div>
   )
@@ -182,6 +186,7 @@ export default function PropertyDrawer({
   const { lastMortgage, lastDeed, loading: deedsLoading } = useAcrisDeeds(property?.bbl)
   const { permits: dobPermits, loading: dobLoading }       = useDobActivity(property?.bbl)
   const { openCount: hpdCount, byClass: hpdByClass, recent: hpdRecent, loading: hpdLoading } = useHpdViolations(property?.bbl)
+  const { stabilizedUnits, totalUnits, loading: rentStabLoading } = useRentStabilization(property?.bbl)
 
   // Local editable values for per-property PSF / hard cost overrides
   const [localPsf,      setLocalPsf]      = useState(null)
@@ -256,6 +261,32 @@ export default function PropertyDrawer({
 
   const dtConfig = DEAL_TYPE_CONFIG[property.deal_type] || DEAL_TYPE_CONFIG.TEARDOWN
 
+  const rentStabPenalty = (() => {
+    if (stabilizedUnits > 0) {
+      const pct = stabilizedUnits / totalUnits
+      if (pct > 0.7) return -15
+      if (pct > 0.4) return -10
+      return -5
+    }
+    if (property.rent_stab_risk) {
+      const units = Number(property.units_res) || 0
+      if (units > 50) return -15
+      else if (units > 20) return -10
+      return -5
+    }
+    return 0
+  })()
+
+  const retailPenalty = (() => {
+    const ra = Number(property.retail_area) || 0
+    if (ra > 10000) return -8
+    if (ra > 5000) return -5
+    if (ra > 0) return -3
+    return 0
+  })()
+
+  const landmarkPenalty = property.has_landmark ? -10 : 0
+
   const scoreComponents = [
     {
       label: 'Development Rights',
@@ -287,6 +318,24 @@ export default function PropertyDrawer({
       max: 10,
       value: `FAR ${residFar || '—'} allowed`,
     },
+    ...(rentStabPenalty < 0 ? [{
+      label: 'Rent Stabilization',
+      points: rentStabPenalty,
+      max: 0,
+      value: stabilizedUnits > 0 ? `${stabilizedUnits}/${totalUnits} units stabilized` : 'Likely stabilized (proxy)',
+    }] : []),
+    ...(retailPenalty < 0 ? [{
+      label: 'Retail Exposure',
+      points: retailPenalty,
+      max: 0,
+      value: `${fmt(property.retail_area)} SF ground-floor retail`,
+    }] : []),
+    ...(landmarkPenalty < 0 ? [{
+      label: 'Historic District',
+      points: landmarkPenalty,
+      max: 0,
+      value: property.landmark_name || 'LPC designated',
+    }] : []),
   ]
 
   const toggleAssemblage = () => {
@@ -395,14 +444,25 @@ export default function PropertyDrawer({
       <div className="drawer-body">
 
         {/* ── Risk Flags ── */}
-        {(isCoop || isCondo || property.rent_stab_risk || property.has_landmark) && (
+        {(isCoop || isCondo || property.rent_stab_risk || stabilizedUnits > 0 || property.has_landmark || property.retail_area > 0) && (
           <div className="drawer-section">
             <div className="section-header"><AlertTriangle size={13} color="#D4CCC1" /> Deal Considerations</div>
             <div className="risk-flags">
               {isCoop  && <RiskFlag icon="—" color="#D4CCC1" label="Co-op Building"      desc="Shares owned, not land — extremely difficult to redevelop" />}
               {isCondo && <RiskFlag icon="—" color="#D4CCC1" label="Condominium"         desc="Must buy out all individual unit owners to redevelop" />}
-              {property.rent_stab_risk && <RiskFlag icon="RS" color="#8A8278" label={<Tooltip content={GLOSSARY.rentStabilized}><span>Likely Rent Stabilized <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} /></span></Tooltip>} desc="Pre-1974 rental building — significant tenant buyout costs" />}
-              {property.has_landmark   && <RiskFlag icon="LPC" color="#8A8278" label="Landmark Designation"   desc="LPC approval required — may have transferable air rights (TDR)" />}
+              {stabilizedUnits > 0 ? (
+                <RiskFlag icon="RS" color="#C4A06A" label={
+                  <Tooltip content={GLOSSARY.rentStabilized}>
+                    <span>{stabilizedUnits} of {totalUnits} Units Stabilized <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} /></span>
+                  </Tooltip>
+                } desc={`${Math.round((stabilizedUnits / totalUnits) * 100)}% rent-stabilized — significant tenant buyout costs and legal complexity`} />
+              ) : property.rent_stab_risk && !rentStabLoading ? (
+                <RiskFlag icon="RS" color="#8A8278" label={<Tooltip content={GLOSSARY.rentStabilized}><span>Likely Rent Stabilized <Info size={9} style={{ opacity: 0.6, verticalAlign: 'middle' }} /></span></Tooltip>} desc="Pre-1974 rental building — significant tenant buyout costs" />
+              ) : null}
+              {property.has_landmark   && <RiskFlag icon="LPC" color="#8A8278" label={`Historic District${property.landmark_name ? `: ${property.landmark_name}` : ''}`} desc="LPC approval required — may have transferable air rights (TDR)" />}
+              {property.retail_area > 0 && (
+                <RiskFlag icon="RT" color="#8A8278" label={`${fmt(property.retail_area)} SF Retail`} desc="Ground-floor retail complicates redevelopment — lease buyouts may be required" />
+              )}
             </div>
           </div>
         )}
@@ -475,7 +535,39 @@ export default function PropertyDrawer({
             <InfoRow label="Existing Building"   value={property.bldg_area ? `${fmt(property.bldg_area)} SF` : 'None'} />
             <InfoRow label="Year Built"          value={property.year_built > 0 ? property.year_built : 'N/A'} />
             <InfoRow label="Land Use"            value={LAND_USE_LABELS[property.land_use] || property.land_use} />
+            {property.retail_area > 0 && <InfoRow label="Retail Area" value={`${fmt(property.retail_area)} SF`} highlight />}
           </div>
+
+          {/* Unit Mix — real rent stabilization data */}
+          {(stabilizedUnits > 0 || (property.units_res > 0 && property.rent_stab_risk)) && (
+            <div className="unit-mix-section" style={{ marginTop: 10 }}>
+              <div className="di-label">Unit Mix</div>
+              {rentStabLoading ? (
+                <div className="di-skeleton" />
+              ) : stabilizedUnits > 0 ? (
+                <div className="unit-mix-grid">
+                  <div className="unit-mix-item">
+                    <span className="unit-mix-count">{totalUnits}</span>
+                    <span className="unit-mix-label">Total Units</span>
+                  </div>
+                  <div className="unit-mix-item">
+                    <span className="unit-mix-count" style={{ color: '#C4A06A' }}>{stabilizedUnits}</span>
+                    <span className="unit-mix-label">Stabilized</span>
+                  </div>
+                  <div className="unit-mix-item">
+                    <span className="unit-mix-count" style={{ color: '#8E9E8A' }}>{totalUnits - stabilizedUnits}</span>
+                    <span className="unit-mix-label">Market Rate</span>
+                  </div>
+                  <div className="unit-mix-item">
+                    <span className="unit-mix-count">{Math.round((stabilizedUnits / totalUnits) * 100)}%</span>
+                    <span className="unit-mix-label">Stabilized</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="di-empty">Estimated {property.units_res} residential units (stabilization data unavailable)</div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Condo Pro Forma ── */}
