@@ -102,7 +102,7 @@ export default function ChatView() {
           if (last && last.role === 'assistant') {
             updated[updated.length - 1] = {
               ...last,
-              content: `Error: ${err.message}`,
+              content: 'Having trouble connecting right now. Try again in a moment.',
               isStreaming: false,
               isError: true,
             }
@@ -156,8 +156,8 @@ export default function ChatView() {
               WHAT'S THE DEAL.
             </h1>
             <p className="chat-welcome-subtitle">
-              Frank searches and analyzes every tax lot in Manhattan.
-              Ask about a deal, run a pro forma, or tell me what you're looking for.
+              Ask about an address. Run a pro forma. Source a deal.<br />
+              Frank will tell you when the numbers don't work.
             </p>
 
             <div className="chat-suggestions">

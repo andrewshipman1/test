@@ -50,13 +50,13 @@
 }
 
 .prop-card-score.score-signal {
-  color: #D9962E;
-  border-color: #D9962E;
+  color: #B83227;
+  border-color: #B83227;
 }
 
 .prop-card-score.score-high {
-  color: #D9962E;
-  border-color: rgba(217,150,46,0.5);
+  color: #8A8278;
+  border-color: #C8B8A8;
 }
 
 .prop-card-score.score-medium {
@@ -107,7 +107,7 @@
 /* ── Data grid ── */
 .prop-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 1px;
   background-color: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.07);

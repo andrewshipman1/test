@@ -18,7 +18,7 @@
 .frank-wordmark {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
-  font-size: 22px;
+  font-size: 24px;
   letter-spacing: 0.01em;
   color: #1A1410;
 }
@@ -59,8 +59,9 @@
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 40px;
+  padding-left: 10vw;
   position: relative;
   overflow: hidden;
 }
@@ -71,18 +72,18 @@
   right: 10%;
   top: 18%;
   transform: rotate(-12deg);
-  opacity: 0.06;
+  opacity: 0.14;
   pointer-events: none;
   z-index: 0;
 }
 
 .landing-stamp-watermark svg {
-  width: 280px;
-  height: 210px;
+  width: 340px;
+  height: 340px;
 }
 
 .landing-hero-inner {
-  max-width: 520px;
+  max-width: 640px;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -184,9 +185,10 @@
 
 .landing-input::placeholder {
   color: #9C8878;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 15px;
+  font-style: italic;
 }
 
 .landing-input:focus {

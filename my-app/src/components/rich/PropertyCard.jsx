@@ -60,30 +60,42 @@ export default function PropertyCard({ bbl }) {
       </div>
 
       <div className="prop-card-grid">
-        <div className="prop-card-cell">
-          <div className="prop-card-label">LOT AREA</div>
-          <div className="prop-card-value">{formatNum(property.lot_area)} SF</div>
-        </div>
-        <div className="prop-card-cell">
-          <div className="prop-card-label">BUILDABLE</div>
-          <div className="prop-card-value">{formatNum(property.available_far_sqft)} SF</div>
-        </div>
-        <div className="prop-card-cell">
-          <div className="prop-card-label">ZONING</div>
-          <div className="prop-card-value">{property.zone_dist || '—'}</div>
-        </div>
-        <div className="prop-card-cell">
-          <div className="prop-card-label">MAX FAR</div>
-          <div className="prop-card-value">{property.res_far || '—'}</div>
-        </div>
-        <div className="prop-card-cell">
-          <div className="prop-card-label">BUILT FAR</div>
-          <div className="prop-card-value">{property.built_far || '—'}</div>
-        </div>
-        <div className="prop-card-cell">
-          <div className="prop-card-label">FLOORS</div>
-          <div className="prop-card-value">{property.num_floors || '—'}</div>
-        </div>
+        {property.lot_area != null && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">LOT AREA</div>
+            <div className="prop-card-value">{formatNum(property.lot_area)} SF</div>
+          </div>
+        )}
+        {property.available_far_sqft != null && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">BUILDABLE</div>
+            <div className="prop-card-value">{formatNum(property.available_far_sqft)} SF</div>
+          </div>
+        )}
+        {property.zone_dist && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">ZONING</div>
+            <div className="prop-card-value">{property.zone_dist}</div>
+          </div>
+        )}
+        {property.res_far != null && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">MAX FAR</div>
+            <div className="prop-card-value">{property.res_far}</div>
+          </div>
+        )}
+        {property.built_far != null && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">BUILT FAR</div>
+            <div className="prop-card-value">{property.built_far}</div>
+          </div>
+        )}
+        {property.num_floors != null && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">FLOORS</div>
+            <div className="prop-card-value">{property.num_floors}</div>
+          </div>
+        )}
       </div>
 
       {/* Risk flags */}

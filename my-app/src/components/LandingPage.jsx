@@ -35,25 +35,30 @@ export default function LandingPage({ onAuthenticated }) {
 
       {/* Hero */}
       <main className="landing-hero">
-        {/* Stamp watermark — ghost background element */}
+        {/* Stamp watermark — variant 01 from frank-assets.svg */}
         <div className="landing-stamp-watermark">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 80" width="220" height="160">
-            <circle cx="55" cy="40" r="52" stroke="#8B2E22" strokeWidth="5" fill="none"/>
-            <circle cx="55" cy="40" r="44" stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
-            <circle cx="55" cy="40" r="30" stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="340" height="340">
+            <circle cx="115" cy="115" r="106" stroke="#8B2E22" strokeWidth="4" fill="none"/>
+            <circle cx="115" cy="115" r="99"  stroke="#8B2E22" strokeWidth="1" fill="none"/>
+            <circle cx="115" cy="115" r="74"  stroke="#8B2E22" strokeWidth="1" fill="none"/>
+            <circle cx="115" cy="115" r="68"  stroke="#8B2E22" strokeWidth="0.5" fill="none"/>
             <defs>
-              <path id="arc-wg-lp" d="M 5,40 A 50,50 0 0,1 105,40"/>
-              <path id="arc-wgb-lp" d="M 14,54 A 44,44 0 0,0 96,54"/>
+              <path id="arc-top-lp" d="M 18,115 A 97,97 0 0,1 212,115"/>
+              <path id="arc-bot-lp" d="M 36,138 A 87,87 0 0,0 194,138"/>
             </defs>
-            <text fontFamily="'Playfair Display',Georgia,serif" fontSize="22" fontWeight="700" fill="#8B2E22" letterSpacing="14">
-              <textPath href="#arc-wg-lp" startOffset="50%" textAnchor="middle">FRANK</textPath>
+            <text fontFamily="'Playfair Display',Georgia,serif" fontSize="30" fontWeight="700" fill="#8B2E22" letterSpacing="18">
+              <textPath href="#arc-top-lp" startOffset="50%" textAnchor="middle">FRANK</textPath>
             </text>
-            <text fontFamily="'IBM Plex Mono',monospace" fontSize="7" fill="#8B2E22" letterSpacing="2">
-              <textPath href="#arc-wgb-lp" startOffset="50%" textAnchor="middle">LICENSED · DEAL INTEL</textPath>
+            <text fontFamily="'IBM Plex Mono',monospace" fontSize="9.5" fill="#8B2E22" letterSpacing="3">
+              <textPath href="#arc-bot-lp" startOffset="50%" textAnchor="middle">LICENSED · DEAL INTELLIGENCE</textPath>
             </text>
-            <line x1="32" y1="40" x2="78" y2="40" stroke="#8B2E22" strokeWidth="1"/>
-            <text x="55" y="37" fontFamily="'IBM Plex Mono',monospace" fontSize="8" fill="#8B2E22" textAnchor="middle" letterSpacing="1.5">FRANK.AI</text>
-            <text x="55" y="47" fontFamily="'IBM Plex Mono',monospace" fontSize="6" fill="#8B2E22" textAnchor="middle">NEW YORK</text>
+            <line x1="72" y1="115" x2="158" y2="115" stroke="#8B2E22" strokeWidth="0.75"/>
+            <text x="115" y="111" fontFamily="'IBM Plex Mono',monospace" fontSize="11" fill="#8B2E22" textAnchor="middle" letterSpacing="2">FRANK.AI</text>
+            <text x="115" y="126" fontFamily="'IBM Plex Mono',monospace" fontSize="9" fill="#8B2E22" textAnchor="middle" letterSpacing="1.5">EST. 2025 · NEW YORK</text>
+            <circle cx="9"   cy="115" r="3.5" fill="#8B2E22"/>
+            <circle cx="221" cy="115" r="3.5" fill="#8B2E22"/>
+            <circle cx="115" cy="9"   r="3.5" fill="#8B2E22"/>
+            <circle cx="115" cy="221" r="3.5" fill="#8B2E22"/>
           </svg>
         </div>
         <div className="landing-hero-inner">
@@ -71,20 +76,10 @@ export default function LandingPage({ onAuthenticated }) {
           </p>
 
           <div className="landing-body">
-            <p>
-              Frank is an AI deal partner for Manhattan real estate.
-              It searches and analyzes every tax lot in the borough —
-              zoning, FAR, rent stabilization, violations, comps,
-              ownership — and pushes back when the numbers don't work.
-              Invite-only.
-            </p>
+            <p>Manhattan. Every parcel. Frank's read.</p>
           </div>
 
           <div className="landing-divider" />
-
-          <p className="landing-access-label">
-            Frank is invite-only. Enter your access code.
-          </p>
 
           <form className="landing-gate" onSubmit={handleSubmit}>
             <div className={`landing-input-group ${shaking ? 'shake' : ''}`}>
@@ -94,7 +89,7 @@ export default function LandingPage({ onAuthenticated }) {
                 className={`landing-input ${error ? 'landing-input-error' : ''}`}
                 value={code}
                 onChange={(e) => { setCode(e.target.value); setError(false) }}
-                placeholder="ENTER CODE"
+                placeholder="Enter code"
                 autoFocus
                 autoComplete="off"
               />
@@ -103,7 +98,6 @@ export default function LandingPage({ onAuthenticated }) {
               )}
             </div>
             <button type="submit" className="landing-submit">
-              <span className="landing-submit-label">Access</span>
               <span className="landing-submit-action">Enter</span>
             </button>
           </form>
