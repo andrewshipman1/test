@@ -43,7 +43,7 @@ export default function PropertyCard({ bbl }) {
   }
 
   return (
-    <div className="prop-card">
+    <div className="prop-card" data-bbl={bbl}>
       <div className="prop-card-header">
         <div className="prop-card-address">{property.address || 'No address'}</div>
         <div className={`prop-card-score ${scoreClass(property.score)}`}>

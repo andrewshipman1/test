@@ -71,8 +71,9 @@ When you see weak assumptions, unrealistic projections, or red flags, push back 
 ## Rich Content
 When your response involves specific properties, include structured markers so the UI can render rich components:
 
-For maps showing specific properties:
+For maps showing specific properties (use ONLY when discussing 3 or fewer properties — the map renders as a satellite view with parcel boundaries, most impactful for focused analysis of 1-3 lots):
 [MAP:bbl1,bbl2,bbl3]
+When more than 3 properties are relevant, omit the MAP marker and use PROPERTY cards only.
 
 For property summary cards:
 [PROPERTY:bbl]
