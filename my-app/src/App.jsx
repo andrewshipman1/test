@@ -3,6 +3,7 @@ import MapView from './components/MapView'
 import Sidebar from './components/Sidebar'
 import PropertyDrawer from './components/PropertyDrawer'
 import Header from './components/Header'
+import LandingPage from './components/LandingPage'
 import { useSavedProperties } from './hooks/useSavedProperties'
 import { useUnderwritingAssumptions } from './hooks/useUnderwritingAssumptions'
 import { useMarketPsf } from './hooks/useMarketPsf'
@@ -10,7 +11,7 @@ import { useDealNotes } from './hooks/useDealNotes'
 import { useMarketSignals } from './hooks/useMarketSignals'
 import './App.css'
 
-export default function App() {
+function ProductApp() {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [filters, setFilters] = useState({
     dealType: 'all',
@@ -37,7 +38,6 @@ export default function App() {
   const { livePsf } = useMarketPsf()
   const { signals: marketSignals } = useMarketSignals()
 
-  // Build BBL → PLUTO feature lookup (for sidebar lot fly-to)
   const bblToFeature = useMemo(() => {
     const map = {}
     allFeatures.forEach(f => {
@@ -47,7 +47,6 @@ export default function App() {
     return map
   }, [allFeatures])
 
-  // When clicking a saved lot in sidebar: fly to it and open drawer
   const handleSelectSaved = (property) => {
     setSelectedProperty(property)
     if (property.longitude && property.latitude) {
@@ -122,4 +121,16 @@ export default function App() {
       </div>
     </div>
   )
+}
+
+export default function App() {
+  const [authenticated, setAuthenticated] = useState(
+    () => sessionStorage.getItem('parcel_auth') === '1'
+  )
+
+  if (!authenticated) {
+    return <LandingPage onAuthenticated={() => setAuthenticated(true)} />
+  }
+
+  return <ProductApp />
 }

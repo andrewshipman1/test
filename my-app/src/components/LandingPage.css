@@ -1,0 +1,315 @@
+/* ============================================================
+   PARCEL — Landing Page
+   Marketing surface: ivory background, grain, editorial type
+   ============================================================ */
+
+.landing-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #F4EEE5;
+  color: #252220;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Nav ── */
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 40px;
+}
+
+.landing-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.landing-wordmark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 200;
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #252220;
+}
+
+.landing-nav-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #8A8278;
+}
+
+/* ── Hero ── */
+.landing-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.landing-hero-inner {
+  max-width: 520px;
+  width: 100%;
+}
+
+.landing-bronze-rule {
+  width: 40px;
+  height: 1px;
+  background-color: #A8824E;
+  margin-bottom: 32px;
+}
+
+.landing-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 200;
+  font-size: 56px;
+  line-height: 0.92;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #252220;
+  margin: 0 0 28px 0;
+}
+
+.landing-editorial {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.55;
+  color: #252220;
+  margin: 0 0 24px 0;
+}
+
+.landing-body {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #5C5650;
+  margin-bottom: 32px;
+}
+
+.landing-body p {
+  margin: 0;
+}
+
+.landing-divider {
+  height: 1px;
+  background-color: rgba(140, 128, 110, 0.20);
+  margin-bottom: 24px;
+}
+
+.landing-access-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: #5C5650;
+  margin: 0 0 20px 0;
+}
+
+/* ── Gate form ── */
+.landing-gate {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.landing-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-field-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #8A8278;
+  margin-bottom: 8px;
+}
+
+.landing-input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: transparent;
+  border: 1px solid #252220;
+  color: #252220;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  border-radius: 0;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.landing-input::placeholder {
+  color: #8A8278;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.landing-input:focus {
+  border-color: #A8824E;
+}
+
+.landing-input-error {
+  border-color: #A8824E;
+}
+
+.landing-error {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: #A8824E;
+  margin-top: 6px;
+}
+
+/* Shake animation */
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ── Submit button — title block CTA style ── */
+.landing-submit {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #252220;
+  border-left: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  height: 43px;
+}
+
+.landing-submit-label {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-right: 1px solid #252220;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #8A8278;
+  white-space: nowrap;
+}
+
+.landing-submit-action {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background-color: #252220;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #EDE5D8;
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.landing-submit:hover .landing-submit-action {
+  opacity: 0.85;
+}
+
+/* ── Footer ── */
+.landing-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-top: 1px solid rgba(140, 128, 110, 0.20);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.landing-footer-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.landing-footer-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #8A8278;
+}
+
+.landing-footer-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: #5C5650;
+}
+
+.landing-footer-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .landing-nav {
+    padding: 20px 24px;
+  }
+
+  .landing-hero {
+    padding: 32px 24px;
+    align-items: flex-start;
+    padding-top: 48px;
+  }
+
+  .landing-display {
+    font-size: 40px;
+  }
+
+  .landing-gate {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .landing-submit {
+    border-left: 1px solid #252220;
+    width: 100%;
+    height: 46px;
+  }
+
+  .landing-footer {
+    padding: 16px 24px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .landing-footer-mark {
+    align-self: flex-end;
+  }
+}
