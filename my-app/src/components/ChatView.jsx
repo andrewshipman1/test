@@ -16,7 +16,7 @@ const SUGGESTED_PROMPTS = [
   },
   {
     label: 'Due diligence',
-    text: 'Pull the full risk profile on 237 East 13th Street — rent stabilization, violations, historic district, everything.',
+    text: 'Pull the full risk profile on 120 East 13th Street — rent stabilization, violations, historic district, everything.',
   },
 ]
 

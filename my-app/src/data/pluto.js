@@ -237,10 +237,19 @@ export async function searchProperties({ dealType, neighborhood, zoningType, min
   const allFeatures = await loadAllLots()
 
   // Address search — fast path, case-insensitive substring match
+  // Strips ordinals (13th→13, 1st→1, 2nd→2, 3rd→3) and common abbreviations
   if (address) {
-    const needle = address.toUpperCase().replace(/\./g, '').replace(/\s+/g, ' ').trim()
+    const normalize = (s) => s.toUpperCase()
+      .replace(/\./g, '')
+      .replace(/(\d+)(ST|ND|RD|TH)\b/gi, '$1')  // 13th → 13
+      .replace(/\bSTREET\b/g, 'ST')
+      .replace(/\bAVENUE\b/g, 'AVE')
+      .replace(/\bBOULEVARD\b/g, 'BLVD')
+      .replace(/\s+/g, ' ')
+      .trim()
+    const needle = normalize(address)
     const matches = allFeatures.filter(f => {
-      const addr = (f.properties.address || '').toUpperCase().replace(/\./g, '').replace(/\s+/g, ' ')
+      const addr = normalize(f.properties.address || '')
       return addr.includes(needle)
     })
     matches.sort((a, b) => b.properties.score - a.properties.score)
