@@ -1,15 +1,31 @@
 /* ============================================================
-   FRANK — Chat View
-   Product surface: dark, zero border-radius, no box-shadows
+   FRANK — Chat View (split layout: chat left, map right)
    ============================================================ */
 
-.chat-view {
+.chat-layout {
   display: flex;
-  flex-direction: column;
   height: 100vh;
   height: 100dvh;
   background-color: #1A1410;
   color: #EDE0CC;
+  overflow: hidden;
+}
+
+/* ── Left: Chat panel ── */
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  width: 440px;
+  min-width: 380px;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* ── Right: Map panel ── */
+.map-panel {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -18,7 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 14px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
 }
@@ -44,7 +60,7 @@
 .chat-header-meta {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .chat-header-label {
@@ -65,7 +81,7 @@
   font-weight: 300;
   letter-spacing: 0.20em;
   text-transform: uppercase;
-  padding: 4px 12px;
+  padding: 4px 10px;
   cursor: pointer;
   border-radius: 0;
   transition: border-color 150ms ease, color 150ms ease;
@@ -82,12 +98,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: 32px 20px;
   overflow-y: auto;
 }
 
 .chat-welcome-inner {
-  max-width: 520px;
+  max-width: 400px;
   width: 100%;
 }
 
@@ -95,27 +111,27 @@
   width: 32px;
   height: 1px;
   background-color: #A83828;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .chat-welcome-title {
   font-family: 'Barlow', sans-serif;
   font-weight: 500;
-  font-size: 42px;
+  font-size: 32px;
   line-height: 0.95;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #EDE0CC;
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
 }
 
 .chat-welcome-subtitle {
   font-family: 'Barlow', sans-serif;
   font-weight: 300;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.7;
   color: #9C8878;
-  margin: 0 0 40px 0;
+  margin: 0 0 32px 0;
 }
 
 /* ── Suggested prompts ── */
@@ -132,12 +148,12 @@
   letter-spacing: 0.20em;
   text-transform: uppercase;
   color: #6B5240;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .chat-suggestion {
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-bottom: none;
@@ -163,8 +179,8 @@
 .chat-suggestion-label {
   display: flex;
   align-items: center;
-  padding: 12px 14px;
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
   font-weight: 300;
@@ -172,16 +188,15 @@
   text-transform: uppercase;
   color: #D9962E;
   white-space: nowrap;
-  min-width: 130px;
 }
 
 .chat-suggestion-text {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 10px 12px;
   font-family: 'Barlow', sans-serif;
   font-weight: 300;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   color: #9C8878;
 }
@@ -190,7 +205,25 @@
   color: #EDE0CC;
 }
 
-/* ── Responsive ── */
+/* ── Responsive: stack on small screens ── */
+@media (max-width: 900px) {
+  .chat-layout {
+    flex-direction: column;
+  }
+
+  .chat-panel {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    height: 55vh;
+  }
+
+  .map-panel {
+    height: 45vh;
+  }
+}
+
 @media (max-width: 640px) {
   .chat-header {
     padding: 12px 16px;
@@ -201,23 +234,12 @@
   }
 
   .chat-welcome {
-    padding: 32px 16px;
+    padding: 24px 16px;
     align-items: flex-start;
-    padding-top: 48px;
+    padding-top: 32px;
   }
 
   .chat-welcome-title {
-    font-size: 32px;
-  }
-
-  .chat-suggestion {
-    flex-direction: column;
-  }
-
-  .chat-suggestion-label {
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    padding: 8px 14px;
-    min-width: 0;
+    font-size: 26px;
   }
 }
