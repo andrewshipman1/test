@@ -28,7 +28,7 @@ const RETRY_DELAY_MS = 3000
  * @returns {function} abort — call to cancel the request
  */
 export function sendMessage(messages, callbacks) {
-  const { onText, onToolStart, onToolEnd, onDone, onError } = callbacks
+  const { onText, onToolStart, onToolEnd, onDone, onError, onMapUpdate } = callbacks
   let aborted = false
   const controller = new AbortController()
 
@@ -181,6 +181,21 @@ export function sendMessage(messages, callbacks) {
                       output: result,
                       timestamp: Date.now(),
                     })
+
+                    // Surface search results to the map
+                    if (onMapUpdate && tu.name === 'searchProperties' && result?.properties?.length > 0) {
+                      onMapUpdate({
+                        type: 'search_results',
+                        bbls: result.properties.map(p => p.bbl).filter(Boolean),
+                        neighborhood: tu.input?.neighborhood || null,
+                      })
+                    }
+                    if (onMapUpdate && tu.name === 'getPropertyDetail' && result?.bbl) {
+                      onMapUpdate({
+                        type: 'property_detail',
+                        bbls: [result.bbl],
+                      })
+                    }
 
                     // Log data gaps: errors, empty results, timeouts
                     const isError = result?.error != null

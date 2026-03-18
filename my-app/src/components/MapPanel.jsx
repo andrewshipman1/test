@@ -56,12 +56,13 @@ const DEFAULT_FILTERS = {
   minBuildableSF: 0,
 }
 
-export default function MapPanel({ highlightedBbls = [] }) {
+export default function MapPanel({ highlightedBbls = [], mapTarget = null }) {
   const mapRef = useRef(null)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [hoveredId, setHoveredId] = useState(null)
   const [cursor, setCursor] = useState('grab')
   const prevBblsRef = useRef([])
+  const prevTargetRef = useRef(null)
 
   const { data: plutoData, loading } = usePlutoData(DEFAULT_FILTERS)
 
@@ -75,10 +76,26 @@ export default function MapPanel({ highlightedBbls = [] }) {
     return { type: 'FeatureCollection', features }
   }, [highlightedBbls, plutoData, emptyData])
 
-  // Fly to highlighted lots when they change
+  // Fly to neighborhood target (from user query parsing)
+  useEffect(() => {
+    if (!mapLoaded || !mapTarget) return
+    if (mapTarget._ts === prevTargetRef.current) return
+    prevTargetRef.current = mapTarget._ts
+
+    const map = mapRef.current?.getMap()
+    if (!map) return
+
+    map.flyTo({
+      center: [mapTarget.lng, mapTarget.lat],
+      zoom: mapTarget.zoom || 14,
+      duration: 1200,
+      essential: true,
+    })
+  }, [mapTarget, mapLoaded])
+
+  // Fly to highlighted lots when they change (overrides neighborhood fly-to)
   useEffect(() => {
     if (!mapLoaded || !highlightData.features.length) return
-    // Only fly if BBLs changed
     const key = highlightedBbls.join(',')
     const prevKey = prevBblsRef.current.join(',')
     if (key === prevKey) return
