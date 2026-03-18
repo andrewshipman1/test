@@ -107,6 +107,7 @@ export default function ChatView() {
   const [toolStatus, setToolStatus] = useState(null)
   const [mapTarget, setMapTarget] = useState(null)         // { lng, lat, zoom } for fly-to
   const [highlightedBbls, setHighlightedBbls] = useState([]) // BBLs to highlight
+  const [selectedBbl, setSelectedBbl] = useState(null)     // BBL selected from chat card → zoom map
   const abortRef = useRef(null)
 
   // Auto-preload the PLUTO dataset on mount
@@ -231,6 +232,23 @@ export default function ChatView() {
     handleSend(text)
   }
 
+  // Chat → Map: click a PropertyCard to zoom map to that lot
+  const handleCardClick = useCallback((bbl) => {
+    setSelectedBbl(bbl)
+  }, [])
+
+  // Map → Chat: click a highlighted lot to scroll to its PropertyCard
+  const handleLotClick = useCallback((bbl) => {
+    const card = document.querySelector(`[data-bbl="${bbl}"]`)
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      card.classList.remove('prop-card-flash')
+      // Force reflow to restart animation
+      void card.offsetWidth
+      card.classList.add('prop-card-flash')
+    }
+  }, [])
+
   const handleClear = () => {
     if (abortRef.current) abortRef.current()
     setMessages([])
@@ -238,6 +256,7 @@ export default function ChatView() {
     setToolStatus(null)
     setHighlightedBbls([])
     setMapTarget(null)
+    setSelectedBbl(null)
   }
 
   const showWelcome = messages.length === 0
@@ -291,6 +310,7 @@ export default function ChatView() {
             messages={messages}
             toolStatus={toolStatus}
             isLoading={isLoading}
+            onCardClick={handleCardClick}
           />
         )}
 
@@ -306,6 +326,8 @@ export default function ChatView() {
         <MapPanel
           highlightedBbls={highlightedBbls}
           mapTarget={mapTarget}
+          selectedBbl={selectedBbl}
+          onLotClick={handleLotClick}
         />
       </div>
     </div>

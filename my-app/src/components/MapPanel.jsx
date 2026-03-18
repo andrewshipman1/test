@@ -56,7 +56,7 @@ const DEFAULT_FILTERS = {
   minBuildableSF: 0,
 }
 
-export default function MapPanel({ highlightedBbls = [], mapTarget = null }) {
+export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLotClick = null, selectedBbl = null }) {
   const mapRef = useRef(null)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [hoveredId, setHoveredId] = useState(null)
@@ -127,6 +127,35 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null }) {
     }
   }, [highlightData, highlightedBbls, mapLoaded])
 
+  // Fly to selected BBL (from chat card click)
+  useEffect(() => {
+    if (!mapLoaded || !selectedBbl || !plutoData?.features) return
+    const map = mapRef.current?.getMap()
+    if (!map) return
+    const feature = plutoData.features.find(f => String(f.properties.bbl) === String(selectedBbl))
+    if (feature) {
+      map.flyTo({
+        center: feature.geometry.coordinates,
+        zoom: 17,
+        duration: 1200,
+        essential: true,
+      })
+    }
+  }, [selectedBbl, mapLoaded, plutoData])
+
+  // Handle map click — find lot and notify parent
+  const handleClick = useCallback((e) => {
+    const map = mapRef.current?.getMap()
+    if (!map) return
+    const features = map.queryRenderedFeatures(e.point, {
+      layers: ['tax-lots-circle', 'highlighted-lots']
+    })
+    if (features.length > 0 && onLotClick) {
+      const bbl = features[0].properties?.bbl
+      if (bbl) onLotClick(String(bbl))
+    }
+  }, [onLotClick])
+
   const handleMouseMove = useCallback((e) => {
     const map = mapRef.current?.getMap()
     if (!map) return
@@ -160,6 +189,7 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null }) {
         style={{ width: '100%', height: '100%' }}
         mapStyle={MAP_STYLE}
         cursor={cursor}
+        onClick={handleClick}
         onMouseMove={handleMouseMove}
         onLoad={() => setMapLoaded(true)}
         interactiveLayerIds={['tax-lots-circle', 'highlighted-lots']}

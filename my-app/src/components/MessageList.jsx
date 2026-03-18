@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react'
 import MessageBubble from './MessageBubble.jsx'
 import './MessageList.css'
 
-export default function MessageList({ messages, toolStatus, isLoading }) {
+export default function MessageList({ messages, toolStatus, isLoading, onCardClick }) {
   const bottomRef = useRef(null)
   const containerRef = useRef(null)
 
@@ -15,7 +15,7 @@ export default function MessageList({ messages, toolStatus, isLoading }) {
     <div className="message-list" ref={containerRef}>
       <div className="message-list-inner">
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
+          <MessageBubble key={msg.id} message={msg} onCardClick={onCardClick} />
         ))}
 
         {/* Tool execution status */}

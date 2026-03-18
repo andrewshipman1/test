@@ -11,6 +11,11 @@
   padding: 14px 16px;
 }
 
+.prop-card:hover {
+  border-color: rgba(139,46,34,0.4);
+  transition: border-color 0.2s ease;
+}
+
 .prop-card-loading {
   padding: 20px;
   text-align: center;

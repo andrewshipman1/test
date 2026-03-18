@@ -142,7 +142,7 @@ function inlineFormat(text) {
     .replace(/`(.+?)`/g, '<code class="msg-code">$1</code>')
 }
 
-export default function MessageBubble({ message }) {
+export default function MessageBubble({ message, onCardClick }) {
   const { role, content, isStreaming, isError } = message
 
   const segments = useMemo(() => {
@@ -188,7 +188,7 @@ export default function MessageBubble({ message }) {
             case 'map':
               return <InlineMap key={i} bbls={seg.bbls} />
             case 'property':
-              return <PropertyCard key={i} bbl={seg.bbl} />
+              return <PropertyCard key={i} bbl={seg.bbl} onCardClick={onCardClick} />
             case 'proforma':
               return <ProFormaTable key={i} data={seg} />
             default:
