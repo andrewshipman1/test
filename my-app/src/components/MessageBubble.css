@@ -156,8 +156,9 @@
 .msg-stamp {
   display: flex;
   justify-content: flex-start;
-  padding: 12px 0 0 0;
-  opacity: 0.25;
+  padding: 10px 0 0 0;
+  margin-left: -16px;
+  opacity: 0.12;
 }
 
 /* ── Streaming cursor ── */

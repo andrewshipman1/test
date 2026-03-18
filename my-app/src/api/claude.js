@@ -162,28 +162,31 @@ export function sendMessage(messages, callbacks) {
                   })
                 })
 
-                // Execute all tool calls
-                const toolResults = []
-                for (const tu of toolUseBlocks) {
-                  const label = TOOL_LABELS[tu.name] || `Running ${tu.name}...`
-                  onToolStart?.(label)
+                // Execute all tool calls IN PARALLEL for speed
+                onToolStart?.(toolUseBlocks.length > 1
+                  ? `Running ${toolUseBlocks.length} checks...`
+                  : TOOL_LABELS[toolUseBlocks[0].name] || `Running ${toolUseBlocks[0].name}...`)
 
-                  const result = await executeTool(tu.name, tu.input)
-                  toolResults.push({
-                    type: 'tool_result',
-                    tool_use_id: tu.id,
-                    content: JSON.stringify(result),
+                const toolResults = await Promise.all(
+                  toolUseBlocks.map(async (tu) => {
+                    const result = await executeTool(tu.name, tu.input)
+                    logConversation({
+                      type: 'tool_call',
+                      tool: tu.name,
+                      input: tu.input,
+                      output: result,
+                      timestamp: Date.now(),
+                    })
+                    // Truncate large tool results to save tokens on subsequent rounds
+                    const json = JSON.stringify(result)
+                    const content = json.length > 2500 ? json.slice(0, 2500) + '...}' : json
+                    return {
+                      type: 'tool_result',
+                      tool_use_id: tu.id,
+                      content,
+                    }
                   })
-
-                  // Log each tool call
-                  logConversation({
-                    type: 'tool_call',
-                    tool: tu.name,
-                    input: tu.input,
-                    output: result,
-                    timestamp: Date.now(),
-                  })
-                }
+                )
 
                 onToolEnd?.()
 
@@ -199,11 +202,9 @@ export function sendMessage(messages, callbacks) {
                 toolUseBlocks = []
                 contentBlocks = []
 
-                // Delay between tool rounds to avoid rate limits
-                if (round > 0) {
-                  onToolStart?.('Processing...')
-                  await new Promise(r => setTimeout(r, 2000))
-                  onToolEnd?.()
+                // Brief pause between rounds to stay under rate limits
+                if (round > 1) {
+                  await new Promise(r => setTimeout(r, 1000))
                 }
 
                 return run(nextMsgs, round + 1)

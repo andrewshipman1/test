@@ -53,7 +53,7 @@ const handlers = {
     }
     const result = computeCondoProForma(input.buildableSF, input.selloutPsf, assumptions)
     if (!result) return { error: 'Invalid inputs — buildableSF and selloutPsf are required' }
-    return { ...result, assumptions: { buildableSF: input.buildableSF, selloutPsf: input.selloutPsf, ...assumptions } }
+    return result
   },
 
   checkRentStabilization: async (input) => {
@@ -89,11 +89,19 @@ const handlers = {
   },
 }
 
+// Timeout wrapper — NYC Open Data APIs can hang
+function withTimeout(promise, ms = 10000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Tool timeout')), ms)),
+  ])
+}
+
 export async function executeTool(name, input) {
   const handler = handlers[name]
   if (!handler) throw new Error(`Unknown tool: ${name}`)
   try {
-    return await handler(input)
+    return await withTimeout(handler(input))
   } catch (err) {
     return { error: err.message }
   }

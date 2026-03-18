@@ -301,7 +301,9 @@ export async function searchProperties({ dealType, neighborhood, zoningType, min
       return b.feature.properties.score - a.feature.properties.score
     })
 
-    const results = scored.slice(0, limit)
+    // For address searches, cap at 5 results to save tokens
+    const addrLimit = Math.min(limit, 5)
+    const results = scored.slice(0, addrLimit)
     return {
       count: scored.length,
       showing: results.length,
@@ -313,10 +315,8 @@ export async function searchProperties({ dealType, neighborhood, zoningType, min
         zone_dist: f.properties.zone_dist,
         lot_area: f.properties.lot_area,
         available_far_sqft: f.properties.available_far_sqft,
-        num_floors: f.properties.num_floors,
         longitude: f.properties.longitude,
         latitude: f.properties.latitude,
-        neighborhood: f.properties.neighborhood,
       })),
     }
   }
@@ -365,10 +365,8 @@ export async function searchProperties({ dealType, neighborhood, zoningType, min
       zone_dist: f.properties.zone_dist,
       lot_area: f.properties.lot_area,
       available_far_sqft: f.properties.available_far_sqft,
-      num_floors: f.properties.num_floors,
       longitude: f.properties.longitude,
       latitude: f.properties.latitude,
-      neighborhood: NEIGHBORHOOD_PSF[f.properties.zipcode]?.name || 'Manhattan',
     })),
   }
 }

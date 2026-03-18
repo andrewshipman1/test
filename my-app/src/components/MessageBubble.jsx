@@ -199,7 +199,7 @@ export default function MessageBubble({ message }) {
         {/* Auto stamp — subtle sign-off at end of every completed response */}
         {!isStreaming && !isError && (
           <div className="msg-stamp">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="44" height="44">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="28" height="28">
               <circle cx="115" cy="115" r="106" stroke="#8B2E22" strokeWidth="5" fill="none"/>
               <circle cx="115" cy="115" r="99"  stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
               <circle cx="115" cy="115" r="74"  stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
