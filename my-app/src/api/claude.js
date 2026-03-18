@@ -5,6 +5,7 @@ import { TOOLS } from './tools.js'
 import { SYSTEM_PROMPT } from './systemPrompt.js'
 import { executeTool, TOOL_LABELS } from './toolHandlers.js'
 import { logConversation } from './conversationLog.js'
+import { logDataGap, logUnansweredQuery } from './dataGapLog.js'
 
 // In production, requests go through our Vercel serverless proxy (/api/chat)
 // which keeps the API key server-side. In dev, Vite proxies /api to the same.
@@ -167,6 +168,9 @@ export function sendMessage(messages, callbacks) {
                   ? `Running ${toolUseBlocks.length} checks...`
                   : TOOL_LABELS[toolUseBlocks[0].name] || `Running ${toolUseBlocks[0].name}...`)
 
+                // Extract the original user query for gap logging
+                const userQuery = msgs.find(m => m.role === 'user' && typeof m.content === 'string')?.content || ''
+
                 const toolResults = await Promise.all(
                   toolUseBlocks.map(async (tu) => {
                     const result = await executeTool(tu.name, tu.input)
@@ -177,6 +181,26 @@ export function sendMessage(messages, callbacks) {
                       output: result,
                       timestamp: Date.now(),
                     })
+
+                    // Log data gaps: errors, empty results, timeouts
+                    const isError = result?.error != null
+                    const isEmpty = (
+                      (result?.properties?.length === 0) ||
+                      (result?.sales?.length === 0) ||
+                      (result?.permits?.length === 0) ||
+                      (result?.portfolio?.length === 0) ||
+                      (result?.count === 0 && result?.showing === 0)
+                    )
+                    if (isError || isEmpty) {
+                      logDataGap({
+                        tool: tu.name,
+                        input: tu.input,
+                        error: result?.error || null,
+                        userQuery,
+                        emptyResult: isEmpty && !isError,
+                      })
+                    }
+
                     // Truncate large tool results to save tokens on subsequent rounds
                     const json = JSON.stringify(result)
                     const content = json.length > 2500 ? json.slice(0, 2500) + '...}' : json
@@ -223,6 +247,12 @@ export function sendMessage(messages, callbacks) {
         text: fullText,
         timestamp: Date.now(),
       })
+
+      // If round 0 and no tools were called, check for data gap patterns
+      if (round === 0 && toolUseBlocks.length === 0) {
+        const userQuery = msgs.find(m => m.role === 'user' && typeof m.content === 'string')?.content
+        if (userQuery) logUnansweredQuery(userQuery)
+      }
 
     } catch (err) {
       if (err.name === 'AbortError') return
