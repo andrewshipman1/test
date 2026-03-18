@@ -176,7 +176,7 @@ export default function MessageBubble({ message }) {
             case 'pushback-text':
               return (
                 <div key={i} className="msg-pushback">
-                  <div className="msg-pushback-label">PUSHBACK</div>
+                  <div className="msg-pushback-label">FRANK'S TAKE</div>
                   <div className="msg-text">
                     {formatText(seg.content)}
                   </div>
