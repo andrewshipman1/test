@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
-import Map, { Source, Layer, NavigationControl } from 'react-map-gl/maplibre'
+import Map, { Source, Layer, NavigationControl, Popup } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
 import './MapPanel.css'
@@ -61,6 +61,7 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
   const [mapLoaded, setMapLoaded] = useState(false)
   const [hoveredId, setHoveredId] = useState(null)
   const [cursor, setCursor] = useState('grab')
+  const [popup, setPopup] = useState(null) // { lng, lat, properties }
   const prevBblsRef = useRef([])
   const prevTargetRef = useRef(null)
 
@@ -143,18 +144,35 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
     }
   }, [selectedBbl, mapLoaded, plutoData])
 
-  // Handle map click — find lot and notify parent
+  // Handle map click — show popup + scroll to chat card if exists
   const handleClick = useCallback((e) => {
     const map = mapRef.current?.getMap()
     if (!map) return
     const features = map.queryRenderedFeatures(e.point, {
-      layers: ['tax-lots-circle', 'highlighted-lots']
+      layers: ['highlighted-lots', 'tax-lots-circle']
     })
-    if (features.length > 0 && onLotClick) {
-      const bbl = features[0].properties?.bbl
-      if (bbl) onLotClick(String(bbl))
+    if (features.length > 0) {
+      const f = features[0]
+      const bbl = String(f.properties?.bbl || '')
+      const coords = f.geometry?.coordinates || [e.lngLat.lng, e.lngLat.lat]
+
+      // Show popup
+      setPopup({
+        lng: coords[0],
+        lat: coords[1],
+        bbl,
+        address: f.properties?.address || 'Unknown',
+        score: f.properties?.score,
+        zone: f.properties?.zone_dist || '',
+        isHighlighted: highlightedBbls.includes(bbl),
+      })
+
+      // Try to scroll to card in chat
+      if (onLotClick) onLotClick(bbl)
+    } else {
+      setPopup(null)
     }
-  }, [onLotClick])
+  }, [onLotClick, highlightedBbls])
 
   const handleMouseMove = useCallback((e) => {
     const map = mapRef.current?.getMap()
@@ -205,6 +223,28 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
         <Source id="highlighted-lots" type="geojson" data={highlightData}>
           <Layer {...highlightCircleLayer} />
         </Source>
+
+        {/* Click popup */}
+        {popup && (
+          <Popup
+            longitude={popup.lng}
+            latitude={popup.lat}
+            anchor="bottom"
+            closeOnClick={false}
+            onClose={() => setPopup(null)}
+            className="map-popup"
+          >
+            <div className="map-popup-address">{popup.address}</div>
+            <div className="map-popup-meta">
+              <span className="map-popup-bbl">{popup.bbl}</span>
+              {popup.zone && <span className="map-popup-zone">{popup.zone}</span>}
+              {popup.score != null && <span className="map-popup-score">Score: {popup.score}</span>}
+            </div>
+            {popup.isHighlighted && (
+              <div className="map-popup-hint">↙ View in chat</div>
+            )}
+          </Popup>
+        )}
       </Map>
 
       {/* Legend */}

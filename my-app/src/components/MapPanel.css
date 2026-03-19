@@ -126,6 +126,81 @@
   to { transform: rotate(360deg); }
 }
 
+/* ── Popup ── */
+.map-popup .maplibregl-popup-content {
+  background: rgba(26, 20, 16, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  padding: 10px 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: 220px;
+}
+
+.map-popup .maplibregl-popup-tip {
+  border-top-color: rgba(26, 20, 16, 0.94);
+}
+
+.map-popup .maplibregl-popup-close-button {
+  color: #5C5650;
+  font-size: 16px;
+  padding: 2px 6px;
+}
+
+.map-popup .maplibregl-popup-close-button:hover {
+  color: #EDE0CC;
+  background: none;
+}
+
+.map-popup-address {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #EDE0CC;
+  margin-bottom: 4px;
+}
+
+.map-popup-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.map-popup-bbl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  color: #6B5240;
+  letter-spacing: 0.04em;
+}
+
+.map-popup-zone {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  color: #9C8878;
+}
+
+.map-popup-score {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  color: #C4A06A;
+}
+
+.map-popup-hint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  color: #8B2E22;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+
 /* ── Hide MapLibre attribution ── */
 .map-panel-container .maplibregl-ctrl-attrib {
   display: none;
