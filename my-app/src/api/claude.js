@@ -217,8 +217,16 @@ export function sendMessage(messages, callbacks) {
                     }
 
                     // Truncate large tool results to save tokens on subsequent rounds
-                    const json = JSON.stringify(result)
-                    const content = json.length > 2500 ? json.slice(0, 2500) + '...}' : json
+                    // Trim arrays before serializing to keep valid JSON
+                    if (result && typeof result === 'object') {
+                      for (const key of Object.keys(result)) {
+                        if (Array.isArray(result[key]) && result[key].length > 5) {
+                          result[key] = result[key].slice(0, 5)
+                          result[key + '_truncated'] = true
+                        }
+                      }
+                    }
+                    const content = JSON.stringify(result)
                     return {
                       type: 'tool_result',
                       tool_use_id: tu.id,
@@ -240,11 +248,6 @@ export function sendMessage(messages, callbacks) {
                 fullText = ''
                 toolUseBlocks = []
                 contentBlocks = []
-
-                // Brief pause between rounds to stay under rate limits
-                if (round > 1) {
-                  await new Promise(r => setTimeout(r, 1000))
-                }
 
                 return run(nextMsgs, round + 1)
               }

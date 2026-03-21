@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import InlineMap from './rich/InlineMap.jsx'
 import PropertyCard from './rich/PropertyCard.jsx'
 import ProFormaTable from './rich/ProFormaTable.jsx'
+import { FrankSeal } from './FrankSeal.jsx'
 import './MessageBubble.css'
 
 // Parse rich content markers from Claude's response
@@ -161,7 +162,8 @@ export default function MessageBubble({ message, onCardClick }) {
   return (
     <div className={`msg msg-assistant ${isError ? 'msg-error' : ''}`}>
       <div className="msg-frank-header">
-        <span className="msg-frank-wordmark">Frank<span className="msg-frank-period">.</span></span>
+        <FrankSeal size={18} theme="dark" />
+        <span className="msg-frank-name">FRANK</span>
         <span className="msg-frank-rule" />
       </div>
       <div className="msg-frank-body">
@@ -199,22 +201,7 @@ export default function MessageBubble({ message, onCardClick }) {
         {/* Auto stamp — subtle sign-off at end of every completed response */}
         {!isStreaming && !isError && (
           <div className="msg-stamp">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 230" width="28" height="28">
-              <circle cx="115" cy="115" r="106" stroke="#8B2E22" strokeWidth="5" fill="none"/>
-              <circle cx="115" cy="115" r="99"  stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
-              <circle cx="115" cy="115" r="74"  stroke="#8B2E22" strokeWidth="1.5" fill="none"/>
-              <defs>
-                <path id="arc-top-auto" d="M 18,115 A 97,97 0 0,1 212,115"/>
-              </defs>
-              <text fontFamily="'Playfair Display',Georgia,serif" fontSize="34" fontWeight="700" fill="#8B2E22" letterSpacing="18">
-                <textPath href="#arc-top-auto" startOffset="50%" textAnchor="middle">FRANK</textPath>
-              </text>
-              <text x="115" y="120" fontFamily="'IBM Plex Mono',monospace" fontSize="14" fill="#8B2E22" textAnchor="middle" letterSpacing="4">N.Y.</text>
-              <circle cx="9"   cy="115" r="4" fill="#8B2E22"/>
-              <circle cx="221" cy="115" r="4" fill="#8B2E22"/>
-              <circle cx="115" cy="9"   r="4" fill="#8B2E22"/>
-              <circle cx="115" cy="221" r="4" fill="#8B2E22"/>
-            </svg>
+            <FrankSeal size={28} theme="dark" />
           </div>
         )}
       </div>

@@ -34,27 +34,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
+  background: rgba(26, 20, 16, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .chat-header-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.chat-wordmark {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 0.01em;
-  color: #EDE0CC;
-}
-
-.chat-period {
-  color: #B83227;
+  gap: 14px;
 }
 
 .chat-header-meta {
@@ -154,13 +145,15 @@
 .chat-suggestion {
   display: flex;
   flex-direction: column;
-  background: none;
+  background: rgba(44, 34, 24, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-bottom: none;
   cursor: pointer;
   padding: 0;
   text-align: left;
-  transition: border-color 150ms ease;
+  transition: background 150ms ease, border-color 150ms ease;
   border-radius: 0;
 }
 
@@ -170,6 +163,7 @@
 
 .chat-suggestion:hover {
   border-color: #6B5240;
+  background: rgba(44, 34, 24, 0.5);
 }
 
 .chat-suggestion:hover + .chat-suggestion {

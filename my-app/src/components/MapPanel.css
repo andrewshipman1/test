@@ -14,12 +14,12 @@
   position: absolute;
   bottom: 24px;
   left: 16px;
-  background: rgba(26, 20, 16, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 10px 12px;
+  background: rgba(26, 20, 16, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
   z-index: 10;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .map-panel-legend-title {
@@ -67,12 +67,12 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(26, 20, 16, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 6px 12px;
+  background: rgba(26, 20, 16, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 14px;
   z-index: 10;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .map-panel-stat-val {
@@ -104,11 +104,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(26, 20, 16, 0.85);
-  gap: 12px;
+  background: rgba(26, 20, 16, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  gap: 14px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
-  font-weight: 300;
+  font-weight: 400;
   color: #5C5650;
   z-index: 20;
 }
@@ -128,18 +130,18 @@
 
 /* ── Popup ── */
 .map-popup .maplibregl-popup-content {
-  background: rgba(26, 20, 16, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(26, 20, 16, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0;
-  padding: 10px 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  max-width: 220px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  max-width: 240px;
 }
 
 .map-popup .maplibregl-popup-tip {
-  border-top-color: rgba(26, 20, 16, 0.94);
+  border-top-color: rgba(26, 20, 16, 0.82);
 }
 
 .map-popup .maplibregl-popup-close-button {
@@ -190,6 +192,26 @@
   font-size: 9px;
   font-weight: 400;
   color: #C4A06A;
+}
+
+.map-popup-landmark {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  color: #8A8278;
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+  border-left: 2px solid #8A8278;
+  padding-left: 6px;
+}
+
+.map-popup-retail {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  color: #A8824E;
+  margin-top: 4px;
+  letter-spacing: 0.04em;
 }
 
 .map-popup-hint {

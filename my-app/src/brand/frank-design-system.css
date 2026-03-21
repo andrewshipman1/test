@@ -44,7 +44,9 @@
   --frank-surface-light: var(--frank-paper-lt);
   --frank-divider:       rgba(200,184,168,0.25);
   --frank-divider-dark:  rgba(255,255,255,0.07);
-  --frank-font-display:  'Playfair Display', Georgia, serif;
+  --frank-red:           #B83227;
+  --frank-red-lt:        #C8392D;
+  --frank-font-display:  Georgia, serif;
   --frank-font-body:     'Barlow', 'Helvetica Neue', sans-serif;
   --frank-font-data:     'IBM Plex Mono', 'Courier New', monospace;
   --frank-text-xs:   10px;
@@ -104,6 +106,11 @@
 .f-surface-card-dark { background:rgba(255,255,255,0.025); border:var(--frank-border-dark); }
 .f-surface-card-light { background:var(--frank-paper-lt); border:var(--frank-border-strong); }
 .f-surface-pushback { background:var(--frank-oxblood-dim); border:1px solid rgba(139,46,34,0.22); border-left:var(--frank-border-signal); }
+
+/* GLASS — frosted translucency for premium feel */
+.f-glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(26,23,20,0.72); }
+.f-glass-light { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(248,242,232,0.8); }
+.f-glass-subtle { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(26,23,20,0.88); }
 
 /* NAV */
 .f-nav { display:flex; align-items:stretch; border-bottom:var(--frank-border-dark); background:var(--frank-tobacco); height:48px; }

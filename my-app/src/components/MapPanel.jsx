@@ -2,38 +2,11 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import Map, { Source, Layer, NavigationControl, Popup } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { usePlutoData } from '../hooks/usePlutoData'
+import useHistoricDistricts, { isInHistoricDistrict } from '../hooks/useHistoricDistricts'
+import { findNearestLot } from '../utils/spatialLookup'
 import './MapPanel.css'
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-
-// Lot circle layer — all tax lots
-const lotCircleLayer = {
-  id: 'tax-lots-circle',
-  type: 'circle',
-  paint: {
-    'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 1.5, 13, 3, 14, 5, 16, 8],
-    'circle-color': [
-      'case',
-      ['==', ['get', 'land_use'], '11'], '#8E9E8A',
-      ['>=', ['get', 'score'], 85], '#C4A06A',
-      ['>=', ['get', 'score'], 60], '#A8824E',
-      ['>=', ['get', 'score'], 40], '#8A8278',
-      ['>=', ['get', 'score'], 20], '#5C5650',
-      '#3A3632'
-    ],
-    'circle-opacity': [
-      'case',
-      ['boolean', ['feature-state', 'hover'], false], 0.95,
-      0.7
-    ],
-    'circle-stroke-width': [
-      'case',
-      ['boolean', ['feature-state', 'hover'], false], 1.5,
-      0.3
-    ],
-    'circle-stroke-color': '#ffffff22',
-  }
-}
 
 // Highlighted lots layer — BBLs from chat results
 const highlightCircleLayer = {
@@ -59,23 +32,23 @@ const DEFAULT_FILTERS = {
 export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLotClick = null, selectedBbl = null }) {
   const mapRef = useRef(null)
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [hoveredId, setHoveredId] = useState(null)
-  const [cursor, setCursor] = useState('grab')
-  const [popup, setPopup] = useState(null) // { lng, lat, properties }
+  const [popup, setPopup] = useState(null)
   const prevBblsRef = useRef([])
   const prevTargetRef = useRef(null)
 
-  const { data: plutoData, loading } = usePlutoData(DEFAULT_FILTERS)
+  const { data: plutoData, allFeatures, loading } = usePlutoData(DEFAULT_FILTERS)
+  const { districts: historicGeoJson } = useHistoricDistricts()
+  const historicDistricts = historicGeoJson?.features || []
 
   const emptyData = useMemo(() => ({ type: 'FeatureCollection', features: [] }), [])
 
   // Build highlighted features GeoJSON from BBLs
   const highlightData = useMemo(() => {
-    if (!highlightedBbls.length || !plutoData?.features) return emptyData
+    if (!highlightedBbls.length || !allFeatures?.length) return emptyData
     const bblSet = new Set(highlightedBbls.map(String))
-    const features = plutoData.features.filter(f => bblSet.has(String(f.properties.bbl)))
+    const features = allFeatures.filter(f => bblSet.has(String(f.properties.bbl)))
     return { type: 'FeatureCollection', features }
-  }, [highlightedBbls, plutoData, emptyData])
+  }, [highlightedBbls, allFeatures, emptyData])
 
   // Fly to neighborhood target (from user query parsing)
   useEffect(() => {
@@ -94,7 +67,7 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
     })
   }, [mapTarget, mapLoaded])
 
-  // Fly to highlighted lots when they change (overrides neighborhood fly-to)
+  // Fly to highlighted lots when they change
   useEffect(() => {
     if (!mapLoaded || !highlightData.features.length) return
     const key = highlightedBbls.join(',')
@@ -130,10 +103,10 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
 
   // Fly to selected BBL (from chat card click)
   useEffect(() => {
-    if (!mapLoaded || !selectedBbl || !plutoData?.features) return
+    if (!mapLoaded || !selectedBbl || !allFeatures?.length) return
     const map = mapRef.current?.getMap()
     if (!map) return
-    const feature = plutoData.features.find(f => String(f.properties.bbl) === String(selectedBbl))
+    const feature = allFeatures.find(f => String(f.properties.bbl) === String(selectedBbl))
     if (feature) {
       map.flyTo({
         center: feature.geometry.coordinates,
@@ -142,62 +115,60 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
         essential: true,
       })
     }
-  }, [selectedBbl, mapLoaded, plutoData])
+  }, [selectedBbl, mapLoaded, allFeatures])
 
-  // Handle map click — show popup + scroll to chat card if exists
+  // Handle map click — spatial lookup to nearest PLUTO lot
   const handleClick = useCallback((e) => {
-    const map = mapRef.current?.getMap()
-    if (!map) return
-    const features = map.queryRenderedFeatures(e.point, {
-      layers: ['highlighted-lots', 'tax-lots-circle']
-    })
-    if (features.length > 0) {
-      const f = features[0]
-      const bbl = String(f.properties?.bbl || '')
-      const coords = f.geometry?.coordinates || [e.lngLat.lng, e.lngLat.lat]
+    if (!allFeatures?.length) return
 
-      // Show popup
+    // First check if a highlighted lot was clicked directly
+    const map = mapRef.current?.getMap()
+    if (map) {
+      const hitHighlights = map.queryRenderedFeatures(e.point, { layers: ['highlighted-lots'] })
+      if (hitHighlights.length > 0) {
+        const f = hitHighlights[0]
+        const bbl = String(f.properties?.bbl || '')
+        const coords = f.geometry?.coordinates || [e.lngLat.lng, e.lngLat.lat]
+        setPopup({
+          lng: coords[0], lat: coords[1], bbl,
+          address: f.properties?.address || 'Unknown',
+          score: f.properties?.score,
+          zone: f.properties?.zone_dist || '',
+          isHighlighted: true,
+        })
+        if (onLotClick) onLotClick(bbl)
+        return
+      }
+    }
+
+    // Spatial lookup: find nearest PLUTO lot within 50m
+    const nearest = findNearestLot(e.lngLat, allFeatures, 50)
+    if (nearest) {
+      const p = nearest.properties
+      const coords = nearest.geometry.coordinates
+      const bbl = String(p.bbl)
+
+      // Check if in historic district
+      let landmark = null
+      if (historicDistricts.length > 0) {
+        const hd = isInHistoricDistrict(coords[0], coords[1], historicDistricts)
+        if (hd.inDistrict) landmark = hd.districtName
+      }
+
       setPopup({
-        lng: coords[0],
-        lat: coords[1],
-        bbl,
-        address: f.properties?.address || 'Unknown',
-        score: f.properties?.score,
-        zone: f.properties?.zone_dist || '',
+        lng: coords[0], lat: coords[1], bbl,
+        address: p.address || 'Unknown',
+        score: p.score,
+        zone: p.zone_dist || '',
+        retail_area: p.retail_area || 0,
+        landmark,
         isHighlighted: highlightedBbls.includes(bbl),
       })
-
-      // Try to scroll to card in chat
       if (onLotClick) onLotClick(bbl)
     } else {
       setPopup(null)
     }
-  }, [onLotClick, highlightedBbls])
-
-  const handleMouseMove = useCallback((e) => {
-    const map = mapRef.current?.getMap()
-    if (!map) return
-    const features = map.queryRenderedFeatures(e.point, {
-      layers: ['tax-lots-circle', 'highlighted-lots']
-    })
-    if (features.length > 0) {
-      setCursor('pointer')
-      const feature = features[0]
-      if (hoveredId !== null && hoveredId !== feature.id) {
-        map.setFeatureState({ source: 'tax-lots', id: hoveredId }, { hover: false })
-      }
-      if (feature.source === 'tax-lots') {
-        setHoveredId(feature.id)
-        map.setFeatureState({ source: 'tax-lots', id: feature.id }, { hover: true })
-      }
-    } else {
-      setCursor('grab')
-      if (hoveredId !== null) {
-        map.setFeatureState({ source: 'tax-lots', id: hoveredId }, { hover: false })
-        setHoveredId(null)
-      }
-    }
-  }, [hoveredId])
+  }, [allFeatures, onLotClick, highlightedBbls, historicDistricts])
 
   return (
     <div className="map-panel-container">
@@ -206,18 +177,36 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
         initialViewState={{ longitude: -73.9712, latitude: 40.7831, zoom: 13 }}
         style={{ width: '100%', height: '100%' }}
         mapStyle={MAP_STYLE}
-        cursor={cursor}
+        cursor="crosshair"
         onClick={handleClick}
-        onMouseMove={handleMouseMove}
         onLoad={() => setMapLoaded(true)}
-        interactiveLayerIds={['tax-lots-circle', 'highlighted-lots']}
+        interactiveLayerIds={['highlighted-lots']}
       >
         <NavigationControl position="top-right" />
 
-        {/* All Manhattan lots */}
-        <Source id="tax-lots" type="geojson" data={plutoData || emptyData}>
-          <Layer {...lotCircleLayer} />
-        </Source>
+        {/* Historic district overlay — subtle border only */}
+        {historicGeoJson && (
+          <Source id="historic-districts" type="geojson" data={historicGeoJson}>
+            <Layer
+              id="historic-districts-fill"
+              type="fill"
+              paint={{
+                'fill-color': '#8A8278',
+                'fill-opacity': 0.02,
+              }}
+            />
+            <Layer
+              id="historic-districts-line"
+              type="line"
+              paint={{
+                'line-color': '#8A8278',
+                'line-width': 1,
+                'line-dasharray': [3, 2],
+                'line-opacity': 0.5,
+              }}
+            />
+          </Source>
+        )}
 
         {/* Highlighted lots from chat */}
         <Source id="highlighted-lots" type="geojson" data={highlightData}>
@@ -240,6 +229,12 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
               {popup.zone && <span className="map-popup-zone">{popup.zone}</span>}
               {popup.score != null && <span className="map-popup-score">Score: {popup.score}</span>}
             </div>
+            {popup.landmark && (
+              <div className="map-popup-landmark">{popup.landmark}</div>
+            )}
+            {popup.retail_area > 0 && (
+              <div className="map-popup-retail">Retail: {popup.retail_area.toLocaleString()} SF</div>
+            )}
             {popup.isHighlighted && (
               <div className="map-popup-hint">↙ View in chat</div>
             )}
@@ -248,36 +243,28 @@ export default function MapPanel({ highlightedBbls = [], mapTarget = null, onLot
       </Map>
 
       {/* Legend */}
-      <div className="map-panel-legend">
-        <div className="map-panel-legend-title">Score</div>
-        {[
-          { color: '#C4A06A', label: '85+' },
-          { color: '#A8824E', label: '60–85' },
-          { color: '#8A8278', label: '40–60' },
-          { color: '#5C5650', label: '20–40' },
-          { color: '#8E9E8A', label: 'Vacant' },
-        ].map(item => (
-          <div key={item.label} className="map-panel-legend-item">
-            <div className="map-panel-legend-dot" style={{ background: item.color }} />
-            <span>{item.label}</span>
-          </div>
-        ))}
-        {highlightedBbls.length > 0 && (
-          <>
-            <div className="map-panel-legend-divider" />
+      {(highlightedBbls.length > 0 || historicGeoJson) && (
+        <div className="map-panel-legend">
+          {historicGeoJson && (
+            <div className="map-panel-legend-item">
+              <div className="map-panel-legend-dot" style={{ background: 'transparent', border: '1px dashed #8A8278' }} />
+              <span>Historic district</span>
+            </div>
+          )}
+          {highlightedBbls.length > 0 && (
             <div className="map-panel-legend-item">
               <div className="map-panel-legend-dot" style={{ background: '#8B2E22', border: '1.5px solid #EDE0CC' }} />
               <span>Results</span>
             </div>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Stats */}
-      {!loading && plutoData && (
+      {!loading && allFeatures?.length > 0 && (
         <div className="map-panel-stats">
-          <span className="map-panel-stat-val">{plutoData.features.length.toLocaleString()}</span>
-          <span className="map-panel-stat-label">lots</span>
+          <span className="map-panel-stat-val">{allFeatures.length.toLocaleString()}</span>
+          <span className="map-panel-stat-label">lots indexed</span>
           {highlightedBbls.length > 0 && (
             <>
               <span className="map-panel-stat-sep">·</span>

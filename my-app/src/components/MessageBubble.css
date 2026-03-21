@@ -38,16 +38,13 @@
   margin-bottom: 8px;
 }
 
-.msg-frank-wordmark {
-  font-family: 'Playfair Display', serif;
+.msg-frank-name {
+  font-family: Georgia, serif;
   font-weight: 700;
   font-size: 13px;
-  color: #EDE0CC;
+  letter-spacing: 0.1em;
+  color: #F0E8DA;
   white-space: nowrap;
-}
-
-.msg-frank-period {
-  color: #B83227;
 }
 
 .msg-frank-rule {
@@ -58,12 +55,10 @@
 
 /* ── Frank body card ── */
 .msg-frank-body {
-  border-left: 2px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.025);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 18px 22px;
 }
 
 .msg-error .msg-text {
@@ -73,9 +68,9 @@
 /* ── Text formatting ── */
 .msg-text {
   font-family: 'Barlow', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.75;
   color: #EDE0CC;
 }
 
@@ -136,10 +131,10 @@
 
 /* ── Pushback callout ── */
 .msg-pushback {
-  border-left: 2px solid #8B2E22;
-  padding: 10px 14px;
-  margin: 12px 0;
-  background-color: rgba(139, 46, 34, 0.08);
+  border-left: 2px solid rgba(184, 50, 39, 0.4);
+  padding: 12px 16px;
+  margin: 14px 0;
+  background-color: rgba(139, 46, 34, 0.05);
 }
 
 .msg-pushback-label {
@@ -148,7 +143,7 @@
   font-weight: 400;
   letter-spacing: 0.15em;
   text-transform: none;
-  color: #8B2E22;
+  color: #9C8878;
   margin-bottom: 6px;
 }
 
@@ -156,9 +151,9 @@
 .msg-stamp {
   display: flex;
   justify-content: flex-start;
-  padding: 10px 0 0 0;
-  margin-left: -16px;
-  opacity: 0.12;
+  padding: 14px 0 4px 0;
+  margin-left: -4px;
+  opacity: 0.10;
 }
 
 /* ── Streaming cursor ── */

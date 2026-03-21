@@ -1,6 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { computeScore as sharedComputeScore } from '../data/pluto.js'
+import useHistoricDistricts, { isInHistoricDistrict } from './useHistoricDistricts.js'
 
 const NYC_API = 'https://data.cityofnewyork.us/resource/64uk-42ks.json'
+const HPD_REGISTRATIONS = 'https://data.cityofnewyork.us/resource/tesw-yqqr.json'
 
 // Neighborhood PSF estimates by zipcode (luxury residential $/SF sellout)
 export const NEIGHBORHOOD_PSF = {
@@ -81,7 +84,11 @@ export function getEffectivePsf(zipcode, assumptions, livePsf = {}) {
 // Detect deal type from building class + land use
 export function getDealType(bldgClass, landUse) {
   const bc = (bldgClass || '').toUpperCase()
-  if (landUse === '11' || bc.startsWith('V')) return 'VACANT'
+  const lu = (landUse || '').padStart(2, '0')
+  if (lu === '08' || lu === '09') return 'INSTITUTIONAL'
+  if (bc.startsWith('H') || bc.startsWith('P') || bc.startsWith('W') ||
+      ['M2', 'M9', 'I7'].includes(bc)) return 'INSTITUTIONAL'
+  if (lu === '11' || bc.startsWith('V')) return 'VACANT'
   if (['D4', 'D5'].includes(bc)) return 'COOP'
   if (bc.startsWith('R')) return 'CONDO'
   if (['E', 'F', 'L'].some(p => bc.startsWith(p))) return 'CONVERSION'
@@ -99,62 +106,9 @@ export function isLikelyRentStabilized(landUse, unitsRes, yearBuilt) {
     parseInt(yearBuilt) < 1974
 }
 
-// Compute opportunity score from real PLUTO fields
-function computeScore(lot) {
-  let score = 0
-  const residFar = parseFloat(lot.residfar) || 0
-  const builtFar = parseFloat(lot.builtfar) || 0
-  const lotArea = parseFloat(lot.lotarea) || 0
-  const availableFAR = Math.max(0, (residFar - builtFar) * lotArea)
-  const farUtilization = residFar > 0 ? builtFar / residFar : 1
-  const bc = (lot.bldgclass || '').toUpperCase()
-  const landUse = (lot.landuse || '').padStart(2, '0')
-
-  // Penalize co-ops and condos (near-impossible to redevelop)
-  if (['D4', 'D5'].includes(bc) || bc.startsWith('R')) return 5
-
-  // Unused development rights
-  if (availableFAR > 50000) score += 30
-  else if (availableFAR > 20000) score += 20
-  else if (availableFAR > 5000) score += 10
-
-  // Vacant land = best
-  if (landUse === '11') score += 25
-
-  // Under-utilized relative to zoning
-  if (farUtilization < 0.5 && residFar > 2) score += 20
-  else if (farUtilization < 0.75) score += 10
-
-  // Low-rise on high-FAR zone (teardown candidate)
-  if ((parseFloat(lot.numfloors) || 0) < 3 && residFar >= 5) score += 15
-
-  // High-density zoning
-  if (residFar >= 10) score += 10
-  else if (residFar >= 6) score += 5
-
-  // Garage = easy teardown bonus
-  if (bc.startsWith('G')) score += 8
-
-  // Rent stabilization penalty (proxy — real data loaded on demand)
-  if (isLikelyRentStabilized(lot.landuse, lot.unitsres, lot.yearbuilt)) {
-    const units = parseInt(lot.unitsres) || 0
-    if (units > 50) score -= 15
-    else if (units > 20) score -= 10
-    else score -= 5
-  }
-
-  // Retail exposure penalty — active retail leases complicate redevelopment
-  const retailArea = parseFloat(lot.retailarea) || 0
-  if (retailArea > 10000) score -= 8
-  else if (retailArea > 5000) score -= 5
-  else if (retailArea > 0) score -= 3
-
-  return Math.max(0, Math.min(100, Math.round(score)))
-}
-
 // Normalize a raw PLUTO lot into a GeoJSON feature
 function toFeature(lot, index) {
-  const score = computeScore(lot)
+  const score = sharedComputeScore(lot)
   const lotArea = parseFloat(lot.lotarea) || 0
   const residFar = parseFloat(lot.residfar) || 0
   const builtFar = parseFloat(lot.builtfar) || 0
@@ -192,6 +146,8 @@ function toFeature(lot, index) {
       year_built:       parseFloat(lot.yearbuilt) || 0,
       units_res:        parseFloat(lot.unitsres) || 0,
       assess_total:     parseFloat(lot.assesstot) || 0,
+      exempt_total:     parseFloat(lot.exempttot) || 0,
+      owner_type:       (lot.ownertype || '').toUpperCase(),
       available_far_sqft: availableFarSqft,
       score,
       deal_type:        getDealType(lot.bldgclass, landUse),
@@ -216,16 +172,19 @@ export function usePlutoData(filters) {
   const [zoningDistricts, setZoningDistricts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { districts: historicGeoJson } = useHistoricDistricts()
+  const hpdEnrichedRef = useRef(false)
+  const hdEnrichedRef = useRef(false)
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
       try {
         const selectFields = [
-          'bbl', 'address', 'zipcode', 'ownername', 'landuse', 'bldgclass',
+          'bbl', 'address', 'zipcode', 'ownername', 'ownertype', 'landuse', 'bldgclass',
           'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
           'residfar', 'commfar', 'facilfar', 'builtfar', 'numfloors', 'yearbuilt',
-          'unitsres', 'assesstot', 'latitude', 'longitude',
+          'unitsres', 'assesstot', 'exempttot', 'latitude', 'longitude',
           'overlay1', 'cd', 'retailarea'
         ].join(',')
         const where = 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0'
@@ -275,6 +234,80 @@ export function usePlutoData(filters) {
     }
     fetchData()
   }, [])
+
+  // Bulk-load HPD registrations to confirm rent stabilization + re-score
+  useEffect(() => {
+    if (!allFeatures.length || hpdEnrichedRef.current) return
+    hpdEnrichedRef.current = true
+
+    async function enrichRentStab() {
+      try {
+        const PAGE_SIZE = 50000
+        const params = new URLSearchParams({
+          boroid: '1',
+          $select: 'boroid,block,lot',
+          $limit: PAGE_SIZE,
+        })
+        const res = await fetch(`${HPD_REGISTRATIONS}?${params}`)
+        if (!res.ok) return
+        const registrations = await res.json()
+
+        const rentStabBbls = new Set()
+        for (const reg of registrations) {
+          const block = String(reg.block).padStart(5, '0')
+          const lot = String(reg.lot).padStart(4, '0')
+          rentStabBbls.add(`1${block}${lot}`)
+        }
+
+        let changed = false
+        for (const f of allFeatures) {
+          const confirmed = rentStabBbls.has(f.properties.bbl)
+          f.properties.rent_stab_confirmed = confirmed
+          // Re-score with confirmed rent stab data
+          const newScore = sharedComputeScore(f.properties, { confirmedRentStab: confirmed })
+          if (f.properties.score !== newScore) {
+            f.properties.score = newScore
+            changed = true
+          }
+        }
+
+        if (changed) setAllFeatures([...allFeatures])
+      } catch (err) {
+        console.warn('HPD bulk rent stab fetch failed:', err.message)
+      }
+    }
+
+    enrichRentStab()
+  }, [allFeatures.length])
+
+  // Bulk historic district enrichment — tag features + re-score
+  useEffect(() => {
+    if (!allFeatures.length || !historicGeoJson?.features?.length || hdEnrichedRef.current) return
+    hdEnrichedRef.current = true
+
+    const districtFeatures = historicGeoJson.features
+    let changed = false
+
+    for (const f of allFeatures) {
+      const { inDistrict, districtName } = isInHistoricDistrict(
+        f.properties.longitude, f.properties.latitude, districtFeatures
+      )
+      if (inDistrict) {
+        f.properties.has_landmark = true
+        f.properties.landmark_name = districtName || 'Historic District'
+        const newScore = sharedComputeScore(f.properties, {
+          isHistoricDistrict: true,
+          confirmedRentStab: f.properties.rent_stab_confirmed,
+        })
+        if (f.properties.score !== newScore) {
+          f.properties.score = newScore
+          changed = true
+        }
+      }
+    }
+
+    if (changed) setAllFeatures([...allFeatures])
+  }, [allFeatures.length, historicGeoJson])
 
   const data = useMemo(() => {
     if (!allFeatures.length) return null

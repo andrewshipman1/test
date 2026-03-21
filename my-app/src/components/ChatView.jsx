@@ -4,20 +4,22 @@ import { logConversation } from '../api/conversationLog.js'
 import MessageList from './MessageList.jsx'
 import ChatInput from './ChatInput.jsx'
 import MapPanel from './MapPanel.jsx'
+import { FrankSeal } from './FrankSeal.jsx'
+import { FrankMasthead } from './FrankMasthead.jsx'
 import './ChatView.css'
 
 const SUGGESTED_PROMPTS = [
   {
     label: 'Source a deal',
-    text: 'Show me the best conversion plays on the Upper East Side right now.',
+    text: 'What are the best teardown opportunities in the West Village right now?',
   },
   {
     label: 'Run the numbers',
-    text: 'Run a condo pro forma on 383 Lafayette Street assuming $3,400 sellout PSF. What\'s the land residual?',
+    text: 'Walk me through a condo conversion play in SoHo — what kind of numbers are we looking at?',
   },
   {
     label: 'Due diligence',
-    text: 'Pull the full risk profile on 120 East 13th Street — rent stabilization, violations, historic district, everything.',
+    text: 'I\'m looking at a site on the Lower East Side. What should I be worried about with rent stabilization and historic districts down there?',
   },
 ]
 
@@ -109,6 +111,8 @@ export default function ChatView() {
   const [highlightedBbls, setHighlightedBbls] = useState([]) // BBLs to highlight
   const [selectedBbl, setSelectedBbl] = useState(null)     // BBL selected from chat card → zoom map
   const abortRef = useRef(null)
+  const pendingChunksRef = useRef('')
+  const renderTimerRef = useRef(null)
 
   // Auto-preload the PLUTO dataset on mount
   useEffect(() => {
@@ -156,17 +160,28 @@ export default function ChatView() {
 
     const abort = sendMessage(history, {
       onText: (chunk) => {
-        setMessages(prev => {
-          const updated = [...prev]
-          const last = updated[updated.length - 1]
-          if (last && last.role === 'assistant') {
-            updated[updated.length - 1] = {
-              ...last,
-              content: last.content + chunk,
+        // Batch streaming chunks and render at most once per 50ms
+        pendingChunksRef.current += chunk
+        if (!renderTimerRef.current) {
+          renderTimerRef.current = setTimeout(() => {
+            const pending = pendingChunksRef.current
+            pendingChunksRef.current = ''
+            renderTimerRef.current = null
+            if (pending) {
+              setMessages(prev => {
+                const updated = [...prev]
+                const last = updated[updated.length - 1]
+                if (last && last.role === 'assistant') {
+                  updated[updated.length - 1] = {
+                    ...last,
+                    content: last.content + pending,
+                  }
+                }
+                return updated
+              })
             }
-          }
-          return updated
-        })
+          }, 50)
+        }
       },
 
       onToolStart: (label) => {
@@ -188,13 +203,19 @@ export default function ChatView() {
       },
 
       onDone: (fullText) => {
+        // Flush any pending debounced chunks
+        clearTimeout(renderTimerRef.current)
+        renderTimerRef.current = null
+        const remaining = pendingChunksRef.current
+        pendingChunksRef.current = ''
+
         setMessages(prev => {
           const updated = [...prev]
           const last = updated[updated.length - 1]
           if (last && last.role === 'assistant') {
             updated[updated.length - 1] = {
               ...last,
-              content: last.content || fullText,
+              content: (last.content + remaining) || fullText,
               isStreaming: false,
             }
           }
@@ -267,7 +288,8 @@ export default function ChatView() {
       <div className="chat-panel">
         <header className="chat-header">
           <div className="chat-header-brand">
-            <span className="chat-wordmark">Frank<span className="chat-period">.</span></span>
+            <FrankSeal size={24} theme="dark" />
+            <FrankMasthead size="sm" theme="dark" />
           </div>
           <div className="chat-header-meta">
             {messages.length > 0 && (

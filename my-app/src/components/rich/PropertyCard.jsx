@@ -22,6 +22,7 @@ const DEAL_LABELS = {
   CONVERSION: 'Conversion',
   CONDO: 'Condo',
   COOP: 'Co-op',
+  INSTITUTIONAL: 'Institutional',
 }
 
 export default function PropertyCard({ bbl, onCardClick }) {
@@ -56,6 +57,15 @@ export default function PropertyCard({ bbl, onCardClick }) {
         <span className="prop-card-deal">{DEAL_LABELS[property.deal_type] || property.deal_type}</span>
         {property.neighborhood && (
           <span className="prop-card-nbhd">{property.neighborhood}</span>
+        )}
+        {(property.latitude || property.coordinates) && (
+          <a
+            className="prop-card-map-link"
+            href={`https://www.google.com/maps/@${property.latitude || property.coordinates?.[1]},${property.longitude || property.coordinates?.[0]},18z`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >MAP</a>
         )}
       </div>
 
@@ -96,18 +106,32 @@ export default function PropertyCard({ bbl, onCardClick }) {
             <div className="prop-card-value">{property.num_floors}</div>
           </div>
         )}
+        {property.retail_area > 0 && (
+          <div className="prop-card-cell">
+            <div className="prop-card-label">RETAIL</div>
+            <div className="prop-card-value">{formatNum(property.retail_area)} SF</div>
+          </div>
+        )}
       </div>
 
       {/* Risk flags */}
       <div className="prop-card-flags">
-        {property.rent_stab_risk && (
-          <span className="prop-card-flag flag-warn">RENT STABILIZED</span>
+        {property.owner_type === 'X' && (
+          <span className="prop-card-flag flag-warn">NONPROFIT / TAX-EXEMPT</span>
+        )}
+        {(property.owner_type === 'C' || property.owner_type === 'O') && (
+          <span className="prop-card-flag flag-warn">GOVERNMENT-OWNED</span>
+        )}
+        {(property.rent_stab_confirmed || property.rent_stab_risk) && (
+          <span className="prop-card-flag flag-warn">
+            {property.rent_stab_confirmed ? 'RENT STABILIZED (HPD)' : 'LIKELY RENT STABILIZED'}
+          </span>
         )}
         {property.has_landmark && (
           <span className="prop-card-flag flag-warn">LANDMARK</span>
         )}
-        {property.retail_area > 0 && (
-          <span className="prop-card-flag flag-info">RETAIL: {formatNum(property.retail_area)} SF</span>
+        {property.retail_area > 5000 && (
+          <span className="prop-card-flag flag-warn">HIGH RETAIL EXPOSURE</span>
         )}
       </div>
     </div>

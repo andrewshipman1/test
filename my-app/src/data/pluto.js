@@ -56,7 +56,11 @@ export const NEIGHBORHOOD_PSF = {
 
 export function getDealType(bldgClass, landUse) {
   const bc = (bldgClass || '').toUpperCase()
-  if (landUse === '11' || bc.startsWith('V')) return 'VACANT'
+  const lu = (landUse || '').padStart(2, '0')
+  if (lu === '08' || lu === '09') return 'INSTITUTIONAL'
+  if (bc.startsWith('H') || bc.startsWith('P') || bc.startsWith('W') ||
+      ['M2', 'M9', 'I7'].includes(bc)) return 'INSTITUTIONAL'
+  if (lu === '11' || bc.startsWith('V')) return 'VACANT'
   if (['D4', 'D5'].includes(bc)) return 'COOP'
   if (bc.startsWith('R')) return 'CONDO'
   if (['E', 'F', 'L'].some(p => bc.startsWith(p))) return 'CONVERSION'
@@ -72,7 +76,7 @@ export function isLikelyRentStabilized(landUse, unitsRes, yearBuilt) {
     parseInt(yearBuilt) < 1974
 }
 
-export function computeScore(lot) {
+export function computeScore(lot, enrichments = {}) {
   let score = 0
   const residFar = parseFloat(lot.residfar || lot.res_far) || 0
   const builtFar = parseFloat(lot.builtfar || lot.built_far) || 0
@@ -81,26 +85,74 @@ export function computeScore(lot) {
   const farUtilization = residFar > 0 ? builtFar / residFar : 1
   const bc = (lot.bldgclass || lot.bldg_class || '').toUpperCase()
   const landUse = (lot.landuse || lot.land_use || '').padStart(2, '0')
+  const ownerType = (lot.ownertype || lot.owner_type || '').toUpperCase()
+  const exempttot = parseFloat(lot.exempttot || lot.exempt_total) || 0
+  const assesstot = parseFloat(lot.assesstot || lot.assess_total) || 0
 
+  // ── Early exits: properties that are essentially undevelopable ──
+
+  // Co-ops and condos — near-impossible to redevelop
   if (['D4', 'D5'].includes(bc) || bc.startsWith('R')) return 5
 
+  // Government-owned — not acquirable
+  if (ownerType === 'C' || ownerType === 'O') return 2
+
+  // Open space / parks (land use 09) — not developable
+  if (landUse === '09') return 2
+
+  // Institutional building classes — schools, churches, hospitals, universities
+  if (['H8', 'P2', 'M2', 'M9', 'I7', 'W5', 'W6', 'W7'].includes(bc) ||
+      bc.startsWith('H') && parseInt(bc[1]) >= 1 && parseInt(bc[1]) <= 9 ||
+      bc.startsWith('P') || bc.startsWith('W')) return 5
+
+  // Fully tax-exempt nonprofits — not acquirable by private developers
+  if (ownerType === 'X' && exempttot > 0 && assesstot > 0 && exempttot >= assesstot * 0.9) return 3
+
+  // Institutional land use (code 08) — penalize heavily even if not fully exempt
+  if (landUse === '08') return 8
+
+  // ── Positive signals ──
+
+  // Unused development rights
   if (availableFAR > 50000) score += 30
   else if (availableFAR > 20000) score += 20
   else if (availableFAR > 5000) score += 10
 
+  // Vacant land = best (but only if privately owned)
   if (landUse === '11') score += 25
 
+  // Under-utilized relative to zoning
   if (farUtilization < 0.5 && residFar > 2) score += 20
   else if (farUtilization < 0.75) score += 10
 
+  // Low-rise on high-FAR zone (teardown candidate)
   if ((parseFloat(lot.numfloors || lot.num_floors) || 0) < 3 && residFar >= 5) score += 15
 
+  // High-density zoning
   if (residFar >= 10) score += 10
   else if (residFar >= 6) score += 5
 
+  // Garage = easy teardown bonus
   if (bc.startsWith('G')) score += 8
 
-  if (isLikelyRentStabilized(lot.landuse || lot.land_use, lot.unitsres || lot.units_res, lot.yearbuilt || lot.year_built)) {
+  // ── Negative signals ──
+
+  // Partial tax exemption — property may have encumbrances
+  if (ownerType === 'X' && exempttot > 0) score -= 20
+  else if (exempttot > 0 && assesstot > 0 && exempttot > assesstot * 0.5) score -= 10
+
+  // Lot too small for meaningful development (<2,000 SF)
+  if (lotArea > 0 && lotArea < 2000) score -= 10
+
+  // Rent stabilization penalty — use confirmed data if available, else proxy
+  if (enrichments.confirmedRentStab !== undefined) {
+    if (enrichments.confirmedRentStab) {
+      const units = parseInt(lot.unitsres || lot.units_res) || 0
+      if (units > 50) score -= 15
+      else if (units > 20) score -= 10
+      else score -= 5
+    }
+  } else if (isLikelyRentStabilized(lot.landuse || lot.land_use, lot.unitsres || lot.units_res, lot.yearbuilt || lot.year_built)) {
     const units = parseInt(lot.unitsres || lot.units_res) || 0
     if (units > 50) score -= 15
     else if (units > 20) score -= 10
@@ -111,6 +163,9 @@ export function computeScore(lot) {
   if (retailArea > 10000) score -= 8
   else if (retailArea > 5000) score -= 5
   else if (retailArea > 0) score -= 3
+
+  // Historic district penalty
+  if (enrichments.isHistoricDistrict) score -= 10
 
   return Math.max(0, Math.min(100, Math.round(score)))
 }
@@ -162,6 +217,8 @@ function toFeature(lot, index) {
       year_built:       parseFloat(lot.yearbuilt) || 0,
       units_res:        parseFloat(lot.unitsres) || 0,
       assess_total:     parseFloat(lot.assesstot) || 0,
+      exempt_total:     parseFloat(lot.exempttot) || 0,
+      owner_type:       (lot.ownertype || '').toUpperCase(),
       available_far_sqft: availableFarSqft,
       score,
       deal_type:        getDealType(lot.bldgclass, landUse),
@@ -188,10 +245,10 @@ export async function loadAllLots() {
 
   _loading = (async () => {
     const selectFields = [
-      'bbl', 'address', 'zipcode', 'ownername', 'landuse', 'bldgclass',
+      'bbl', 'address', 'zipcode', 'ownername', 'ownertype', 'landuse', 'bldgclass',
       'zonedist1', 'lotarea', 'lotfront', 'lotdepth', 'bldgarea',
       'residfar', 'commfar', 'facilfar', 'builtfar', 'numfloors', 'yearbuilt',
-      'unitsres', 'assesstot', 'latitude', 'longitude',
+      'unitsres', 'assesstot', 'exempttot', 'latitude', 'longitude',
       'overlay1', 'cd', 'retailarea'
     ].join(',')
     const where = 'latitude IS NOT NULL AND longitude IS NOT NULL AND lotarea > 0'
