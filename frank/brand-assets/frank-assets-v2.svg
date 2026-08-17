@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FRANK. — Brand Assets v2.0
+  AI Deal Partner · Deal Intelligence · Manhattan
+  UPDATED MARK: Combined seal (A) + masthead wordmark (B)
+
+  WHAT CHANGED FROM v1
+  ─────────────────────────────────────────────
+  - Wordmark: was Playfair Display mixed-case "Frank."
+    Now: Georgia Bold ALL-CAPS "FRANK" with four-rule system
+  - Descriptor: "Deal Intelligence · Manhattan" (no year, no "Est.")
+  - Seal: unchanged geometry, now primary mark (not secondary)
+  - "Frank." period treatment: REMOVED from wordmark
+    Red now lives exclusively in: seal F monogram, red rule, cardinal dots
+  - Logo system: seal + masthead are one lockup, not separate elements
+
+  CONTENTS
+  ─────────────────────────────────────────────
+  01. Primary lockup — On paper (seal + masthead)
+  02. Primary lockup — On ink (seal + masthead)
+  03. Wordmark only — On paper
+  04. Wordmark only — On ink
+  05. Seal full — On paper 110px
+  06. Seal reduced — On ink 60px
+  07. Seal nav — On ink 32px
+  08. Seal small — On ink 20px
+  09. Favicon — On ink 16px
+  10. Nav lockup — Product UI dark
+  11. Nav lockup — Marketing light
+  12. Watermark — On memo (opacity 0.12)
+  13. Color swatches
+
+  WORDMARK SPEC
+  ─────────────────────────────────────────────
+  Font:       Georgia Bold
+  Case:       ALL CAPS
+  Tracking:   0.09em letter-spacing
+  Rule 1:     4px · #1A1714 (ink) — above name
+  Rule 2:     1px · #1A1714 (ink) — above name
+  Gap:        13px between rules and name
+  Rule 3:     1px · #8A8278 (column) — below name
+  Rule 4:     2.5px · #B83227 (red) — below name
+  Descriptor: IBM Plex Mono / Courier New · 8px
+              "Deal Intelligence · Manhattan"
+              color: #8A8278 · tracking: 0.22em · UPPERCASE
+
+  SEAL SPEC
+  ─────────────────────────────────────────────
+  Ring 1 (outer):  stroke 5.5px · #1A1714
+  Ring 2:          stroke 0.75px · #1A1714
+  Ring 3 (red):    stroke 1.5px · #B83227
+  Ring 4 (inner):  stroke 0.4px · #B83227
+  Cardinal dots:   r=4 · fill #B83227 · at 12/3/6/9
+  Arc top:         "FRANK" · Georgia 700 · 25px · tracking 19
+  Arc bottom:      "LICENSED · DEAL INTELLIGENCE" · Mono · 8px · tracking 3.5
+  F monogram:      Georgia 700 · 44px · fill #B83227 · centered
+  Center rule:     0.75px · #1A1714 · x:68–132 y:108
+  Center text 1:   "FRANK.AI" · Mono · 7.5px · y:120
+  Center text 2:   "NEW YORK" · Mono · 6.5px · y:131
+
+  SCALE BEHAVIOR
+  ─────────────────────────────────────────────
+  110px+    Full seal: all 4 rings, FRANK arc, descriptor arc,
+            F monogram, center rule + FRANK.AI + NEW YORK
+  60px      Reduced: outer 3 rings, FRANK arc only, F monogram
+  32px      Nav: 3 rings, F monogram — drop all text arcs
+  20px      Small: 2 rings, solid red center circle
+  16px fav  2 rings, solid red center circle (heavier strokes)
+
+  COLOR TOKENS
+  ─────────────────────────────────────────────
+  Ink:      #1A1714   Primary dark
+  Paper:    #F0E8DA   Light surface / text on dark
+  Paper Lt: #F8F2E8   Marketing background
+  Red:      #B83227   Seal accent, red rule, cardinal dots, F monogram
+  Red Lt:   #C8392D   Red on dark backgrounds
+  Column:   #8A8278   Labels, descriptor text
+  Lead:     #4A4540   Secondary text on light
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="680" viewBox="0 0 960 680">
+  <defs>
+    <style>
+      .asset-lbl { font-family: monospace; font-size: 10px; fill: #8A8278; letter-spacing: 0.1em; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="680" fill="#F8F2E8"/>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION LABELS
+       ═══════════════════════════════════════════ -->
+  <text class="asset-lbl" x="40"  y="22">01 — Primary lockup · Paper</text>
+  <text class="asset-lbl" x="500" y="22">02 — Primary lockup · Ink</text>
+  <text class="asset-lbl" x="40"  y="232">03 — Wordmark only · Paper</text>
+  <text class="asset-lbl" x="340" y="232">04 — Wordmark only · Ink</text>
+  <text class="asset-lbl" x="40"  y="390">05 — Seal 110px</text>
+  <text class="asset-lbl" x="200" y="390">06 — Seal 60px</text>
+  <text class="asset-lbl" x="340" y="390">07 — Nav 32px</text>
+  <text class="asset-lbl" x="460" y="390">08 — 20px</text>
+  <text class="asset-lbl" x="560" y="390">09 — Favicon</text>
+  <text class="asset-lbl" x="40"  y="530">10 — Nav lockup · Product dark</text>
+  <text class="asset-lbl" x="500" y="530">11 — Nav lockup · Marketing light</text>
+
+  <!-- ═══════════════════════════════════════════
+       01 — PRIMARY LOCKUP · PAPER
+       ═══════════════════════════════════════════ -->
+  <rect x="40" y="36" width="420" height="180" fill="#F8F2E8" stroke="#C8BFB0" stroke-width="0.5"/>
+
+  <!-- Seal at 100px -->
+  <g transform="translate(60,56)">
+    <defs>
+      <path id="at01" d="M 10,100 A 90,90 0 0,1 190,100"/>
+      <path id="ab01" d="M 28,126 A 78,78 0 0,0 172,126"/>
+    </defs>
+    <circle cx="100" cy="100" r="94" stroke="#1A1714" stroke-width="5.5" fill="none"/>
+    <circle cx="100" cy="100" r="86" stroke="#1A1714" stroke-width="0.75" fill="none"/>
+    <circle cx="100" cy="100" r="66" stroke="#B83227" stroke-width="1.5" fill="none"/>
+    <circle cx="100" cy="100" r="60" stroke="#B83227" stroke-width="0.4" fill="none"/>
+    <circle cx="100" cy="6"   r="4" fill="#B83227"/>
+    <circle cx="100" cy="194" r="4" fill="#B83227"/>
+    <circle cx="6"   cy="100" r="4" fill="#B83227"/>
+    <circle cx="194" cy="100" r="4" fill="#B83227"/>
+    <text font-family="Georgia,serif" font-size="25" font-weight="700" fill="#1A1714" letter-spacing="19">
+      <textPath href="#at01" startOffset="50%" text-anchor="middle">FRANK</textPath>
+    </text>
+    <text font-family="monospace" font-size="8" fill="#4A4540" letter-spacing="3.5">
+      <textPath href="#ab01" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTELLIGENCE</textPath>
+    </text>
+    <text x="100" y="88" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#B83227" text-anchor="middle" dominant-baseline="central">F</text>
+    <line x1="68" y1="108" x2="132" y2="108" stroke="#1A1714" stroke-width="0.75"/>
+    <text x="100" y="120" font-family="monospace" font-size="7.5" fill="#4A4540" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+    <text x="100" y="131" font-family="monospace" font-size="6.5" fill="#8A8278" text-anchor="middle" letter-spacing="1">NEW YORK</text>
+  </g>
+
+  <!-- Masthead wordmark — paper -->
+  <g transform="translate(185,66)">
+    <rect x="0" y="0" width="250" height="4" fill="#1A1714"/>
+    <rect x="0" y="7" width="250" height="1" fill="#1A1714"/>
+    <text x="0" y="64" font-family="Georgia,serif" font-size="58" font-weight="700" fill="#1A1714" letter-spacing="5">FRANK</text>
+    <rect x="0" y="72" width="250" height="1" fill="#8A8278"/>
+    <rect x="0" y="76" width="250" height="2.5" fill="#B83227"/>
+    <text x="0" y="89" font-family="monospace" font-size="8" fill="#8A8278" letter-spacing="3">DEAL INTELLIGENCE · MANHATTAN</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       02 — PRIMARY LOCKUP · INK
+       ═══════════════════════════════════════════ -->
+  <rect x="500" y="36" width="420" height="180" fill="#1A1714"/>
+
+  <!-- Seal reversed -->
+  <g transform="translate(520,56)">
+    <defs>
+      <path id="at02" d="M 10,100 A 90,90 0 0,1 190,100"/>
+      <path id="ab02" d="M 28,126 A 78,78 0 0,0 172,126"/>
+    </defs>
+    <circle cx="100" cy="100" r="94" stroke="#F0E8DA" stroke-width="5.5" fill="none"/>
+    <circle cx="100" cy="100" r="86" stroke="#F0E8DA" stroke-width="0.75" fill="none"/>
+    <circle cx="100" cy="100" r="66" stroke="#C8392D" stroke-width="1.5" fill="none"/>
+    <circle cx="100" cy="100" r="60" stroke="#C8392D" stroke-width="0.4" fill="none"/>
+    <circle cx="100" cy="6"   r="4" fill="#C8392D"/>
+    <circle cx="100" cy="194" r="4" fill="#C8392D"/>
+    <circle cx="6"   cy="100" r="4" fill="#C8392D"/>
+    <circle cx="194" cy="100" r="4" fill="#C8392D"/>
+    <text font-family="Georgia,serif" font-size="25" font-weight="700" fill="#F0E8DA" letter-spacing="19">
+      <textPath href="#at02" startOffset="50%" text-anchor="middle">FRANK</textPath>
+    </text>
+    <text font-family="monospace" font-size="8" fill="#8A8278" letter-spacing="3.5">
+      <textPath href="#ab02" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTELLIGENCE</textPath>
+    </text>
+    <text x="100" y="88" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#C8392D" text-anchor="middle" dominant-baseline="central">F</text>
+    <line x1="68" y1="108" x2="132" y2="108" stroke="#F0E8DA" stroke-width="0.75"/>
+    <text x="100" y="120" font-family="monospace" font-size="7.5" fill="#8A8278" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+    <text x="100" y="131" font-family="monospace" font-size="6.5" fill="#5C5650" text-anchor="middle" letter-spacing="1">NEW YORK</text>
+  </g>
+
+  <!-- Masthead wordmark — ink -->
+  <g transform="translate(645,66)">
+    <rect x="0" y="0" width="250" height="4" fill="#F0E8DA"/>
+    <rect x="0" y="7" width="250" height="1" fill="#F0E8DA"/>
+    <text x="0" y="64" font-family="Georgia,serif" font-size="58" font-weight="700" fill="#F0E8DA" letter-spacing="5">FRANK</text>
+    <rect x="0" y="72" width="250" height="1" fill="#5C5650"/>
+    <rect x="0" y="76" width="250" height="2.5" fill="#C8392D"/>
+    <text x="0" y="89" font-family="monospace" font-size="8" fill="#5C5650" letter-spacing="3">DEAL INTELLIGENCE · MANHATTAN</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       03 — WORDMARK ONLY · PAPER
+       ═══════════════════════════════════════════ -->
+  <rect x="40" y="246" width="275" height="120" fill="#F8F2E8" stroke="#C8BFB0" stroke-width="0.5"/>
+  <g transform="translate(58,262)">
+    <rect x="0" y="0" width="240" height="3.5" fill="#1A1714"/>
+    <rect x="0" y="6" width="240" height="0.75" fill="#1A1714"/>
+    <text x="0" y="57" font-family="Georgia,serif" font-size="46" font-weight="700" fill="#1A1714" letter-spacing="4">FRANK</text>
+    <rect x="0" y="64" width="240" height="0.75" fill="#8A8278"/>
+    <rect x="0" y="68" width="240" height="2" fill="#B83227"/>
+    <text x="0" y="80" font-family="monospace" font-size="7.5" fill="#8A8278" letter-spacing="2.5">DEAL INTELLIGENCE · MANHATTAN</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       04 — WORDMARK ONLY · INK
+       ═══════════════════════════════════════════ -->
+  <rect x="340" y="246" width="275" height="120" fill="#1A1714"/>
+  <g transform="translate(358,262)">
+    <rect x="0" y="0" width="240" height="3.5" fill="#F0E8DA"/>
+    <rect x="0" y="6" width="240" height="0.75" fill="#F0E8DA"/>
+    <text x="0" y="57" font-family="Georgia,serif" font-size="46" font-weight="700" fill="#F0E8DA" letter-spacing="4">FRANK</text>
+    <rect x="0" y="64" width="240" height="0.75" fill="#5C5650"/>
+    <rect x="0" y="68" width="240" height="2" fill="#C8392D"/>
+    <text x="0" y="80" font-family="monospace" font-size="7.5" fill="#5C5650" letter-spacing="2.5">DEAL INTELLIGENCE · MANHATTAN</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       05 — SEAL FULL 110px · PAPER
+       ═══════════════════════════════════════════ -->
+  <rect x="40" y="400" width="150" height="120" fill="#F8F2E8" stroke="#C8BFB0" stroke-width="0.5"/>
+  <g transform="translate(57,405) scale(0.55)">
+    <defs>
+      <path id="at05" d="M 10,100 A 90,90 0 0,1 190,100"/>
+      <path id="ab05" d="M 28,126 A 78,78 0 0,0 172,126"/>
+    </defs>
+    <circle cx="100" cy="100" r="94" stroke="#1A1714" stroke-width="5.5" fill="none"/>
+    <circle cx="100" cy="100" r="86" stroke="#1A1714" stroke-width="0.75" fill="none"/>
+    <circle cx="100" cy="100" r="66" stroke="#B83227" stroke-width="1.5" fill="none"/>
+    <circle cx="100" cy="100" r="60" stroke="#B83227" stroke-width="0.4" fill="none"/>
+    <circle cx="100" cy="6" r="4" fill="#B83227"/>
+    <circle cx="100" cy="194" r="4" fill="#B83227"/>
+    <circle cx="6" cy="100" r="4" fill="#B83227"/>
+    <circle cx="194" cy="100" r="4" fill="#B83227"/>
+    <text font-family="Georgia,serif" font-size="25" font-weight="700" fill="#1A1714" letter-spacing="19">
+      <textPath href="#at05" startOffset="50%" text-anchor="middle">FRANK</textPath>
+    </text>
+    <text font-family="monospace" font-size="8" fill="#4A4540" letter-spacing="3.5">
+      <textPath href="#ab05" startOffset="50%" text-anchor="middle">LICENSED · DEAL INTELLIGENCE</textPath>
+    </text>
+    <text x="100" y="88" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#B83227" text-anchor="middle" dominant-baseline="central">F</text>
+    <line x1="68" y1="108" x2="132" y2="108" stroke="#1A1714" stroke-width="0.75"/>
+    <text x="100" y="120" font-family="monospace" font-size="7.5" fill="#4A4540" text-anchor="middle" letter-spacing="2">FRANK.AI</text>
+  </g>
+  <text class="asset-lbl" x="70" y="512">110px · Full</text>
+
+  <!-- ═══════════════════════════════════════════
+       06 — SEAL REDUCED 60px · INK
+       ═══════════════════════════════════════════ -->
+  <rect x="200" y="400" width="130" height="120" fill="#1A1714"/>
+  <g transform="translate(225,420) scale(0.3)">
+    <defs><path id="at06" d="M 10,100 A 90,90 0 0,1 190,100"/></defs>
+    <circle cx="100" cy="100" r="94" stroke="#F0E8DA" stroke-width="6" fill="none"/>
+    <circle cx="100" cy="100" r="84" stroke="#F0E8DA" stroke-width="1.5" fill="none"/>
+    <circle cx="100" cy="100" r="63" stroke="#C8392D" stroke-width="2.5" fill="none"/>
+    <circle cx="100" cy="6" r="5" fill="#C8392D"/>
+    <circle cx="100" cy="194" r="5" fill="#C8392D"/>
+    <circle cx="6" cy="100" r="5" fill="#C8392D"/>
+    <circle cx="194" cy="100" r="5" fill="#C8392D"/>
+    <text font-family="Georgia,serif" font-size="26" font-weight="700" fill="#F0E8DA" letter-spacing="18">
+      <textPath href="#at06" startOffset="50%" text-anchor="middle">FRANK</textPath>
+    </text>
+    <text x="100" y="116" font-family="Georgia,serif" font-size="56" font-weight="700" fill="#C8392D" text-anchor="middle" dominant-baseline="central">F</text>
+  </g>
+  <text class="asset-lbl" x="220" y="512" fill="#5C5650">60px · Reduced</text>
+
+  <!-- ═══════════════════════════════════════════
+       07 — SEAL NAV 32px · INK
+       ═══════════════════════════════════════════ -->
+  <rect x="340" y="400" width="110" height="120" fill="#1A1714"/>
+  <g transform="translate(375,434)">
+    <circle cx="16" cy="16" r="15" stroke="#F0E8DA" stroke-width="1.12" fill="none"/>
+    <circle cx="16" cy="16" r="12.5" stroke="#F0E8DA" stroke-width="0.4" fill="none"/>
+    <circle cx="16" cy="16" r="9" stroke="#C8392D" stroke-width="0.56" fill="none"/>
+    <text x="16" y="16.5" font-family="Georgia,serif" font-size="10.5" font-weight="700" fill="#C8392D" text-anchor="middle" dominant-baseline="central">F</text>
+  </g>
+  <text class="asset-lbl" x="356" y="512" fill="#5C5650">32px · Nav</text>
+
+  <!-- ═══════════════════════════════════════════
+       08 — SEAL 20px · INK
+       ═══════════════════════════════════════════ -->
+  <rect x="460" y="400" width="90" height="120" fill="#1A1714"/>
+  <g transform="translate(495,440)">
+    <circle cx="10" cy="10" r="9.4" stroke="#F0E8DA" stroke-width="0.9" fill="none"/>
+    <circle cx="10" cy="10" r="7.2" stroke="#F0E8DA" stroke-width="0.3" fill="none"/>
+    <circle cx="10" cy="10" r="3" fill="#C8392D"/>
+  </g>
+  <text class="asset-lbl" x="470" y="512" fill="#5C5650">20px</text>
+
+  <!-- ═══════════════════════════════════════════
+       09 — FAVICON 16px · INK
+       ═══════════════════════════════════════════ -->
+  <rect x="560" y="400" width="90" height="120" fill="#1A1714"/>
+  <g transform="translate(597,441)">
+    <circle cx="8" cy="8" r="7.5" stroke="#F0E8DA" stroke-width="1.1" fill="none"/>
+    <circle cx="8" cy="8" r="5.4" stroke="#F0E8DA" stroke-width="0.4" fill="none"/>
+    <circle cx="8" cy="8" r="2.2" fill="#C8392D"/>
+  </g>
+  <text class="asset-lbl" x="568" y="512" fill="#5C5650">16px · Favicon</text>
+
+  <!-- ═══════════════════════════════════════════
+       10 — NAV LOCKUP · PRODUCT DARK
+       ═══════════════════════════════════════════ -->
+  <rect x="40" y="544" width="400" height="52" fill="#1A1714"/>
+  <!-- Left: seal + masthead mini -->
+  <g transform="translate(60,554)">
+    <!-- Seal 24px -->
+    <circle cx="12" cy="12" r="11.3" stroke="#F0E8DA" stroke-width="1.35" fill="none"/>
+    <circle cx="12" cy="12" r="9.4" stroke="#F0E8DA" stroke-width="0.4" fill="none"/>
+    <circle cx="12" cy="12" r="6.8" stroke="#C8392D" stroke-width="0.85" fill="none"/>
+    <text x="12" y="12.5" font-family="Georgia,serif" font-size="8" font-weight="700" fill="#C8392D" text-anchor="middle" dominant-baseline="central">F</text>
+  </g>
+  <g transform="translate(90,553)">
+    <rect x="0" y="0" width="72" height="2" fill="#F0E8DA"/>
+    <rect x="0" y="3.5" width="72" height="0.5" fill="#F0E8DA"/>
+    <text x="0" y="19" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#F0E8DA" letter-spacing="1.4">FRANK</text>
+    <rect x="0" y="22.5" width="72" height="0.5" fill="#5C5650"/>
+    <rect x="0" y="25" width="72" height="1.5" fill="#C8392D"/>
+    <text x="0" y="34" font-family="monospace" font-size="7" fill="#5C5650" letter-spacing="1.5">DEAL INTELLIGENCE</text>
+  </g>
+  <!-- Divider -->
+  <rect x="210" y="544" width="0.5" height="52" fill="#2C2825"/>
+  <!-- Center section label -->
+  <text x="228" y="575" font-family="monospace" font-size="9" fill="#5C5650" letter-spacing="2">MANHATTAN</text>
+  <!-- Right -->
+  <text x="340" y="575" font-family="monospace" font-size="9" fill="#5C5650" letter-spacing="2">DEAL SOURCING</text>
+  <circle cx="426" cy="570" r="3" fill="#B83227"/>
+
+  <!-- ═══════════════════════════════════════════
+       11 — NAV LOCKUP · MARKETING LIGHT
+       ═══════════════════════════════════════════ -->
+  <rect x="500" y="544" width="420" height="52" fill="#F8F2E8" stroke="#C8BFB0" stroke-width="0.5"/>
+  <!-- Seal -->
+  <g transform="translate(520,554)">
+    <defs><path id="at11" d="M 3,12 A 9,9 0 0,1 21,12"/></defs>
+    <circle cx="12" cy="12" r="11.3" stroke="#1A1714" stroke-width="1.35" fill="none"/>
+    <circle cx="12" cy="12" r="9.4" stroke="#1A1714" stroke-width="0.4" fill="none"/>
+    <circle cx="12" cy="12" r="6.8" stroke="#B83227" stroke-width="0.85" fill="none"/>
+    <circle cx="12" cy="0.7" r="0.8" fill="#B83227"/>
+    <circle cx="12" cy="23.3" r="0.8" fill="#B83227"/>
+    <circle cx="0.7" cy="12" r="0.8" fill="#B83227"/>
+    <circle cx="23.3" cy="12" r="0.8" fill="#B83227"/>
+    <text font-family="Georgia,serif" font-size="3" font-weight="700" fill="#1A1714" letter-spacing="2.8">
+      <textPath href="#at11" startOffset="50%" text-anchor="middle">FRANK</textPath>
+    </text>
+    <text x="12" y="14" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#B83227" text-anchor="middle" dominant-baseline="central">F</text>
+  </g>
+  <g transform="translate(553,553)">
+    <rect x="0" y="0" width="72" height="2" fill="#1A1714"/>
+    <rect x="0" y="3.5" width="72" height="0.5" fill="#1A1714"/>
+    <text x="0" y="19" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#1A1714" letter-spacing="1.4">FRANK</text>
+    <rect x="0" y="22.5" width="72" height="0.5" fill="#8A8278"/>
+    <rect x="0" y="25" width="72" height="1.5" fill="#B83227"/>
+    <text x="0" y="34" font-family="monospace" font-size="7" fill="#8A8278" letter-spacing="1.5">DEAL INTELLIGENCE</text>
+  </g>
+  <text x="800" y="575" font-family="monospace" font-size="9" fill="#8A8278" letter-spacing="2" text-anchor="end">INVITE ONLY</text>
+
+  <!-- ═══════════════════════════════════════════
+       COLOR SWATCHES
+       ═══════════════════════════════════════════ -->
+  <text class="asset-lbl" x="40" y="614">Color tokens</text>
+  <rect x="40"  y="622" width="90" height="28" fill="#1A1714"/>
+  <rect x="138" y="622" width="90" height="28" fill="#F0E8DA" stroke="#C8BFB0" stroke-width="0.5"/>
+  <rect x="236" y="622" width="90" height="28" fill="#F8F2E8" stroke="#C8BFB0" stroke-width="0.5"/>
+  <rect x="334" y="622" width="90" height="28" fill="#B83227"/>
+  <rect x="432" y="622" width="90" height="28" fill="#8A8278"/>
+  <rect x="530" y="622" width="90" height="28" fill="#4A4540"/>
+  <rect x="628" y="622" width="90" height="28" fill="#C8BFB0" stroke="#C8BFB0" stroke-width="0.5"/>
+
+  <text x="40"  y="662" font-family="monospace" font-size="8" fill="#8A8278">#1A1714 INK</text>
+  <text x="138" y="662" font-family="monospace" font-size="8" fill="#8A8278">#F0E8DA PAPER</text>
+  <text x="236" y="662" font-family="monospace" font-size="8" fill="#8A8278">#F8F2E8 PAPER LT</text>
+  <text x="334" y="662" font-family="monospace" font-size="8" fill="#8A8278">#B83227 RED</text>
+  <text x="432" y="662" font-family="monospace" font-size="8" fill="#8A8278">#8A8278 COLUMN</text>
+  <text x="530" y="662" font-family="monospace" font-size="8" fill="#8A8278">#4A4540 LEAD</text>
+  <text x="628" y="662" font-family="monospace" font-size="8" fill="#8A8278">#C8BFB0 PRESS</text>
+
+</svg>
